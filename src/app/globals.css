@@ -1,0 +1,126 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ===========================================================================
+   GETIN · tokens de marca
+   Negro de fondo, blanco para texto, amarillo lima solo para la accion.
+   El amarillo es un acento, no un relleno: si todo es lima, nada destaca.
+   =========================================================================== */
+:root {
+  --getin-ink: 0 0% 0%;
+  --getin-paper: 0 0% 100%;
+  --getin-lime: 68 100% 50%;
+  --getin-surface: 0 0% 9.4%;
+  --getin-muted: 0 0% 64%;
+
+  --radius: 0.75rem;
+  color-scheme: dark;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    @apply bg-ink text-paper antialiased;
+    font-feature-settings: "cv11", "ss01";
+  }
+
+  /* Foco visible siempre: requisito de accesibilidad, no un detalle. */
+  :focus-visible {
+    @apply outline-none ring-2 ring-lime ring-offset-2 ring-offset-ink;
+  }
+
+  ::selection {
+    @apply bg-lime text-ink;
+  }
+
+  h1, h2, h3, h4 {
+    @apply font-display tracking-tight;
+  }
+
+  /* Tipografia de display mas apretada en titulares grandes. */
+  .text-display {
+    @apply font-display font-bold tracking-[-0.03em];
+  }
+}
+
+@layer components {
+  /* Superficie estandar de tarjeta. */
+  .surface {
+    @apply rounded-2xl border border-white/10 bg-surface;
+  }
+
+  .surface-hover {
+    @apply transition-colors hover:border-white/25;
+  }
+
+  /* Degradado sobre las fotos para que el texto encima se lea siempre. */
+  .photo-scrim {
+    background: linear-gradient(
+      to top,
+      rgba(0, 0, 0, 0.95) 0%,
+      rgba(0, 0, 0, 0.65) 35%,
+      rgba(0, 0, 0, 0.15) 70%,
+      rgba(0, 0, 0, 0.35) 100%
+    );
+  }
+
+  .hero-scrim {
+    background:
+      radial-gradient(70% 60% at 50% 0%, rgba(223, 255, 0, 0.10) 0%, transparent 60%),
+      linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.80) 55%, #000 100%);
+  }
+
+  /* Borde punteado de los tickets digitales. */
+  .ticket-notch {
+    background-image: radial-gradient(circle at 0 50%, transparent 10px, hsl(var(--getin-surface)) 10px),
+      radial-gradient(circle at 100% 50%, transparent 10px, hsl(var(--getin-surface)) 10px);
+    background-position: left center, right center;
+    background-repeat: no-repeat;
+    background-size: 51% 100%, 51% 100%;
+  }
+
+  .skeleton {
+    @apply relative overflow-hidden rounded-lg bg-white/[0.06];
+  }
+
+  .skeleton::after {
+    content: "";
+    @apply absolute inset-0 -translate-x-full;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.06), transparent);
+    animation: getin-shimmer 1.6s infinite;
+  }
+}
+
+@keyframes getin-shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Barra de desplazamiento discreta en los carruseles horizontales. */
+.scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+/* Respeta a quien pide menos movimiento. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

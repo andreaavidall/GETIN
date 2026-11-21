@@ -1,0 +1,54 @@
+# Configuracion del entorno local de Supabase (supabase start).
+# No contiene secretos: las claves locales las imprime la CLI al arrancar.
+project_id = "getin"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "storage", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+shadow_port = 54320
+major_version = 15
+
+[db.seed]
+enabled = true
+sql_paths = ["./seed.sql"]
+
+[studio]
+enabled = true
+port = 54323
+
+[local_smtp]
+# Captura de correos en local (confirmaciones de registro, etc.).
+# Antes se llamaba [inbucket]; la CLI 3.x lo renombro.
+enabled = true
+port = 54324
+
+[storage]
+enabled = true
+file_size_limit = "10MiB"
+
+[auth]
+enabled = true
+site_url = "http://localhost:3000"
+additional_redirect_urls = ["http://localhost:3000/auth/callback"]
+jwt_expiry = 3600
+enable_refresh_token_rotation = true
+refresh_token_reuse_interval = 10
+enable_signup = true
+enable_anonymous_sign_ins = false
+
+[auth.email]
+enable_signup = true
+double_confirm_changes = true
+# En local no pedimos confirmacion para poder probar rapido.
+enable_confirmations = false
+secure_password_change = true
+
+[auth.sessions]
+# Cierra sesiones inactivas a los 30 dias.
+inactivity_timeout = "720h"
