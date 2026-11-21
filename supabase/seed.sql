@@ -234,7 +234,7 @@ insert into ticket_types (
 ) values
   -- Saturday House
   ('b0000000-0000-4000-8000-000000000001', 'Preventa', 'Cupo limitado, primera tanda.',
-   4500, 150, 118, 4, now() - interval '10 days', now() + interval '4 days',
+   4500, 150, 118, 4, now() - interval '10 days', (select starts_at - interval '3 hours' from events where id = 'b0000000-0000-4000-8000-000000000001'),
    'Válida solo hasta las 00:30. No incluye consumo.', 0),
   ('b0000000-0000-4000-8000-000000000001', 'General', 'Ingreso a los tres ambientes.',
    7000, 400, 96, 6, now() - interval '10 days', null, 'No incluye consumo.', 1),
@@ -244,7 +244,7 @@ insert into ticket_types (
 
   -- Sunset Rooftop
   ('b0000000-0000-4000-8000-000000000002', 'Early Bird', 'Ingreso antes de las 20:00.',
-   3500, 80, 80, 2, now() - interval '14 days', now() + interval '3 days',
+   3500, 80, 80, 2, now() - interval '14 days', (select starts_at - interval '3 hours' from events where id = 'b0000000-0000-4000-8000-000000000002'),
    'Agotada. Ingreso hasta las 20:00.', 0),
   ('b0000000-0000-4000-8000-000000000002', 'General', 'Ingreso general al rooftop.',
    6000, 200, 54, 6, now() - interval '14 days', null, 'Aforo limitado.', 1),
@@ -253,7 +253,7 @@ insert into ticket_types (
   ('b0000000-0000-4000-8000-000000000003', 'General', 'Ingreso general.',
    3000, 350, 140, 8, now() - interval '5 days', null, 'No incluye consumo.', 0),
   ('b0000000-0000-4000-8000-000000000003', 'Preventa pareja', 'Dos ingresos.',
-   5000, 100, 31, 2, now() - interval '5 days', now() + interval '8 days',
+   5000, 100, 31, 2, now() - interval '5 days', (select starts_at - interval '24 hours' from events where id = 'b0000000-0000-4000-8000-000000000003'),
    'Equivale a dos personas. Ingreso conjunto.', 1),
 
   -- Techno Session
@@ -265,10 +265,10 @@ insert into ticket_types (
 
   -- Aniversario
   ('b0000000-0000-4000-8000-000000000005', 'Early Bird', 'Precio de lanzamiento.',
-   8000, 200, 23, 4, now() - interval '1 day', now() + interval '14 days',
+   8000, 200, 23, 4, now() - interval '1 day', (select starts_at - interval '17 days' from events where id = 'b0000000-0000-4000-8000-000000000005'),
    'Cupo limitado.', 0),
   ('b0000000-0000-4000-8000-000000000005', 'General', 'Ingreso general.',
-   12000, 500, 0, 6, now() + interval '14 days', null, 'No incluye consumo.', 1)
+   12000, 500, 0, 6, (select starts_at - interval '17 days' from events where id = 'b0000000-0000-4000-8000-000000000005'), null, 'No incluye consumo.', 1)
 on conflict do nothing;
 
 -- -------------------------------------------------------------- mesas VIP ---

@@ -90,26 +90,47 @@ export function TablePicker({
                     </Badge>
                   </div>
 
+                  {/* Tres cifras que la gente confunde: lo que cuesta la mesa,
+                      lo que paga ahora y lo que debera pagar en la puerta. El
+                      consumo minimo es ADEMAS, no parte del precio: decirlo mal
+                      acaba en una discusion con el local. */}
                   <dl className="mt-3 space-y-1.5 border-t border-white/5 pt-3 text-xs">
                     <div className="flex justify-between">
                       <dt className="text-muted">Precio de la mesa</dt>
                       <dd className="font-medium">{formatPEN(table.priceCents)}</dd>
                     </div>
                     <div className="flex justify-between">
-                      <dt className="text-muted">Adelanto ahora</dt>
+                      <dt className="text-muted">Pagas ahora (adelanto)</dt>
                       <dd className="font-semibold text-lime">{formatPEN(table.depositCents)}</dd>
                     </div>
                     <div className="flex justify-between">
-                      <dt className="text-muted">Saldo en el local</dt>
+                      <dt className="text-muted">Saldo de la mesa en el local</dt>
                       <dd>{formatPEN(tableBalanceDueCents(table))}</dd>
                     </div>
                     {table.minConsumptionCents > 0 ? (
-                      <div className="flex justify-between">
-                        <dt className="text-muted">Consumo minimo</dt>
-                        <dd>{formatPEN(table.minConsumptionCents)}</dd>
-                      </div>
+                      <>
+                        <div className="flex justify-between">
+                          <dt className="text-muted">
+                            Consumo minimo <span className="text-muted/70">(aparte)</span>
+                          </dt>
+                          <dd>{formatPEN(table.minConsumptionCents)}</dd>
+                        </div>
+                        <div className="flex justify-between border-t border-white/5 pt-1.5">
+                          <dt className="font-medium">Total a pagar en el local</dt>
+                          <dd className="font-semibold">
+                            {formatPEN(tableBalanceDueCents(table) + table.minConsumptionCents)}
+                          </dd>
+                        </div>
+                      </>
                     ) : null}
                   </dl>
+
+                  {table.minConsumptionCents > 0 ? (
+                    <p className="mt-2 rounded-lg bg-amber-400/[0.07] px-3 py-2 text-[11px] text-amber-100/80">
+                      El consumo minimo <strong className="font-semibold">no esta incluido</strong>{" "}
+                      en el precio de la mesa: se gasta en barra dentro del local.
+                    </p>
+                  ) : null}
 
                   {table.conditions ? (
                     <p className="mt-3 text-[11px] text-muted">{table.conditions}</p>
@@ -143,8 +164,11 @@ export function TablePicker({
       ))}
 
       <p className="text-xs text-muted">
-        Una mesa reservada no se vende a nadie mas para este evento. Mientras completas el pago
-        queda retenida unos minutos; si no pagas, vuelve a estar disponible.
+        Al reservar pagas solo el adelanto, al que se suma el cargo por servicio de GETIN. El
+        saldo de la mesa y el consumo minimo se abonan en el local, y el consumo minimo es
+        independiente del precio de la mesa. Una mesa reservada no se vende a nadie mas para este
+        evento: mientras completas el pago queda retenida unos minutos y, si no pagas, vuelve a
+        estar disponible.
       </p>
     </div>
   );

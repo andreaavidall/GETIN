@@ -69,6 +69,32 @@ function nextFriday(hour = 19): Date {
   return at(delta, hour);
 }
 
+/**
+ * Horas relativas al INICIO de cada evento.
+ *
+ * Todas las fechas de un evento (cierre, puertas, ultimo ingreso, ventanas de
+ * venta, cierre de listas) se derivan de su `startsAt`. Antes cada una era un
+ * desfase independiente desde "hoy", y eso producia incoherencias visibles: la
+ * preventa del sabado cerraba "dentro de 4 dias" mientras el evento era "el
+ * proximo sabado", que segun el dia podia estar a uno o dos. Es decir, la venta
+ * cerraba despues de la fiesta.
+ */
+function before(start: Date, hours: number): Date {
+  return new Date(start.getTime() - hours * HOUR);
+}
+
+function after(start: Date, hours: number): Date {
+  return new Date(start.getTime() + hours * HOUR);
+}
+
+// Inicio de cada evento del catalogo de demostracion. Se calcula una sola vez
+// y de el cuelga todo lo demas.
+const START_SATURDAY = nextSaturday(23);
+const START_FRIDAY = nextFriday(19);
+const START_LATIN = at(10, 22);
+const START_TECHNO = at(17, 23, 30);
+const START_ANNIVERSARY = at(31, 23);
+
 const ticket = (
   id: string,
   name: string,
@@ -227,10 +253,10 @@ const SEEDS: DemoEventSeed[] = [
       "Tres ambientes, dos pistas y la terraza abierta hasta el cierre. House melódico en la pista principal y selección urbana en el patio.",
     coverUrl:
       "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=1600&q=70",
-    startsAt: nextSaturday(23),
-    endsAt: new Date(nextSaturday(23).getTime() + 7 * HOUR),
-    doorsOpenAt: new Date(nextSaturday(23).getTime() - HOUR),
-    lastEntryAt: new Date(nextSaturday(23).getTime() + 4 * HOUR),
+    startsAt: START_SATURDAY,
+    endsAt: after(START_SATURDAY, 7),
+    doorsOpenAt: before(START_SATURDAY, 1),
+    lastEntryAt: after(START_SATURDAY, 4),
     minAge: 20,
     musicGenres: ["House", "Reggaeton"],
     isDemo: true,
@@ -248,7 +274,8 @@ const SEEDS: DemoEventSeed[] = [
         description: "Cupo limitado, primera tanda.",
         conditions: "Válida solo hasta las 00:30. No incluye consumo.",
         maxPerOrder: 4,
-        salesEndAt: at(4, 20),
+        // Cierra tres horas antes de que abran las puertas, nunca despues.
+        salesEndAt: before(START_SATURDAY, 3),
       }),
       ticket("t1-general", "General", 7000, 400, 96, {
         description: "Ingreso a los tres ambientes.",
@@ -292,8 +319,8 @@ const SEEDS: DemoEventSeed[] = [
         description: "Inscríbete y entra sin costo antes de las 00:30.",
         capacity: 120,
         confirmedCount: 64,
-        signupDeadline: new Date(nextSaturday(23).getTime() - 3 * HOUR),
-        lastEntryAt: new Date(nextSaturday(23).getTime() + 1.5 * HOUR),
+        signupDeadline: before(START_SATURDAY, 3),
+        lastEntryAt: after(START_SATURDAY, 1.5),
         conditions:
           "El ingreso depende del aforo autorizado del local y del criterio de admisión. La inscripción no garantiza el acceso.",
         benefits: "Sin costo de entrada antes de las 00:30.",
@@ -311,10 +338,10 @@ const SEEDS: DemoEventSeed[] = [
       "Sesión de deep house desde las 7 p.m. con la puesta de sol de Miraflores de fondo. Coctelería de autor y cena ligera disponible.",
     coverUrl:
       "https://images.unsplash.com/photo-1571266028243-e4733b0f0bb0?w=1600&q=70",
-    startsAt: nextFriday(19),
-    endsAt: new Date(nextFriday(19).getTime() + 7 * HOUR),
-    doorsOpenAt: new Date(nextFriday(19).getTime() - 30 * 60_000),
-    lastEntryAt: new Date(nextFriday(19).getTime() + 5 * HOUR),
+    startsAt: START_FRIDAY,
+    endsAt: after(START_FRIDAY, 7),
+    doorsOpenAt: before(START_FRIDAY, 0.5),
+    lastEntryAt: after(START_FRIDAY, 5),
     minAge: 21,
     musicGenres: ["Deep House", "Disco"],
     isDemo: true,
@@ -348,10 +375,10 @@ const SEEDS: DemoEventSeed[] = [
       "Orquesta en vivo a medianoche y DJ urbano después. La noche más concurrida de San Isidro.",
     coverUrl:
       "https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=1600&q=70",
-    startsAt: at(10, 22),
-    endsAt: at(11, 5),
-    doorsOpenAt: at(10, 21),
-    lastEntryAt: at(11, 2),
+    startsAt: START_LATIN,
+    endsAt: after(START_LATIN, 7),
+    doorsOpenAt: before(START_LATIN, 1),
+    lastEntryAt: after(START_LATIN, 4),
     minAge: 18,
     musicGenres: ["Salsa", "Reggaeton", "Urbano"],
     isDemo: true,
@@ -372,7 +399,7 @@ const SEEDS: DemoEventSeed[] = [
         description: "Dos ingresos.",
         conditions: "Equivale a dos personas. Ingreso conjunto.",
         maxPerOrder: 2,
-        salesEndAt: at(8, 23),
+        salesEndAt: before(START_LATIN, 24),
       }),
     ],
     tables: [table("tb6", "Mesa 10", "Pista", 4, 45000, 15000, 30000, "available", "Hasta 4 personas.")],
@@ -383,8 +410,8 @@ const SEEDS: DemoEventSeed[] = [
         description: "Lista de cortesía con aprobación del local.",
         capacity: 80,
         confirmedCount: 22,
-        signupDeadline: at(9, 23),
-        lastEntryAt: at(10, 23, 30),
+        signupDeadline: before(START_LATIN, 24),
+        lastEntryAt: after(START_LATIN, 1.5),
         conditions: "Sujeta a aprobación y al aforo del local. No garantiza el ingreso.",
         benefits: "Ingreso sin costo antes de las 23:30.",
         autoApprove: false,
@@ -401,10 +428,10 @@ const SEEDS: DemoEventSeed[] = [
       "Sótano, luces mínimas y sonido Funktion-One. Entrada por aforo estricto de 300 personas.",
     coverUrl:
       "https://images.unsplash.com/photo-1598387993441-a364f854c3e1?w=1600&q=70",
-    startsAt: at(17, 23, 30),
-    endsAt: at(18, 6),
-    doorsOpenAt: at(17, 23),
-    lastEntryAt: at(18, 2),
+    startsAt: START_TECHNO,
+    endsAt: after(START_TECHNO, 6.5),
+    doorsOpenAt: before(START_TECHNO, 0.5),
+    lastEntryAt: after(START_TECHNO, 2.5),
     minAge: 18,
     musicGenres: ["Techno"],
     isDemo: true,
@@ -438,10 +465,10 @@ const SEEDS: DemoEventSeed[] = [
       "Edición aniversario con los tres ambientes conectados y invitados internacionales.",
     coverUrl:
       "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=1600&q=70",
-    startsAt: at(31, 23),
-    endsAt: at(32, 7),
-    doorsOpenAt: at(31, 22),
-    lastEntryAt: at(32, 3),
+    startsAt: START_ANNIVERSARY,
+    endsAt: after(START_ANNIVERSARY, 8),
+    doorsOpenAt: before(START_ANNIVERSARY, 1),
+    lastEntryAt: after(START_ANNIVERSARY, 4),
     minAge: 20,
     musicGenres: ["House", "Techno"],
     isDemo: true,
@@ -454,12 +481,12 @@ const SEEDS: DemoEventSeed[] = [
         description: "Precio de lanzamiento.",
         conditions: "Cupo limitado.",
         maxPerOrder: 4,
-        salesEndAt: at(14, 23),
+        salesEndAt: before(START_ANNIVERSARY, 24 * 17),
       }),
       ticket("t5-general", "General", 12000, 500, 0, {
         description: "Ingreso general.",
         conditions: "No incluye consumo.",
-        salesStartAt: at(14, 0),
+        salesStartAt: before(START_ANNIVERSARY, 24 * 17),
       }),
     ],
     tables: [],

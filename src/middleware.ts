@@ -14,10 +14,21 @@ import { isSupabaseConfigured, publicEnv } from "@/lib/env";
  */
 const PROTECTED_PREFIXES = ["/cuenta", "/club", "/admin", "/puerta", "/checkout"];
 
+/**
+ * Rutas que caen bajo un prefijo privado pero son publicas a proposito.
+ *
+ * `/club/registro` es la pagina con la que un local decide si quiere publicar
+ * en GETIN: tiene que poder leerla cualquiera, sin cuenta. Solo el formulario
+ * de envio pide sesion, y eso lo resuelve la propia pagina.
+ */
+const PUBLIC_EXCEPTIONS = ["/club/registro"];
+
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({ request });
   const { pathname } = request.nextUrl;
-  const needsSession = PROTECTED_PREFIXES.some((p) => pathname.startsWith(p));
+  const needsSession =
+    PROTECTED_PREFIXES.some((p) => pathname.startsWith(p)) &&
+    !PUBLIC_EXCEPTIONS.some((p) => pathname === p || pathname.startsWith(`${p}/`));
 
   if (!isSupabaseConfigured()) {
     // Modo demo: el catalogo funciona, las zonas privadas avisan que falta

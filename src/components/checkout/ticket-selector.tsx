@@ -14,7 +14,7 @@ import {
   isOnSale,
   remainingTickets,
 } from "@/lib/domain/availability";
-import { computeOrderTotals, DEFAULT_PRICING } from "@/lib/domain/pricing";
+import { applyBps, computeOrderTotals, DEFAULT_PRICING } from "@/lib/domain/pricing";
 import { formatPEN } from "@/lib/utils";
 import type { TicketTypeView } from "@/types/catalog";
 
@@ -122,7 +122,18 @@ export function TicketSelector({
           Entradas
         </h2>
         <p className="mt-1 text-xs text-muted">
-          Precios por persona. El cargo por servicio se muestra abajo.
+          Precios por persona, fijados por el local.
+        </p>
+        {/* El cargo se anuncia ANTES de elegir, no solo al final: quien mira
+            los precios debe saber ya lo que va a pagar de mas. */}
+        <p className="mt-2 rounded-lg bg-white/[0.04] px-3 py-2 text-xs text-muted">
+          A estos precios se suma un{" "}
+          <strong className="font-semibold text-paper">
+            cargo por servicio del {(DEFAULT_PRICING.commissionBps / 100).toFixed(0)}%
+          </strong>
+          . Por ejemplo, una entrada de {formatPEN(7000)} son{" "}
+          {formatPEN(7000 + applyBps(7000, DEFAULT_PRICING.commissionBps))} en total. Lo ves
+          desglosado aqui mismo al elegir, y otra vez antes de pagar.
         </p>
       </div>
 
