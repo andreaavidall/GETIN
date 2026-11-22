@@ -13,8 +13,8 @@ import { createSupabaseAdminClient } from "@/lib/supabase/server";
  * Puente del SIMULADOR de pagos (solo con PAYMENTS_PROVIDER=test).
  *
  * Firma un webhook con el secreto del servidor y lo entrega al endpoint real
- * /api/webhooks/pagos. De esta forma el camino de confirmacion que se ejercita
- * en desarrollo es exactamente el de produccion, incluida la verificacion de
+ * /api/webhooks/pagos. De esta forma el camino de confirmación que se ejercita
+ * en desarrollo es exactamente el de produccion, incluida la verificación de
  * firma y la idempotencia.
  *
  * Con un proveedor real esta ruta responde 404.
@@ -34,11 +34,11 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "no disponible" }, { status: 404 });
   }
 
-  // Aunque sea un simulador, exige sesion y que la orden sea del usuario:
+  // Aunque sea un simulador, exige sesión y que la orden sea del usuario:
   // no debe servir para confirmar la orden de otra persona.
   const session = await getSession();
   if (!session) {
-    return NextResponse.json({ error: "necesitas iniciar sesion" }, { status: 401 });
+    return NextResponse.json({ error: "necesitas iniciar sesión" }, { status: 401 });
   }
 
   const parsed = bodySchema.safeParse(await request.json());

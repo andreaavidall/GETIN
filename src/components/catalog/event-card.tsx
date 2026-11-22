@@ -2,6 +2,7 @@ import { BadgeCheck, CalendarDays, MapPin } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
+import { FavoriteButton } from "@/components/catalog/favorite-button";
 import { AvailabilityBadge, Badge } from "@/components/ui/badge";
 import { cn, formatEventDate, formatPENShort, relativeDay } from "@/lib/utils";
 import type { EventSummary } from "@/types/catalog";
@@ -10,13 +11,29 @@ export function EventCard({
   event,
   priority = false,
   className,
+  favorite,
 }: {
   event: EventSummary;
   priority?: boolean;
   className?: string;
+  /** Si llega, se pinta el corazon. Las paginas de demostracion no lo pasan. */
+  favorite?: { saved: boolean; isAuthenticated: boolean };
 }) {
   return (
-    <article className={cn("surface surface-hover group overflow-hidden", className)}>
+    <article className={cn("surface surface-hover group relative overflow-hidden", className)}>
+      {favorite ? (
+        // Fuera del Link a proposito: un boton dentro de un enlace no es HTML
+        // valido y rompe la navegacion con teclado.
+        <div className="absolute right-3 top-3 z-10">
+          <FavoriteButton
+            target="event"
+            id={event.id}
+            initial={favorite.saved}
+            isAuthenticated={favorite.isAuthenticated}
+            next={`/eventos/${event.slug}`}
+          />
+        </div>
+      ) : null}
       <Link href={`/eventos/${event.slug}`} className="block focus-visible:ring-inset">
         <div className="relative aspect-[4/3] overflow-hidden bg-white/5">
           {event.coverUrl ? (
@@ -54,7 +71,7 @@ export function EventCard({
             <div className="min-w-0">
               <p className="flex items-center gap-1 truncate text-sm font-medium">
                 {event.venue.name}
-                {event.venue.isVerified ? (
+                {event.venue.isVerified && !event.isDemo ? (
                   <BadgeCheck
                     className="size-3.5 shrink-0 text-lime"
                     aria-label="Local verificado"

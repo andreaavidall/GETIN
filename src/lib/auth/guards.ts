@@ -11,14 +11,14 @@ import {
 } from "@/lib/domain/permissions";
 
 /**
- * Guards de servidor. Son la barrera real de autorizacion de la aplicacion:
- * cada pagina privada y cada server action empieza llamando a uno de estos.
+ * Guards de servidor. Son la barrera real de autorización de la aplicación:
+ * cada página privada y cada server action empieza llamando a uno de estos.
  *
- * Conviven con RLS a proposito: si un dia se escapa una consulta sin guard, la
- * base sigue negando; y si una politica de RLS se afloja, el guard sigue negando.
+ * Conviven con RLS a proposito: si un día se escapa una consulta sin guard, la
+ * base sigue negando; y si una política de RLS se afloja, el guard sigue negando.
  */
 
-/** Exige sesion. Redirige al login conservando el destino. */
+/** Exige sesión. Redirige al login conservando el destino. */
 export async function requireSession(nextPath?: string): Promise<Session> {
   const session = await getSession();
   if (!session) {
@@ -47,7 +47,7 @@ export async function requireVenue(
 }
 
 /**
- * Para el panel de local: devuelve la sesion y el local activo.
+ * Para el panel de local: devuelve la sesión y el local activo.
  * Si el usuario no gestiona ninguno, lo manda a crear su solicitud.
  */
 export async function requireActiveVenue(preferredVenueId?: string): Promise<{
@@ -80,7 +80,7 @@ export async function requireSuperadmin(): Promise<Session> {
   return session;
 }
 
-/** Version no lanzable, para decidir que enseñar en la interfaz. */
+/** Versión no lanzable, para decidir que enseñar en la interfaz. */
 export async function hasPermission(action: Action, venueId?: string): Promise<boolean> {
   const session = await getSession();
   return can(session?.actor ?? null, action, venueId);

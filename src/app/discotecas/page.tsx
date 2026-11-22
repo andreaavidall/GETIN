@@ -5,7 +5,9 @@ import { Suspense } from "react";
 import { VenueCard } from "@/components/catalog/venue-card";
 import { Button } from "@/components/ui/button";
 import { DemoNotice, EmptyState, EventGridSkeleton } from "@/components/ui/feedback";
+import { getSession } from "@/lib/auth/session";
 import { isDemoMode, listVenues } from "@/lib/data/catalog";
+import { getFavoriteIds } from "@/lib/data/favorites";
 import { LIMA_DISTRICTS } from "@/types/catalog";
 
 export const metadata: Metadata = {
@@ -27,7 +29,7 @@ export default async function VenuesPage({ searchParams }: { searchParams: Searc
         <h1 className="text-display text-3xl sm:text-4xl">Discotecas</h1>
         <p className="text-sm text-muted">
           Solo aparecen los locales aprobados por GETIN. La insignia de verificado indica que
-          comprobamos su informacion comercial.
+          comprobamos su información comercial.
         </p>
       </header>
 
@@ -63,13 +65,18 @@ export default async function VenuesPage({ searchParams }: { searchParams: Searc
 }
 
 async function VenueResults({ district }: { district?: string }) {
-  const venues = await listVenues({ district });
+  const [venues, session, favoritos] = await Promise.all([
+    listVenues({ district }),
+    getSession(),
+    getFavoriteIds(),
+  ]);
+  const demo = isDemoMode();
 
   if (venues.length === 0) {
     return (
       <EmptyState
-        title={district ? `Sin discotecas en ${district}` : "Aun no hay discotecas publicadas"}
-        description="Si gestionas un local, puedes registrarlo y publicarlo tras la verificacion."
+        title={district ? `Sin discotecas en ${district}` : "Aún no hay discotecas publicadas"}
+        description="Si gestionas un local, puedes registrarlo y publicarlo tras la verificación."
         action={
           <Button asChild variant="outline">
             <Link href="/club/registro">Publicar mi local</Link>
@@ -82,7 +89,15 @@ async function VenueResults({ district }: { district?: string }) {
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {venues.map((venue) => (
-        <VenueCard key={venue.id} venue={venue} />
+        <VenueCard
+          key={venue.id}
+          venue={venue}
+          favorite={
+            demo
+              ? undefined
+              : { saved: favoritos.venues.has(venue.id), isAuthenticated: Boolean(session) }
+          }
+        />
       ))}
     </div>
   );

@@ -1,7 +1,7 @@
 import { AlertTriangle } from "lucide-react";
 
 /**
- * Envoltura de las paginas legales.
+ * Envoltura de las páginas legales.
  *
  * El aviso de borrador es deliberado y no debe quitarse hasta que un abogado
  * peruano revise los textos: publicar condiciones sin revisar expone al negocio
@@ -24,11 +24,11 @@ export function LegalPage({
       <div className="mt-6 flex items-start gap-3 rounded-xl border border-amber-400/30 bg-amber-400/[0.08] p-4">
         <AlertTriangle className="mt-0.5 size-4 shrink-0 text-amber-400" />
         <p className="text-sm text-amber-100/90">
-          <strong className="font-semibold">Borrador sujeto a revision legal.</strong> Este texto es
+          <strong className="font-semibold">Borrador sujeto a revisión legal.</strong> Este texto es
           un punto de partida redactado por el equipo de producto, no asesoria juridica. Antes de
           operar comercialmente debe revisarlo un abogado con conocimiento de la normativa peruana
-          (Codigo de Proteccion y Defensa del Consumidor, Ley 29733 de Proteccion de Datos
-          Personales y normas de comercio electronico).
+          (Código de Protección y Defensa del Consumidor, Ley 29733 de Protección de Datos
+          Personales y normas de comercio electrónico).
         </p>
       </div>
 

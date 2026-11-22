@@ -3,7 +3,7 @@ import type {
   TicketTypeSnapshot,
 } from "@/lib/domain/availability";
 
-/** Modelos de vista del catalogo. Es lo unico que consumen las paginas. */
+/** Modelos de vista del catalogo. Es lo único que consumen las páginas. */
 
 export type VenueSummary = {
   id: string;
@@ -97,7 +97,7 @@ export type EventFilters = {
   /** ISO date (YYYY-MM-DD) */
   dateFrom?: string;
   dateTo?: string;
-  /** Precio maximo en centimos. */
+  /** Precio máximo en centimos. */
   maxPriceCents?: number;
   sort?: "date_asc" | "date_desc" | "price_asc" | "price_desc";
   limit?: number;

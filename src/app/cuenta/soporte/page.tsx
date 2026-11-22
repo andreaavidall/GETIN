@@ -24,9 +24,8 @@ export default async function SupportPage({ searchParams }: { searchParams: Sear
         ) : null}
 
         <p className="mt-3 text-sm text-muted">
-          El formulario de tickets dentro de la plataforma esta previsto para la fase 2 (la tabla{" "}
-          <code className="rounded bg-white/10 px-1 text-xs">support_tickets</code> ya existe en la
-          base de datos). Mientras tanto escribenos por correo y respondemos en horario de oficina.
+          Escríbenos por correo con el código de tu orden y respondemos en horario de oficina,
+          de lunes a viernes.
         </p>
 
         <a
@@ -41,18 +40,18 @@ export default async function SupportPage({ searchParams }: { searchParams: Sear
       <section className="surface p-5">
         <h2 className="font-display text-lg font-semibold">Reembolsos</h2>
         <p className="mt-3 text-sm text-muted">
-          Cada evento tiene su propia politica de cancelacion, que se muestra antes de pagar y queda
+          Cada evento tiene su propia política de cancelación, que se muestra antes de pagar y queda
           guardada en tu compra. Si el evento se cancela, se devuelve el importe completo.
         </p>
         <p className="mt-3 text-sm text-muted">
-          Para pedir una devolucion indica el codigo de la orden y el motivo. GETIN revisa la
-          solicitud junto con el local; la devolucion se procesa por el mismo medio de pago.
+          Para pedir una devolución indica el código de la orden y el motivo. GETIN revisa la
+          solicitud junto con el local; la devolución se procesa por el mismo medio de pago.
         </p>
         <Link
           href="/legal/reembolsos"
           className="mt-4 inline-block text-sm text-lime hover:underline"
         >
-          Leer la politica de reembolsos →
+          Leer la política de reembolsos →
         </Link>
       </section>
     </div>

@@ -3,24 +3,24 @@ import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Centro de ayuda",
-  description: "Respuestas a las dudas mas frecuentes sobre entradas, mesas, listas y reembolsos.",
+  description: "Respuestas a las dudas más frecuentes sobre entradas, mesas, listas y reembolsos.",
 };
 
 const SECTIONS = [
   {
-    title: "Entradas y codigos QR",
+    title: "Entradas y códigos QR",
     items: [
       {
         q: "Compre una entrada y no me llego nada",
-        a: "Entra a «Mis entradas» en tu cuenta: si el pago quedo confirmado, la entrada y su QR estan ahi, incluso si el correo se demoro. Si la orden sigue en «pendiente», el proveedor de pagos aun no confirmo el cobro; la entrada se emite solo cuando lo haga.",
+        a: "Entra a «Mis entradas» en tu cuenta: si el pago quedó confirmado, la entrada y su QR estan ahi, incluso si el correo se demoro. Si la orden sigue en «pendiente», el proveedor de pagos aún no confirmo el cobro; la entrada se emite solo cuando lo haga.",
       },
       {
         q: "¿Puedo transferir mi entrada a otra persona?",
-        a: "Por ahora la entrada queda asociada a tu cuenta. La transferencia nominativa esta prevista para una fase posterior. Si vas a entrar con otra persona, consulta con el local antes.",
+        a: "La entrada queda asociada a tu cuenta. Si va a entrar otra persona, escríbenos a soporte@getin.pe con el código de tu orden y lo coordinamos con el local.",
       },
       {
         q: "Mi QR aparece como ya utilizado",
-        a: "Cada QR es de un solo uso. Si no lo usaste tu, es posible que alguien tuviera una captura del codigo. Acude al personal del local con tu codigo de orden: cada validacion queda registrada con fecha y hora.",
+        a: "Cada QR es de un solo uso. Si no lo usaste tu, es posible que alguien tuviera una captura del código. Acude al personal del local con tu código de orden: cada validación queda registrada con fecha y hora.",
       },
       {
         q: "¿Necesito imprimir la entrada?",
@@ -32,8 +32,8 @@ const SECTIONS = [
     title: "Mesas VIP",
     items: [
       {
-        q: "¿Que pago ahora y que pago en el local?",
-        a: "En la plataforma pagas el adelanto. El saldo de la mesa y el consumo minimo, si corresponde, se abonan en el establecimiento. Todos los importes se muestran antes de confirmar.",
+        q: "¿Qué pago ahora y qué pago en el local?",
+        a: "En la plataforma pagas el adelanto. El saldo de la mesa y el consumo mínimo, si corresponde, se abonan en el establecimiento. Todos los importes se muestran antes de confirmar.",
       },
       {
         q: "¿Mi mesa puede venderse a otra persona?",
@@ -46,11 +46,11 @@ const SECTIONS = [
     items: [
       {
         q: "Estoy en la lista, ¿tengo el ingreso asegurado?",
-        a: "No. Una lista es una cortesia del local sujeta a cupo, a un horario limite de ingreso y al criterio de admision. Te recomendamos llegar con margen.",
+        a: "No. Una lista es una cortesia del local sujeta a cupo, a un horario límite de ingreso y al criterio de admisión. Te recomendamos llegar con margen.",
       },
       {
         q: "Mi solicitud sigue pendiente",
-        a: "Algunas listas requieren aprobacion manual del local. Veras el cambio de estado en «Mis listas» y te avisaremos por correo.",
+        a: "Algunas listas requieren aprobación manual del local. Veras el cambio de estado en «Mis listas» y te avisaremos por correo.",
       },
     ],
   },
@@ -59,11 +59,11 @@ const SECTIONS = [
     items: [
       {
         q: "¿GETIN guarda mi tarjeta?",
-        a: "No. Los datos de la tarjeta van directamente al proveedor de pagos. GETIN solo conserva la marca y los cuatro ultimos digitos para que reconozcas la operacion.",
+        a: "No. Los datos de la tarjeta van directamente al proveedor de pagos. GETIN solo conserva la marca y los cuatro ultimos digitos para que reconozcas la operación.",
       },
       {
         q: "Me cobraron y la orden sigue pendiente",
-        a: "Puede ocurrir si el aviso del proveedor se demora. Espera unos minutos y recarga «Mis compras». Si tras una hora sigue pendiente, escribenos con el codigo de la orden: no se emiten dos cobros por la misma compra.",
+        a: "Puede ocurrir si el aviso del proveedor se demora. Espera unos minutos y recarga «Mis compras». Si tras una hora sigue pendiente, escribenos con el código de la orden: no se emiten dos cobros por la misma compra.",
       },
       {
         q: "¿Por que no debo pagar a un promotor por transferencia?",
@@ -110,13 +110,13 @@ export default function HelpPage() {
       </div>
 
       <p className="mt-10 text-sm text-muted">
-        Tambien puedes revisar los{" "}
+        También puedes revisar los{" "}
         <Link href="/legal/terminos" className="text-lime hover:underline">
           terminos del servicio
         </Link>{" "}
         y la{" "}
         <Link href="/legal/reembolsos" className="text-lime hover:underline">
-          politica de reembolsos
+          política de reembolsos
         </Link>
         .
       </p>

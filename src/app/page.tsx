@@ -24,7 +24,15 @@ import {
   isDemoMode,
   listVenues,
 } from "@/lib/data/catalog";
-import { formatEventDate, formatPEN, formatPENShort } from "@/lib/utils";
+import { weekendRange } from "@/lib/domain/event-filters";
+import {
+  formatEventDate,
+  formatPEN,
+  formatPENShort,
+  formatShortDate,
+  limaDayNumber,
+  limaMonthShort,
+} from "@/lib/utils";
 
 export const revalidate = 120;
 
@@ -55,7 +63,7 @@ export default function HomePage() {
           <TablesSection />
         </Suspense>
 
-        <Suspense fallback={<SectionSkeleton title="Proximos eventos" />}>
+        <Suspense fallback={<SectionSkeleton title="Próximos eventos" />}>
           <UpcomingSection />
         </Suspense>
 
@@ -82,11 +90,11 @@ function Hero() {
       <div className="container relative flex min-h-[620px] flex-col justify-end pb-12 pt-20 sm:min-h-[680px]">
         <Badge variant="outline" className="mb-5 w-fit border-lime/40 text-lime">
           <Sparkles className="size-3" />
-          Lima · Peru
+          Lima · Perú
         </Badge>
 
         <h1 className="text-display max-w-3xl text-5xl leading-[0.95] sm:text-6xl lg:text-7xl">
-          La noche empieza aqui.
+          La noche empieza aquí.
         </h1>
         <p className="mt-5 max-w-xl text-base text-white/70 sm:text-lg">
           Descubre los mejores eventos, asegura tu entrada y reserva tu mesa en un solo lugar.
@@ -158,13 +166,13 @@ async function FeaturedSection() {
     <section>
       <SectionHeader
         title="Eventos destacados"
-        subtitle="Lo que mas se esta moviendo esta semana"
+        subtitle="Lo que más se está moviendo esta semana"
         href="/eventos"
       />
       {events.length === 0 ? (
         <EmptyState
-          title="Aun no hay eventos publicados"
-          description="Cuando una discoteca publique su primer evento aprobado, aparecera aqui."
+          title="Aún no hay eventos publicados"
+          description="Cuando una discoteca publique su primer evento aprobado, aparecerá aquí."
           action={
             <Button asChild variant="outline">
               <Link href="/club/registro">Publicar mi local</Link>
@@ -185,11 +193,17 @@ async function FeaturedSection() {
 async function WeekendSection() {
   const events = await getWeekendEvents(6);
   if (events.length === 0) return null;
+
+  // El titulo dice la verdad: de lunes a jueves lo que viene es el fin de
+  // semana SIGUIENTE, y hay que nombrarlo así. Y se enseñan las fechas, para
+  // que nadie tenga que adivinar de que días hablamos.
+  const { from, to, isUpcoming } = weekendRange();
+
   return (
     <section>
       <SectionHeader
-        title="Este fin de semana"
-        subtitle="Viernes, sabado y domingo"
+        title={isUpcoming ? "Próximo fin de semana" : "Este fin de semana"}
+        subtitle={`Del ${formatShortDate(from)} al ${formatShortDate(to)}`}
         href="/eventos"
       />
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -273,7 +287,7 @@ async function UpcomingSection() {
   if (events.length === 0) return null;
   return (
     <section>
-      <SectionHeader title="Proximos eventos" subtitle="Agenda de las siguientes semanas" />
+      <SectionHeader title="Próximos eventos" subtitle="Agenda de las siguientes semanas" />
       <ul className="surface divide-y divide-white/5">
         {events.map((event) => (
           <li key={event.id}>
@@ -281,12 +295,15 @@ async function UpcomingSection() {
               href={`/eventos/${event.slug}`}
               className="flex items-center gap-4 p-4 transition-colors hover:bg-white/[0.03]"
             >
+              {/* Día y mes SIEMPRE en hora de Lima. Aquí estaba el fallo que
+                  hacía que el mismo evento saliera como 27 en una sección y
+                  como 28 en otra: el servidor de Vercel corre en UTC. */}
               <div className="w-14 shrink-0 text-center">
                 <p className="font-display text-xl font-bold leading-none">
-                  {event.startsAt.getDate()}
+                  {limaDayNumber(event.startsAt)}
                 </p>
                 <p className="mt-0.5 text-[10px] uppercase tracking-wide text-muted">
-                  {event.startsAt.toLocaleDateString("es-PE", { month: "short" })}
+                  {limaMonthShort(event.startsAt)}
                 </p>
               </div>
               <div className="min-w-0 flex-1">
@@ -315,12 +332,12 @@ const STEPS = [
   {
     icon: SearchIcon,
     title: "Encuentra el plan",
-    text: "Filtra por distrito, fecha, precio o genero musical y revisa condiciones antes de decidir.",
+    text: "Filtra por distrito, fecha, precio o género musical y revisa condiciones antes de decidir.",
   },
   {
     icon: CreditCard,
     title: "Paga seguro",
-    text: "El cobro lo procesa una pasarela autorizada. GETIN nunca guarda tu numero de tarjeta.",
+    text: "El cobro lo procesa una pasarela autorizada. GETIN nunca guarda tu número de tarjeta.",
   },
   {
     icon: QrCode,
@@ -330,14 +347,14 @@ const STEPS = [
   {
     icon: ShieldCheck,
     title: "Entra sin intermediarios",
-    text: "En la puerta escanean tu codigo. Nada de transferencias a personas no verificadas.",
+    text: "En la puerta escanean tu código. Nada de transferencias a personas no verificadas.",
   },
 ];
 
 function HowItWorks() {
   return (
     <section>
-      <SectionHeader title="Como funciona GETIN" subtitle="Cuatro pasos, sin promotores" />
+      <SectionHeader title="Cómo funciona GETIN" subtitle="Cuatro pasos, sin promotores" />
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {STEPS.map((step, i) => (
           <div key={step.title} className="surface p-5">
@@ -356,28 +373,28 @@ function HowItWorks() {
 
 const FAQS = [
   {
-    q: "¿Como recibo mi entrada?",
-    a: "En cuanto el proveedor de pagos confirma la operacion, la entrada y su codigo QR aparecen en «Mis entradas». Tambien te llega un correo. Si el pago queda pendiente, la entrada se emite al confirmarse, no antes.",
+    q: "¿Cómo recibo mi entrada?",
+    a: "En cuanto el proveedor de pagos confirma la operación, la entrada y su código QR aparecen en «Mis entradas». También te llega un correo. Si el pago queda pendiente, la entrada se emite al confirmarse, no antes.",
   },
   {
     q: "¿Mi QR garantiza el ingreso?",
-    a: "Tu entrada pagada es valida para el evento indicado, pero el ingreso siempre depende del aforo autorizado del local y de su derecho de admision. Las listas de invitados, al no tener costo, estan sujetas a cupo y horario.",
+    a: "Tu entrada pagada es válida para el evento indicado, pero el ingreso siempre depende del aforo autorizado del local y de su derecho de admisión. Las listas de invitados, al no tener costo, estan sujetas a cupo y horario.",
   },
   {
     q: "¿Puedo pedir un reembolso?",
-    a: "Depende de la politica de cancelacion de cada evento, que se muestra antes de pagar y queda registrada en tu compra. Si el evento se cancela, se devuelve el importe completo.",
+    a: "Depende de la política de cancelación de cada evento, que se muestra antes de pagar y queda registrada en tu compra. Si el evento se cancela, se devuelve el importe completo.",
   },
   {
-    q: "¿Que pasa con mi mesa VIP?",
-    a: "Al reservar pagas un adelanto y el saldo se abona en el local. Veras el total, el adelanto, el saldo pendiente y el consumo minimo antes de confirmar. Una mesa reservada no se vende a nadie mas.",
+    q: "¿Qué pasa con mi mesa VIP?",
+    a: "Al reservar pagas un adelanto y el saldo se abona en el local. Veras el total, el adelanto, el saldo pendiente y el consumo mínimo antes de confirmar. Una mesa reservada no se vende a nadie mas.",
   },
   {
-    q: "¿GETIN cobra comision?",
+    q: "¿GETIN cobra comisión?",
     a: "Si. Al precio del local se suma un cargo por servicio que se muestra desglosado en el checkout antes de pagar.",
   },
   {
-    q: "Soy dueño de una discoteca, ¿como publico?",
-    a: "Puedes registrar tu local desde «Publicar mi local». El equipo de GETIN verifica la informacion comercial antes de que aparezca en el catalogo.",
+    q: "Soy dueño de una discoteca, ¿cómo publico?",
+    a: "Puedes registrar tu local desde «Publicar mi local». El equipo de GETIN verifica la información comercial antes de que aparezca en el catálogo.",
   },
 ];
 

@@ -22,15 +22,15 @@ export type Session = {
 };
 
 /**
- * Lee la sesion actual y construye el "actor" que usan los guards.
- * `cache()` evita repetir la consulta dentro de una misma peticion.
+ * Lee la sesión actual y construye el "actor" que usan los guards.
+ * `cache()` evita repetir la consulta dentro de una misma petición.
  */
 export const getSession = cache(async (): Promise<Session | null> => {
   if (!isSupabaseConfigured()) return null;
 
   const supabase = await createSupabaseServerClient();
 
-  // getUser valida el JWT contra Supabase; getSession() solo lee la cookie.
+  // getUser válida el JWT contra Supabase; getSession() solo lee la cookie.
   const {
     data: { user },
     error,

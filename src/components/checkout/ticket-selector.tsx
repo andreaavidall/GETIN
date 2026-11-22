@@ -1,6 +1,6 @@
 "use client";
 
-import { Minus, Plus, Ticket } from "lucide-react";
+import { Info, Minus, Plus, Ticket } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState, useTransition } from "react";
@@ -15,13 +15,13 @@ import {
   remainingTickets,
 } from "@/lib/domain/availability";
 import { applyBps, computeOrderTotals, DEFAULT_PRICING } from "@/lib/domain/pricing";
-import { formatPEN } from "@/lib/utils";
+import { formatPEN, formatTime } from "@/lib/utils";
 import type { TicketTypeView } from "@/types/catalog";
 
 /**
  * Selector de entradas.
  *
- * El total que se muestra aqui es una ESTIMACION para que el comprador vea el
+ * El total que se muestra aquí es una ESTIMACION para que el comprador vea el
  * cargo por servicio antes de entrar al checkout. El importe real lo recalcula
  * el servidor desde la base de datos al crear la orden: lo que se muestre en
  * pantalla nunca decide lo que se cobra.
@@ -33,6 +33,9 @@ export function TicketSelector({
   ticketTypes,
   isAuthenticated,
   demoMode,
+  minAge,
+  dressCode,
+  lastEntryAt,
 }: {
   eventId: string;
   eventName: string;
@@ -40,6 +43,9 @@ export function TicketSelector({
   ticketTypes: TicketTypeView[];
   isAuthenticated: boolean;
   demoMode: boolean;
+  minAge: number;
+  dressCode?: string | null;
+  lastEntryAt?: Date | null;
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -81,7 +87,7 @@ export function TicketSelector({
         toast.error(check.message, {
           description:
             check.reason === "over_max_per_order"
-              ? `Maximo ${type.maxPerOrder} por compra`
+              ? `Máximo ${type.maxPerOrder} por compra`
               : check.reason === "sold_out"
                 ? `Quedan ${check.remaining}`
                 : undefined,
@@ -113,9 +119,12 @@ export function TicketSelector({
   }
 
   const anyOnSale = sorted.some((t) => isOnSale(t, now));
+  const totalEntradas = selected.reduce((acc, [, qty]) => acc + qty, 0);
+  const desdeCents = sorted.find((t) => isOnSale(t, now))?.priceCents ?? null;
 
   return (
-    <div className="surface overflow-hidden">
+    <>
+    <div id="entradas" className="surface scroll-mt-24 overflow-hidden">
       <div className="border-b border-white/10 p-5">
         <h2 className="text-display flex items-center gap-2 text-lg">
           <Ticket className="size-4 text-lime" />
@@ -133,14 +142,14 @@ export function TicketSelector({
           </strong>
           . Por ejemplo, una entrada de {formatPEN(7000)} son{" "}
           {formatPEN(7000 + applyBps(7000, DEFAULT_PRICING.commissionBps))} en total. Lo ves
-          desglosado aqui mismo al elegir, y otra vez antes de pagar.
+          desglosado aquí mismo al elegir, y otra vez antes de pagar.
         </p>
       </div>
 
       {sorted.length === 0 || !anyOnSale ? (
         <div className="p-5 text-sm text-muted">
           Este evento no tiene venta de entradas online.
-          {sorted.length > 0 ? " La venta esta cerrada." : null}
+          {sorted.length > 0 ? " La venta está cerrada." : null}
         </div>
       ) : (
         <ul className="divide-y divide-white/5">
@@ -185,7 +194,7 @@ export function TicketSelector({
                 {onSale && !soldOut ? (
                   <div className="mt-4 flex items-center justify-between">
                     <span className="text-xs text-muted">
-                      Maximo {type.maxPerOrder} por compra
+                      Máximo {type.maxPerOrder} por compra
                     </span>
                     <div className="flex items-center gap-1">
                       <Button
@@ -258,7 +267,7 @@ export function TicketSelector({
         ) : !isAuthenticated ? (
           <Button asChild full>
             <Link href={`/login?siguiente=/eventos/${eventSlug}`}>
-              Inicia sesion para comprar
+              Inicia sesión para comprar
             </Link>
           </Button>
         ) : (
@@ -273,7 +282,101 @@ export function TicketSelector({
           intermedia la venta.
         </p>
       </div>
+
+      {/* Condiciones de ingreso y devoluciones JUNTO al botón, no enterradas
+          más abajo: son exactamente lo que alguien necesita saber antes de
+          pagar, y lo que genera una discusión en la puerta si se descubre
+          después. */}
+      <div className="space-y-3 border-t border-white/10 bg-white/[0.02] p-5">
+        <h3 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-muted">
+          <Info className="size-3.5 text-lime" />
+          Antes de comprar
+        </h3>
+        <ul className="space-y-1.5 text-xs text-muted">
+          <li className="flex gap-2">
+            <span className="text-lime">·</span>
+            Edad mínima <strong className="text-paper">{minAge} años</strong>. Te pueden pedir
+            DNI o carné de extranjería en la puerta.
+          </li>
+          {dressCode ? (
+            <li className="flex gap-2">
+              <span className="text-lime">·</span>
+              Vestimenta: {dressCode}
+            </li>
+          ) : null}
+          {lastEntryAt ? (
+            <li className="flex gap-2">
+              <span className="text-lime">·</span>
+              Último ingreso a las{" "}
+              <strong className="text-paper">{formatTime(lastEntryAt)}</strong>. Después de esa
+              hora el local puede no dejarte pasar.
+            </li>
+          ) : null}
+          <li className="flex gap-2">
+            <span className="text-lime">·</span>
+            Si llegas con tu entrada pagada y el local ya alcanzó su aforo autorizado y no puedes
+            entrar, te devolvemos el importe completo.{" "}
+            <Link href="/legal/reembolsos" className="text-lime hover:underline">
+              Cómo pedir la devolución
+            </Link>
+            .
+          </li>
+        </ul>
+      </div>
     </div>
+
+    {/* ------------------------------------------- barra inferior en movil ---
+        En el celular el panel de compra queda al final de una página larga.
+        Esta barra mantiene el total y el boton a la vista. Solo aparece en
+        pantallas pequenas; el relleno inferior del layout evita que tape el
+        contenido. */}
+    <div className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-black/90 backdrop-blur lg:hidden">
+      <div className="container flex items-center gap-3 py-3">
+        <div className="min-w-0 flex-1">
+          {estimate ? (
+            <>
+              <p className="text-[11px] text-muted">
+                {totalEntradas} {totalEntradas === 1 ? "entrada" : "entradas"} · cargo incluido
+              </p>
+              <p className="font-display text-lg font-bold leading-tight text-lime">
+                {formatPEN(estimate.totalCents)}
+              </p>
+            </>
+          ) : desdeCents !== null ? (
+            <>
+              <p className="text-[11px] uppercase tracking-wide text-muted">Desde</p>
+              <p className="font-display text-lg font-bold leading-tight">
+                {formatPEN(desdeCents)}
+              </p>
+            </>
+          ) : (
+            <p className="text-xs text-muted">Sin venta de entradas online</p>
+          )}
+        </div>
+
+        {sorted.length === 0 || !anyOnSale ? (
+          // Nada que comprar: ni un boton deshabilitado, que invita a tocarlo.
+          <p className="shrink-0 text-xs text-muted">Consulta en el local</p>
+        ) : demoMode ? (
+          <Button size="sm" disabled className="shrink-0">
+            Solo demostración
+          </Button>
+        ) : !isAuthenticated ? (
+          <Button asChild size="sm" className="shrink-0">
+            <Link href={`/login?siguiente=/eventos/${eventSlug}`}>Inicia sesión</Link>
+          </Button>
+        ) : selected.length === 0 ? (
+          <Button asChild variant="secondary" size="sm" className="shrink-0">
+            <a href="#entradas">Elegir entradas</a>
+          </Button>
+        ) : (
+          <Button size="sm" onClick={buy} disabled={pending} className="shrink-0">
+            {pending ? "Reservando..." : "Comprar"}
+          </Button>
+        )}
+      </div>
+    </div>
+    </>
   );
 }
 

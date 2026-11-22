@@ -8,7 +8,7 @@ import type { PaymentProvider } from "@/lib/payments/types";
 let instance: PaymentProvider | null = null;
 
 /**
- * Devuelve el proveedor de pagos activo segun PAYMENTS_PROVIDER.
+ * Devuelve el proveedor de pagos activo según PAYMENTS_PROVIDER.
  * Por defecto es el adaptador de pruebas, que no cobra dinero real.
  */
 export function getPaymentProvider(): PaymentProvider {

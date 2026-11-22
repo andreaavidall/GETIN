@@ -93,7 +93,7 @@ export function Navbar({
           ) : (
             <>
               <Button asChild variant="ghost" size="sm">
-                <Link href="/login">Iniciar sesion</Link>
+                <Link href="/login">Iniciar sesión</Link>
               </Button>
               <Button asChild size="sm">
                 <Link href="/registro">Registrarse</Link>
@@ -136,7 +136,7 @@ export function Navbar({
               ) : (
                 <>
                   <Button asChild variant="outline" full>
-                    <Link href="/login">Iniciar sesion</Link>
+                    <Link href="/login">Iniciar sesión</Link>
                   </Button>
                   <Button asChild full>
                     <Link href="/registro">Registrarse</Link>

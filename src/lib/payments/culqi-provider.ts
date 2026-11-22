@@ -11,10 +11,10 @@ import {
 } from "@/lib/payments/types";
 
 /**
- * Adaptador de Culqi (Peru).
+ * Adaptador de Culqi (Perú).
  *
  * ESTADO: estructura lista, NO verificado contra la API real. No tengo
- * credenciales ni puedo probar el flujo, asi que:
+ * credenciales ni puedo probar el flujo, así que:
  *
  *  - Si faltan CULQI_SECRET_KEY / CULQI_PUBLIC_KEY, cada metodo lanza
  *    PaymentProviderNotConfiguredError en lugar de fingir que funciona.
@@ -25,8 +25,8 @@ import {
  * Como activarlo: ver docs/PAGOS.md
  *
  * Por que Culqi y no Stripe: Stripe no procesa pagos con entidades peruanas.
- * Culqi, Niubiz, Izipay y Mercado Pago si. Culqi tiene la integracion mas
- * sencilla por token de tarjeta y buen soporte de Yape, que es relevante aqui.
+ * Culqi, Niubiz, Izipay y Mercado Pago si. Culqi tiene la integración mas
+ * sencilla por token de tarjeta y buen soporte de Yape, que es relevante aquí.
  */
 const CULQI_API = "https://api.culqi.com/v2";
 
@@ -65,7 +65,7 @@ export class CulqiPaymentProvider implements PaymentProvider {
   /**
    * Con Culqi el cargo se crea con un token de tarjeta generado en el navegador
    * por culqi.js, de modo que el PAN y el CVV nunca pasan por nuestro servidor.
-   * Aqui solo preparamos la intencion y devolvemos la clave publica para el
+   * Aquí solo preparamos la intencion y devolvemos la clave publica para el
    * formulario; el cargo se crea en /api/checkout/culqi con el token recibido.
    */
   async createIntent(request: PaymentIntentRequest): Promise<PaymentIntent> {
@@ -135,7 +135,7 @@ export class CulqiPaymentProvider implements PaymentProvider {
     const a = Buffer.from(received);
     const b = Buffer.from(expected);
     if (a.length !== b.length || !timingSafeEqual(a, b)) {
-      return { valid: false, reason: "firma invalida" };
+      return { valid: false, reason: "firma inválida" };
     }
 
     let body: Record<string, unknown>;

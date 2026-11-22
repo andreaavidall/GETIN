@@ -19,8 +19,8 @@ type SearchParams = Promise<{ pago?: string; orden?: string; monto?: string }>;
  * Pantalla del ADAPTADOR DE PRUEBAS. No existe con una pasarela real.
  *
  * Sirve para recorrer el mismo camino que en produccion: elegir un desenlace
- * hace que el servidor firme un webhook y lo entregue al endpoint real. Asi, lo
- * que se prueba en desarrollo es el codigo que confirmara los pagos de verdad.
+ * hace que el servidor firme un webhook y lo entregue al endpoint real. Así, lo
+ * que se prueba en desarrollo es el código que confirmara los pagos de verdad.
  */
 export default async function SimulatorPage({ searchParams }: { searchParams: SearchParams }) {
   const { pago, orden } = await searchParams;
@@ -38,11 +38,11 @@ export default async function SimulatorPage({ searchParams }: { searchParams: Se
         <div className="flex items-start gap-3 border-b border-amber-400/30 bg-amber-400/[0.08] p-5">
           <FlaskConical className="mt-0.5 size-5 shrink-0 text-amber-400" />
           <div>
-            <h1 className="font-display text-lg font-semibold">Pago de demostracion</h1>
+            <h1 className="font-display text-lg font-semibold">Pago de demostración</h1>
             <p className="mt-1 text-sm text-amber-100/90">
-              GETIN todavia no tiene una pasarela conectada, asi que{" "}
-              <strong>aqui no se cobra nada</strong>. Escribe cualquier tarjeta: sirve para
-              recorrer la compra completa y recibir tu codigo QR.
+              GETIN todavía no tiene una pasarela conectada, así que{" "}
+              <strong>aquí no se cobra nada</strong>. Escribe cualquier tarjeta: sirve para
+              recorrer la compra completa y recibir tu código QR.
             </p>
           </div>
         </div>

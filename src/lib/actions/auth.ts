@@ -5,16 +5,16 @@ import { revalidatePath } from "next/cache";
 import { recordAudit } from "@/lib/audit";
 import { publicEnv } from "@/lib/env";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { signInSchema, signUpSchema } from "@/lib/validation/schemas";
+import { emailSchema, signInSchema, signUpSchema } from "@/lib/validation/schemas";
 
 /**
  * Autenticacion.
  *
  * Supabase Auth gestiona el hash de la contraseña, la rotacion del refresh
- * token y las cookies httpOnly. Aqui solo se valida la entrada y se traduce el
+ * token y las cookies httpOnly. Aquí solo se válida la entrada y se traduce el
  * error a algo legible.
  *
- * Los mensajes de error al iniciar sesion son deliberadamente genericos: decir
+ * Los mensajes de error al iniciar sesión son deliberadamente genericos: decir
  * "ese correo no existe" permitiria enumerar usuarios.
  */
 export type AuthResult = { ok: true; next: string } | { ok: false; error: string };
@@ -42,12 +42,12 @@ export async function signUpAction(input: unknown): Promise<AuthResult> {
         ok: false,
         error:
           error.message.toLowerCase().includes("already")
-            ? "Ese correo ya tiene una cuenta. Inicia sesion."
+            ? "Ese correo ya tiene una cuenta. Inicia sesión."
             : error.message,
       };
     }
 
-    // El trigger handle_new_user ya creo el perfil; aqui se completan los datos
+    // El trigger handle_new_user ya creo el perfil; aquí se completan los datos
     // que solo conoce el formulario y el consentimiento, con su fecha.
     if (data.user) {
       await supabase
@@ -63,7 +63,7 @@ export async function signUpAction(input: unknown): Promise<AuthResult> {
     }
 
     revalidatePath("/", "layout");
-    // Si el proyecto exige confirmacion por correo, no hay sesion todavia.
+    // Si el proyecto exige confirmación por correo, no hay sesión todavia.
     return { ok: true, next: data.session ? "/cuenta" : "/login?registrado=1" };
   } catch (error) {
     return {
@@ -71,7 +71,7 @@ export async function signUpAction(input: unknown): Promise<AuthResult> {
       error:
         error instanceof Error
           ? error.message
-          : "No se pudo completar el registro. Revisa la configuracion de Supabase.",
+          : "No se pudo completar el registro. Revisa la configuración de Supabase.",
     };
   }
 }
@@ -109,7 +109,7 @@ export async function signInAction(input: unknown, next?: string): Promise<AuthR
       error:
         error instanceof Error
           ? error.message
-          : "No se pudo iniciar sesion. Revisa la configuracion de Supabase.",
+          : "No se pudo iniciar sesión. Revisa la configuración de Supabase.",
     };
   }
 }
@@ -132,6 +132,73 @@ export async function signOutAction(): Promise<{ ok: true } | { ok: false; error
     revalidatePath("/", "layout");
     return { ok: true };
   } catch (error) {
-    return { ok: false, error: error instanceof Error ? error.message : "Error al cerrar sesion" };
+    return { ok: false, error: error instanceof Error ? error.message : "Error al cerrar sesión" };
+  }
+}
+
+/**
+ * Envía el enlace para elegir una contraseña nueva.
+ *
+ * Responde siempre «ok», exista o no la cuenta: decir «ese correo no está
+ * registrado» permitiría averiguar quién tiene cuenta en GETIN probando
+ * direcciones.
+ */
+export async function requestPasswordResetAction(
+  email: string,
+  next?: string,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const parsed = emailSchema.safeParse(email);
+  if (!parsed.success) {
+    return { ok: false, error: "Correo inválido" };
+  }
+
+  try {
+    const supabase = await createSupabaseServerClient();
+    const destino = next && next.startsWith("/") ? next : "/cuenta";
+    const redirectTo = `${publicEnv.NEXT_PUBLIC_SITE_URL}/auth/callback?siguiente=${encodeURIComponent(
+      `/nueva-contrasena?siguiente=${encodeURIComponent(destino)}`,
+    )}`;
+
+    const { error } = await supabase.auth.resetPasswordForEmail(parsed.data, { redirectTo });
+    if (error && !error.message.toLowerCase().includes("not found")) {
+      return { ok: false, error: error.message };
+    }
+    return { ok: true };
+  } catch (error) {
+    return {
+      ok: false,
+      error:
+        error instanceof Error
+          ? error.message
+          : "No se pudo enviar el enlace. Revisa la configuración de Supabase.",
+    };
+  }
+}
+
+/** Cambia la contraseña de la sesión abierta (la que crea el enlace de recuperación). */
+export async function updatePasswordAction(
+  password: string,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const parsed = signUpSchema.shape.password.safeParse(password);
+  if (!parsed.success) {
+    return { ok: false, error: parsed.error.issues[0]?.message ?? "Contraseña inválida" };
+  }
+
+  try {
+    const supabase = await createSupabaseServerClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) {
+      return { ok: false, error: "El enlace caducó. Pide uno nuevo desde «Recuperar contraseña»." };
+    }
+
+    const { error } = await supabase.auth.updateUser({ password: parsed.data });
+    if (error) return { ok: false, error: error.message };
+
+    revalidatePath("/", "layout");
+    return { ok: true };
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : "No se pudo cambiar" };
   }
 }

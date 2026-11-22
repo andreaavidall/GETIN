@@ -4,7 +4,7 @@ import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 
-export const metadata: Metadata = { title: "Configuracion requerida", robots: { index: false } };
+export const metadata: Metadata = { title: "Configuración requerida", robots: { index: false } };
 
 type SearchParams = Promise<{ desde?: string }>;
 
@@ -26,7 +26,7 @@ export default async function SetupRequiredPage({ searchParams }: { searchParams
             datos y autenticacion.{" "}
           </>
         ) : null}
-        El catalogo funciona en modo demostracion sin configuracion, pero las cuentas, las compras y
+        El catálogo funciona en modo demostración sin configuración, pero las cuentas, las compras y
         el control de puerta requieren un proyecto de Supabase.
       </p>
 
@@ -53,7 +53,7 @@ export default async function SetupRequiredPage({ searchParams }: { searchParams
 
       <div className="mt-8 flex gap-2">
         <Button asChild>
-          <Link href="/eventos">Ver el catalogo demo</Link>
+          <Link href="/eventos">Ver el catálogo demo</Link>
         </Button>
         <Button asChild variant="outline">
           <Link href="/">Ir al inicio</Link>

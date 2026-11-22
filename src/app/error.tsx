@@ -22,12 +22,12 @@ export default function GlobalError({
       <AlertTriangle className="size-10 text-amber-400" />
       <h1 className="text-display mt-4 text-2xl">Algo se rompio de nuestro lado</h1>
       <p className="mt-2 text-sm text-muted">
-        No se realizo ningun cargo por esta accion. Puedes reintentar; si vuelve a ocurrir,
+        No se realizo ningún cargo por esta acción. Puedes reintentar; si vuelve a ocurrir,
         escribenos a soporte@getin.pe
         {error.digest ? (
           <>
             {" "}
-            indicando el codigo <span className="font-mono text-paper">{error.digest}</span>
+            indicando el código <span className="font-mono text-paper">{error.digest}</span>
           </>
         ) : null}
         .

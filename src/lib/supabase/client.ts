@@ -6,7 +6,7 @@ import { isSupabaseConfigured, publicEnv } from "@/lib/env";
 
 /**
  * Cliente de navegador. Solo lleva la clave anonima (publica por diseño): toda
- * la autorizacion real la aplica RLS en la base y los guards del servidor.
+ * la autorización real la aplica RLS en la base y los guards del servidor.
  */
 let browserClient: ReturnType<typeof createBrowserClient> | null = null;
 

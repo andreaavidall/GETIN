@@ -11,14 +11,14 @@ import { Input } from "@/components/ui/input";
  *
  * Lectura de QR con `BarcodeDetector`, la API nativa del navegador: en Chrome
  * de Android (el caso real del personal de puerta) funciona sin cargar ninguna
- * libreria. Donde no exista, se usa la entrada manual del codigo, que recorre
+ * libreria. Donde no exista, se usa la entrada manual del código, que recorre
  * exactamente el mismo endpoint. Preferir lo nativo evita meter ~50 KB de
- * JavaScript en un telefono con mala señal en la puerta de una discoteca.
+ * JavaScript en un teléfono con mala señal en la puerta de una discoteca.
  *
  * El veredicto lo decide SIEMPRE el servidor. Esta pantalla solo lo pinta:
  *   verde   = ingreso autorizado
- *   rojo    = invalida o ya utilizada
- *   amarillo= requiere revision del personal
+ *   rojo    = inválida o ya utilizada
+ *   amarillo= requiere revisión del personal
  */
 type ScanResult = {
   result: string;
@@ -80,13 +80,13 @@ export function Scanner({ venueId, venueName }: { venueId: string; venueName: st
               : { ...prev, denied: prev.denied + 1 },
           );
         }
-        // Vibracion corta/larga segun el veredicto: en la puerta no siempre se
+        // Vibracion corta/larga según el veredicto: en la puerta no siempre se
         // puede mirar la pantalla.
         if (typeof navigator.vibrate === "function") {
           navigator.vibrate(body.result === "granted" ? 60 : [80, 60, 80]);
         }
       } catch {
-        setResult({ result: "review", detail: "Sin conexion. Reintenta." });
+        setResult({ result: "review", detail: "Sin conexión. Reintenta." });
       } finally {
         setBusy(false);
       }
@@ -118,7 +118,7 @@ export function Scanner({ venueId, venueName }: { venueId: string; venueName: st
     } catch (error) {
       setCameraError(
         error instanceof Error && error.name === "NotAllowedError"
-          ? "Permiso de camara denegado. Puedes escribir el codigo a mano."
+          ? "Permiso de camara denegado. Puedes escribir el código a mano."
           : "No se pudo abrir la camara. Usa la entrada manual.",
       );
       setCameraOn(false);
@@ -264,12 +264,12 @@ export function Scanner({ venueId, venueName }: { venueId: string; venueName: st
           setManual("");
         }}
       >
-        <label htmlFor="codigo" className="flex items-center gap-2 text-xs uppercase tracking-wide text-muted">
+        <label htmlFor="código" className="flex items-center gap-2 text-xs uppercase tracking-wide text-muted">
           <Keyboard className="size-3.5" />
-          Entrada manual del codigo
+          Entrada manual del código
         </label>
         <Input
-          id="codigo"
+          id="código"
           value={manual}
           onChange={(e) => setManual(e.target.value)}
           placeholder="GETIN1...."
@@ -277,12 +277,12 @@ export function Scanner({ venueId, venueName }: { venueId: string; venueName: st
           spellCheck={false}
         />
         <Button type="submit" full variant="secondary" disabled={busy || manual.trim().length < 10}>
-          {busy ? "Validando..." : "Validar codigo"}
+          {busy ? "Validando..." : "Validar código"}
         </Button>
       </form>
 
       <div className="flex items-center justify-between rounded-xl bg-white/[0.04] px-4 py-3 text-xs">
-        <span className="text-muted">Esta sesion en {venueName}</span>
+        <span className="text-muted">Esta sesión en {venueName}</span>
         <span>
           <strong className="text-emerald-400">{counts.granted}</strong> autorizados ·{" "}
           <strong className="text-red-400">{counts.denied}</strong> rechazados

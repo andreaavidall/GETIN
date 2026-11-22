@@ -6,11 +6,11 @@ export const uuid = z.string().uuid("Identificador invalido");
 
 export const emailSchema = z.string().trim().toLowerCase().email("Correo invalido");
 
-/** Telefono peruano: 9 digitos, o con prefijo +51. */
+/** Teléfono peruano: 9 digitos, o con prefijo +51. */
 export const phoneSchema = z
   .string()
   .trim()
-  .regex(/^(\+?51)?9\d{8}$/, "Telefono peruano invalido (9 digitos)")
+  .regex(/^(\+?51)?9\d{8}$/, "Teléfono peruano invalido (9 digitos)")
   .optional()
   .or(z.literal(""));
 
@@ -20,11 +20,11 @@ export const signUpSchema = z
     email: emailSchema,
     password: z
       .string()
-      .min(10, "Minimo 10 caracteres")
-      .max(72, "Maximo 72 caracteres")
+      .min(10, "Mínimo 10 caracteres")
+      .max(72, "Máximo 72 caracteres")
       .regex(/[a-z]/, "Incluye una minuscula")
       .regex(/[A-Z]/, "Incluye una mayuscula")
-      .regex(/\d/, "Incluye un numero"),
+      .regex(/\d/, "Incluye un número"),
     phone: phoneSchema,
     birthdate: z
       .string()
@@ -36,7 +36,7 @@ export const signUpSchema = z
         return date <= adult;
       }, "Debes ser mayor de 18 años para usar GETIN"),
     acceptTerms: z.literal(true, {
-      errorMap: () => ({ message: "Debes aceptar los terminos y la politica de privacidad" }),
+      errorMap: () => ({ message: "Debes aceptar los terminos y la política de privacidad" }),
     }),
   })
   .strict();
@@ -50,7 +50,7 @@ export const signInSchema = z.object({
 
 export type SignInInput = z.infer<typeof signInSchema>;
 
-/** Seleccion de entradas del checkout. */
+/** Selección de entradas del checkout. */
 export const cartSchema = z.object({
   eventId: uuid,
   tickets: z
@@ -91,15 +91,15 @@ export const eventFormSchema = z
     startsAt: z.string().min(1, "Indica la fecha y hora de inicio"),
     endsAt: z.string().optional().or(z.literal("")),
     lastEntryAt: z.string().optional().or(z.literal("")),
-    minAge: z.coerce.number().int().min(18, "El minimo legal es 18").max(99),
+    minAge: z.coerce.number().int().min(18, "El mínimo legal es 18").max(99),
     musicGenres: z.array(z.string().trim().min(1)).max(6).default([]),
     entryRules: z.string().trim().max(2000).optional().or(z.literal("")),
     cancellationPolicy: z
       .string()
       .trim()
-      .min(10, "Describe la politica de cancelacion: el comprador la ve antes de pagar")
+      .min(10, "Describe la política de cancelación: el comprador la ve antes de pagar")
       .max(2000),
-    coverUrl: z.string().url("URL invalida").optional().or(z.literal("")),
+    coverUrl: z.string().url("URL inválida").optional().or(z.literal("")),
   })
   .refine(
     (data) => !data.endsAt || new Date(data.endsAt) > new Date(data.startsAt),
@@ -114,7 +114,7 @@ export const ticketTypeFormSchema = z
     description: z.string().trim().max(300).optional().or(z.literal("")),
     /** Precio en soles; se convierte a centimos en el servidor. */
     price: z.coerce.number().min(0, "El precio no puede ser negativo").max(100000),
-    capacity: z.coerce.number().int().min(1, "El aforo minimo es 1").max(100000),
+    capacity: z.coerce.number().int().min(1, "El aforo mínimo es 1").max(100000),
     maxPerOrder: z.coerce.number().int().min(1).max(50).default(6),
     salesStartAt: z.string().optional().or(z.literal("")),
     salesEndAt: z.string().optional().or(z.literal("")),
@@ -133,7 +133,7 @@ export const venueApplicationSchema = z.object({
   legalName: z.string().trim().min(3, "Razon social requerida").max(160),
   taxId: z.string().trim().regex(/^(10|15|17|20)\d{9}$/, "RUC invalido (11 digitos)"),
   district: z.string().trim().min(3).max(60),
-  address: z.string().trim().min(6, "Direccion demasiado corta").max(200),
+  address: z.string().trim().min(6, "Dirección demasiado corta").max(200),
   phone: z.string().trim().min(6).max(20),
   email: emailSchema,
   capacity: z.coerce.number().int().min(10).max(20000),
@@ -148,3 +148,51 @@ export const refundRequestSchema = z.object({
   orderId: uuid,
   reason: z.string().trim().min(15, "Explica el motivo con un poco mas de detalle").max(1000),
 });
+
+// ------------------------------------------------- Libro de Reclamaciones ---
+
+/**
+ * La norma peruana pide datos concretos, y distinguir queja de reclamo.
+ * Si el consumidor es menor de edad, debe figurar su apoderado.
+ */
+export const complaintSchema = z
+  .object({
+    kind: z.enum(["reclamo", "queja"]),
+    goodType: z.enum(["servicio", "producto"]).default("servicio"),
+    fullName: z.string().trim().min(3, "Escribe tu nombre completo").max(120),
+    documentType: z.enum(["DNI", "CE", "Pasaporte", "RUC"]).default("DNI"),
+    documentNumber: z
+      .string()
+      .trim()
+      .min(6, "Número de documento demasiado corto")
+      .max(20)
+      .regex(/^[A-Za-z0-9-]+$/, "Solo letras y números"),
+    email: emailSchema,
+    phone: z.string().trim().max(20).optional().or(z.literal("")),
+    address: z.string().trim().max(200).optional().or(z.literal("")),
+    isMinor: z.boolean().default(false),
+    guardianName: z.string().trim().max(120).optional().or(z.literal("")),
+    orderCode: z
+      .string()
+      .trim()
+      .max(20)
+      .optional()
+      .or(z.literal("")),
+    amount: z.coerce.number().min(0).max(1000000).optional(),
+    goodDescription: z
+      .string()
+      .trim()
+      .min(5, "Indica qué contrataste (entrada, mesa, lista...)")
+      .max(300),
+    detail: z.string().trim().min(20, "Cuenta lo ocurrido con un poco más de detalle").max(3000),
+    request: z.string().trim().min(10, "Indica qué solución esperas").max(1500),
+    acceptPrivacy: z.literal(true, {
+      errorMap: () => ({ message: "Debes aceptar el tratamiento de tus datos" }),
+    }),
+  })
+  .refine((d) => !d.isMinor || (d.guardianName ?? "").trim().length > 2, {
+    message: "Si eres menor de edad, indica el nombre de tu padre, madre o apoderado",
+    path: ["guardianName"],
+  });
+
+export type ComplaintInput = z.infer<typeof complaintSchema>;

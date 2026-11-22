@@ -8,7 +8,7 @@ const COLUMNS = [
     links: [
       { href: "/eventos", label: "Eventos" },
       { href: "/discotecas", label: "Discotecas" },
-      { href: "/eventos?sort=price_asc", label: "Mas economicos" },
+      { href: "/eventos?orden=precio", label: "Más económicos" },
     ],
   },
   {
@@ -31,9 +31,9 @@ const COLUMNS = [
   {
     title: "Legal",
     links: [
-      { href: "/legal/terminos", label: "Terminos y condiciones" },
-      { href: "/legal/privacidad", label: "Politica de privacidad" },
-      { href: "/legal/reembolsos", label: "Politica de reembolsos" },
+      { href: "/legal/terminos", label: "Términos y condiciones" },
+      { href: "/legal/privacidad", label: "Política de privacidad" },
+      { href: "/legal/reembolsos", label: "Política de reembolsos" },
       { href: "/legal/libro-de-reclamaciones", label: "Libro de Reclamaciones" },
       { href: "/contacto", label: "Contacto" },
     ],
@@ -42,7 +42,9 @@ const COLUMNS = [
 
 export function Footer() {
   return (
-    <footer className="mt-24 border-t border-white/10 bg-ink">
+    // pb-20 en movil: la ficha de evento lleva una barra de compra fija al
+    // pie, y sin este colchon taparia las ultimas lineas del pie de pagina.
+    <footer className="mt-24 border-t border-white/10 bg-ink pb-20 lg:pb-0">
       <div className="container py-14">
         <div className="grid gap-10 lg:grid-cols-[1.4fr_3fr]">
           <div className="space-y-4">
@@ -78,10 +80,10 @@ export function Footer() {
         </div>
 
         <div className="mt-12 flex flex-col gap-4 border-t border-white/10 pt-6 text-xs text-muted sm:flex-row sm:items-center sm:justify-between">
-          <p>© {new Date().getFullYear()} GETIN. Lima, Peru.</p>
+          <p>© {new Date().getFullYear()} GETIN. Lima, Perú.</p>
           <p className="max-w-xl">
             Ingreso solo para mayores de 18 años. El ingreso a cada local depende de su aforo
-            autorizado y de su derecho de admision. GETIN intermedia la venta: el servicio lo
+            autorizado y de su derecho de admisión. GETIN intermedia la venta: el servicio lo
             presta el establecimiento.
           </p>
         </div>

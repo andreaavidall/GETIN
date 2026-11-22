@@ -1,3 +1,4 @@
+import { limaDayOfWeek, limaStartOfDay } from "@/lib/utils";
 import type { EventFilters, EventSummary } from "@/types/catalog";
 
 /**
@@ -16,18 +17,22 @@ function normalize(text: string): string {
     .trim();
 }
 
-/** Inicio del dia local a partir de "YYYY-MM-DD". */
+/**
+ * Inicio del día en LIMA a partir de "YYYY-MM-DD".
+ *
+ * Importa: con la hora del servidor (UTC en Vercel), un evento del sábado a
+ * las 23:00 de Lima cae el domingo en UTC, y el filtro "hasta el sábado" lo
+ * dejaba fuera aunque para cualquiera en Lima sea sábado. Perú es siempre
+ * UTC-5, así que el desfase se fija explicitamente.
+ */
 function dayStart(iso: string): Date | null {
-  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso);
-  if (!match) return null;
-  const [, y, m, d] = match;
-  return new Date(Number(y), Number(m) - 1, Number(d), 0, 0, 0, 0);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(iso)) return null;
+  return new Date(`${iso}T00:00:00-05:00`);
 }
 
 function dayEnd(iso: string): Date | null {
-  const start = dayStart(iso);
-  if (!start) return null;
-  return new Date(start.getTime() + 86_400_000 - 1);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(iso)) return null;
+  return new Date(`${iso}T23:59:59.999-05:00`);
 }
 
 export function matchesFilters(
@@ -96,20 +101,46 @@ export function applyEventFilters<T extends EventSummary>(
   return typeof filters.limit === "number" ? sorted.slice(0, filters.limit) : sorted;
 }
 
-/** Rango del proximo fin de semana (viernes 18:00 a lunes 06:00). */
-export function weekendRange(now: Date = new Date()): { from: Date; to: Date } {
-  const from = new Date(now);
-  const daysToFriday = (5 - from.getDay() + 7) % 7;
-  from.setDate(from.getDate() + daysToFriday);
-  from.setHours(18, 0, 0, 0);
-  if (daysToFriday === 0 && now.getHours() >= 18) {
-    // Ya es viernes por la noche: el fin de semana es este.
-    from.setTime(now.getTime());
+/**
+ * Fin de semana vigente, en hora de Lima.
+ *
+ * Antes se calculaba con la hora del servidor y, además, el viernes se tomaba
+ * como «el próximo viernes»: un domingo por la tarde la portada enseñaba los
+ * eventos del fin de semana SIGUIENTE bajo el título «este fin de semana».
+ *
+ * Ahora: de viernes a domingo (y la madrugada del lunes hasta las 06:00) el
+ * fin de semana es el que se está viviendo. De lunes a jueves es el que viene,
+ * y `isUpcoming` lo dice para que la portada pueda titularlo bien.
+ */
+export function weekendRange(now: Date = new Date()): {
+  from: Date;
+  to: Date;
+  isUpcoming: boolean;
+} {
+  const dow = limaDayOfWeek(now);
+  const today = limaStartOfDay(now);
+  const DAY = 86_400_000;
+
+  // Viernes del fin de semana en curso o, de lunes a jueves, del próximo.
+  let daysToFriday: number;
+  if (dow === 5 || dow === 6) {
+    daysToFriday = 5 - dow; // viernes (0) o sábado (-1)
+  } else if (dow === 0) {
+    daysToFriday = -2; // domingo: el viernes fue anteayer
+  } else {
+    daysToFriday = 5 - dow; // lunes a jueves: el viernes que viene
   }
-  const to = new Date(from);
-  to.setDate(to.getDate() + 3);
-  to.setHours(6, 0, 0, 0);
-  return { from, to };
+
+  const from = new Date(today.getTime() + daysToFriday * DAY + 18 * 3_600_000);
+  const to = new Date(from.getTime() + 3 * DAY - 12 * 3_600_000); // lunes 06:00
+
+  // La madrugada del lunes sigue siendo el fin de semana anterior.
+  if (dow === 1 && now.getTime() <= today.getTime() + 6 * 3_600_000) {
+    const prevFrom = new Date(from.getTime() - 7 * DAY);
+    return { from: prevFrom, to: new Date(prevFrom.getTime() + 3 * DAY - 12 * 3_600_000), isUpcoming: false };
+  }
+
+  return { from, to, isUpcoming: dow >= 1 && dow <= 4 };
 }
 
 export function isThisWeekend(event: EventSummary, now: Date = new Date()): boolean {

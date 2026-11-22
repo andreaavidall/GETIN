@@ -2,10 +2,10 @@
  * Disponibilidad de entradas y mesas.
  *
  * Este modulo decide *si* una compra es admisible y por que no lo es. La
- * ejecucion atomica (bloqueo de fila, incremento de contadores) vive en las
- * funciones de Postgres de `supabase/migrations/..._functions.sql`; aqui esta la
+ * ejecución atomica (bloqueo de fila, incremento de contadores) vive en las
+ * funciones de Postgres de `supabase/migrations/..._functions.sql`; aquí esta la
  * misma regla expresada de forma pura para poder probarla y para dar mensajes
- * utiles en la interfaz antes de llamar a la base.
+ * útiles en la interfaz antes de llamar a la base.
  */
 
 export type TicketTypeSnapshot = {
@@ -41,11 +41,11 @@ export type AvailabilityCheck = {
 const MESSAGES: Record<AvailabilityReason, string> = {
   ok: "Disponible",
   inactive: "Esta entrada no esta a la venta",
-  sales_not_started: "La venta aun no ha comenzado",
+  sales_not_started: "La venta aún no ha comenzado",
   sales_ended: "La venta ya cerro",
   sold_out: "Agotado",
-  over_max_per_order: "Supera el maximo por compra",
-  invalid_quantity: "Cantidad invalida",
+  over_max_per_order: "Supera el máximo por compra",
+  invalid_quantity: "Cantidad inválida",
 };
 
 /** Entradas libres = aforo - vendidas - retenidas. Nunca negativo. */
@@ -103,7 +103,7 @@ export function availabilityLabel(types: TicketTypeSnapshot[], now: Date = new D
 
   const capacity = onSale.reduce((acc, t) => acc + t.capacity, 0);
   if (capacity > 0 && remaining / capacity <= 0.15) {
-    return { tone: "low", label: `Ultimas ${remaining}` };
+    return { tone: "low", label: `Últimas ${remaining}` };
   }
   return { tone: "available", label: "Disponible" };
 }
@@ -127,7 +127,7 @@ export type TableAvailabilitySnapshot = {
 };
 
 /**
- * Una mesa retenida cuyo plazo vencio vuelve a estar libre: la verdad la fija
+ * Una mesa retenida cuyo plazo venció vuelve a estar libre: la verdad la fija
  * `getin_hold_table`, pero la interfaz debe mostrar lo mismo.
  */
 export function isTableBookable(
@@ -156,7 +156,7 @@ export function tableStateLabel(
   }
 }
 
-/** Saldo que el cliente paga en el local despues del adelanto. */
+/** Saldo que el cliente paga en el local después del adelanto. */
 export function tableBalanceDueCents(table: TableAvailabilitySnapshot): number {
   return Math.max(table.priceCents - table.depositCents, 0);
 }

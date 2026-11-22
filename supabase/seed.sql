@@ -320,7 +320,7 @@ insert into guest_lists (
    'Sin costo de entrada antes de las 00:30.', true),
   -- Segunda lista del mismo evento, con aprobacion MANUAL: asi el demo muestra
   -- los dos modos y el panel del local tiene solicitudes que decidir.
-  ('b0000000-0000-4000-8000-000000000001', 'Lista VIP · aprobacion del local',
+  ('b0000000-0000-4000-8000-000000000001', 'Lista VIP · aprobación del local',
    'Plazas limitadas en la zona VIP. El local revisa cada solicitud.', 40, 12,
    getin_seed_lima(getin_seed_days_to(6), '18:00'),
    getin_seed_lima(getin_seed_days_to(6) + 1, '00:00'),

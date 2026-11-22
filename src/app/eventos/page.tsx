@@ -6,13 +6,15 @@ import { EventCard } from "@/components/catalog/event-card";
 import { EventFiltersPanel } from "@/components/catalog/event-filters-panel";
 import { Button } from "@/components/ui/button";
 import { DemoNotice, EmptyState, ErrorState, EventGridSkeleton } from "@/components/ui/feedback";
+import { getSession } from "@/lib/auth/session";
 import { isDemoMode, listEvents } from "@/lib/data/catalog";
+import { getFavoriteIds } from "@/lib/data/favorites";
 import type { EventFilters } from "@/types/catalog";
 
 export const metadata: Metadata = {
   title: "Eventos en Lima",
   description:
-    "Explora fiestas y eventos nocturnos en Lima. Filtra por distrito, fecha, precio, discoteca y genero musical.",
+    "Explora fiestas y eventos nocturnos en Lima. Filtra por distrito, fecha, precio, discoteca y género musical.",
 };
 
 export const revalidate = 60;
@@ -76,6 +78,9 @@ export default async function EventsPage({ searchParams }: { searchParams: Searc
 }
 
 async function Results({ filters }: { filters: EventFilters }) {
+  const [session, favoritos] = await Promise.all([getSession(), getFavoriteIds()]);
+  const demo = isDemoMode();
+
   let events;
   try {
     events = await listEvents(filters);
@@ -95,8 +100,8 @@ async function Results({ filters }: { filters: EventFilters }) {
   if (events.length === 0) {
     return (
       <EmptyState
-        title="Ningun evento coincide con tu busqueda"
-        description="Prueba a quitar algun filtro, ampliar el rango de fechas o buscar en otro distrito."
+        title="Ningún evento coincide con tu búsqueda"
+        description="Prueba a quitar algún filtro, ampliar el rango de fechas o buscar en otro distrito."
         action={
           <Button asChild variant="outline">
             <Link href="/eventos">Quitar filtros</Link>
@@ -113,7 +118,16 @@ async function Results({ filters }: { filters: EventFilters }) {
       </p>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {events.map((event, i) => (
-          <EventCard key={event.id} event={event} priority={i < 3} />
+          <EventCard
+            key={event.id}
+            event={event}
+            priority={i < 3}
+            favorite={
+              demo
+                ? undefined
+                : { saved: favoritos.events.has(event.id), isAuthenticated: Boolean(session) }
+            }
+          />
         ))}
       </div>
     </>

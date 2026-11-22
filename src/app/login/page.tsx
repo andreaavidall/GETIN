@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { Suspense } from "react";
 
 import { Logo } from "@/components/brand/logo";
@@ -7,7 +6,7 @@ import { AuthForm } from "@/components/auth/auth-form";
 import { isSupabaseConfigured } from "@/lib/env";
 
 export const metadata: Metadata = {
-  title: "Iniciar sesion",
+  title: "Iniciar sesión",
   robots: { index: false },
 };
 
@@ -27,20 +26,13 @@ export default function LoginPage() {
         <div className="surface p-5 text-sm text-muted">
           <p className="font-medium text-paper">Supabase no esta configurado</p>
           <p className="mt-2">
-            El inicio de sesion necesita las claves de Supabase. Copia{" "}
+            El inicio de sesión necesita las claves de Supabase. Copia{" "}
             <code className="rounded bg-white/10 px-1">.env.example</code> a{" "}
             <code className="rounded bg-white/10 px-1">.env.local</code>, completa las variables y
             reinicia el servidor.
           </p>
         </div>
       )}
-
-      <p className="mt-6 text-center text-sm text-muted">
-        ¿No tienes cuenta?{" "}
-        <Link href="/registro" className="text-lime hover:underline">
-          Registrate
-        </Link>
-      </p>
     </div>
   );
 }

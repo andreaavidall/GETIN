@@ -110,9 +110,9 @@ describe("computeOrderTotals", () => {
   });
 
   it("rechaza cantidades invalidas", () => {
-    expect(() => computeOrderTotals([ticket(1_000, 0)])).toThrow(/Cantidad invalida/);
-    expect(() => computeOrderTotals([ticket(1_000, -2)])).toThrow(/Cantidad invalida/);
-    expect(() => computeOrderTotals([ticket(1_000, 1.5)])).toThrow(/Cantidad invalida/);
+    expect(() => computeOrderTotals([ticket(1_000, 0)])).toThrow(/Cantidad inválida/);
+    expect(() => computeOrderTotals([ticket(1_000, -2)])).toThrow(/Cantidad inválida/);
+    expect(() => computeOrderTotals([ticket(1_000, 1.5)])).toThrow(/Cantidad inválida/);
   });
 
   it("rechaza una orden vacia", () => {

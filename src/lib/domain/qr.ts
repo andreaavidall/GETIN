@@ -14,12 +14,12 @@ import { createHash, createHmac, randomBytes, timingSafeEqual } from "node:crypt
  *               truncado a 160 bits. El secreto solo existe en el servidor.
  *
  * Consecuencias buscadas:
- *  - El QR no contiene ningun dato personal: ni nombre, ni correo, ni DNI.
+ *  - El QR no contiene ningún dato personal: ni nombre, ni correo, ni DNI.
  *  - Quien lea la tabla `qr_credentials` no puede fabricar un QR valido, porque
  *    no tiene el secreto; y no puede adivinarlo, porque el nonce es aleatorio.
  *  - El servidor puede volver a dibujar el QR del usuario cuantas veces quiera
  *    a partir del nonce guardado (sin almacenar el token completo).
- *  - La validacion es local (HMAC) antes de tocar la base: un QR falsificado no
+ *  - La validación es local (HMAC) antes de tocar la base: un QR falsificado no
  *    llega a generar consulta.
  */
 

@@ -2,10 +2,10 @@
  * Control de acceso basado en roles.
  *
  * Modulo puro: decide a partir de un "actor" (rol global + locales a los que
- * pertenece) si una accion esta permitida. Lo usan los guards del servidor
+ * pertenece) si una acción esta permitida. Lo usan los guards del servidor
  * (`src/lib/auth/guards.ts`) y lo cubren los tests.
  *
- * Ocultar un boton no es seguridad: toda ruta y accion vuelve a preguntar aqui,
+ * Ocultar un boton no es seguridad: toda ruta y acción vuelve a preguntar aquí,
  * y la base de datos lo verifica otra vez por RLS.
  */
 
@@ -85,7 +85,7 @@ export function isSuperadmin(actor: Actor | null): boolean {
 }
 
 /**
- * ¿Puede `actor` ejecutar `action`? Si la accion es de un local concreto hay que
+ * ¿Puede `actor` ejecutar `action`? Si la acción es de un local concreto hay que
  * pasar `venueId`: sin el, se deniega (evita el fallo de "permitido en algun local").
  */
 export function can(actor: Actor | null, action: Action, venueId?: string): boolean {
@@ -137,7 +137,7 @@ export function accessibleVenueIds(actor: Actor | null): string[] {
   return actor.memberships.filter((m) => m.isActive).map((m) => m.venueId);
 }
 
-/** Ruta inicial segun el rol, para redirigir despues del login. */
+/** Ruta inicial según el rol, para redirigir después del login. */
 export function defaultLandingPath(actor: Actor | null): string {
   if (!actor) return "/";
   if (actor.role === "superadmin") return "/admin";
@@ -158,12 +158,12 @@ export class ForbiddenError extends Error {
 export class UnauthenticatedError extends Error {
   readonly status = 401;
   constructor() {
-    super("Necesitas iniciar sesion");
+    super("Necesitas iniciar sesión");
     this.name = "UnauthenticatedError";
   }
 }
 
-/** Version que lanza: el camino normal en el servidor. */
+/** Versión que lanza: el camino normal en el servidor. */
 export function assertCan(actor: Actor | null, action: Action, venueId?: string): void {
   if (action !== "catalog.read" && !actor) throw new UnauthenticatedError();
   if (!can(actor, action, venueId)) throw new ForbiddenError(action, venueId);

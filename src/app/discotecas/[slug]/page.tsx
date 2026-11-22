@@ -4,9 +4,12 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 
 import { EventCard } from "@/components/catalog/event-card";
+import { FavoriteButton } from "@/components/catalog/favorite-button";
 import { Badge } from "@/components/ui/badge";
 import { DemoNotice, EmptyState } from "@/components/ui/feedback";
+import { getSession } from "@/lib/auth/session";
 import { getVenueBySlug, isDemoMode } from "@/lib/data/catalog";
+import { getFavoriteIds } from "@/lib/data/favorites";
 
 type Params = Promise<{ slug: string }>;
 
@@ -32,10 +35,15 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
 
 export default async function VenuePage({ params }: { params: Params }) {
   const { slug } = await params;
-  const result = await getVenueBySlug(slug);
+  const [result, session, favoritos] = await Promise.all([
+    getVenueBySlug(slug),
+    getSession(),
+    getFavoriteIds(),
+  ]);
   if (!result) notFound();
 
   const { venue, events } = result;
+  const demo = isDemoMode();
 
   return (
     <article>
@@ -49,8 +57,8 @@ export default async function VenuePage({ params }: { params: Params }) {
 
         <div className="container relative flex min-h-[340px] flex-col justify-end pb-8 pt-16">
           <div className="mb-3 flex flex-wrap gap-2">
-            {venue.isDemo ? <Badge variant="demo">Local de demostracion</Badge> : null}
-            {venue.isVerified ? (
+            {venue.isDemo ? <Badge variant="demo">Local de demostración</Badge> : null}
+            {venue.isVerified && !venue.isDemo ? (
               <Badge variant="lime">
                 <BadgeCheck className="size-3" />
                 Verificado por GETIN
@@ -61,7 +69,20 @@ export default async function VenuePage({ params }: { params: Params }) {
             <Badge variant="outline">{venue.minAge}+</Badge>
           </div>
 
-          <h1 className="text-display text-4xl sm:text-5xl">{venue.name}</h1>
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <h1 className="text-display text-4xl sm:text-5xl">{venue.name}</h1>
+            {demo ? null : (
+              <FavoriteButton
+                target="venue"
+                id={venue.id}
+                initial={favoritos.venues.has(venue.id)}
+                isAuthenticated={Boolean(session)}
+                next={`/discotecas/${venue.slug}`}
+                variant="full"
+                label={favoritos.venues.has(venue.id) ? "Guardado" : "Guardar local"}
+              />
+            )}
+          </div>
           <p className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-1 text-sm text-white/75">
             <span className="flex items-center gap-1.5">
               <MapPin className="size-4 text-muted" />
@@ -90,7 +111,7 @@ export default async function VenuePage({ params }: { params: Params }) {
       </header>
 
       <div className="container space-y-10 py-10">
-        {isDemoMode() ? <DemoNotice /> : null}
+        {demo ? <DemoNotice /> : null}
 
         {venue.description ? (
           <section>
@@ -104,7 +125,7 @@ export default async function VenuePage({ params }: { params: Params }) {
             <h3 className="font-display text-base font-semibold">Ingreso</h3>
             <dl className="mt-3 space-y-2 text-sm">
               <div className="flex justify-between gap-4">
-                <dt className="text-muted">Edad minima</dt>
+                <dt className="text-muted">Edad mínima</dt>
                 <dd>{venue.minAge} años</dd>
               </div>
               {venue.dressCode ? (
@@ -147,16 +168,24 @@ export default async function VenuePage({ params }: { params: Params }) {
         </section>
 
         <section>
-          <h2 className="text-display mb-4 text-xl">Proximos eventos</h2>
+          <h2 className="text-display mb-4 text-xl">Próximos eventos</h2>
           {events.length === 0 ? (
             <EmptyState
               title="Sin eventos publicados"
-              description="Este local todavia no tiene eventos a la venta en GETIN."
+              description="Este local todavía no tiene eventos a la venta en GETIN."
             />
           ) : (
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {events.map((event) => (
-                <EventCard key={event.id} event={event} />
+                <EventCard
+                  key={event.id}
+                  event={event}
+                  favorite={
+                    demo
+                      ? undefined
+                      : { saved: favoritos.events.has(event.id), isAuthenticated: Boolean(session) }
+                  }
+                />
               ))}
             </div>
           )}

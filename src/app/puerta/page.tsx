@@ -26,7 +26,7 @@ export default async function DoorPage({ searchParams }: { searchParams: SearchP
         <EmptyState
           icon={DoorOpen}
           title="El control de puerta necesita la base de datos"
-          description="La validacion de QR escribe en checkins y marca la entrada como utilizada de forma atomica: no tiene sentido simularla. Configura Supabase para usarla."
+          description="La validación de QR escribe en checkins y marca la entrada como utilizada de forma atomica: no tiene sentido simularla. Configura Supabase para usarla."
           action={
             <Button asChild variant="outline">
               <Link href="/">Volver al inicio</Link>
@@ -56,7 +56,7 @@ export default async function DoorPage({ searchParams }: { searchParams: SearchP
     redirect("/cuenta");
   }
 
-  // Eventos de hoy y de las proximas horas, para mostrar contexto al personal.
+  // Eventos de hoy y de las próximas horas, para mostrar contexto al personal.
   const { data: events } = await supabase
     .from("events")
     .select("id, name, starts_at")
@@ -97,12 +97,12 @@ export default async function DoorPage({ searchParams }: { searchParams: SearchP
 
         {(events ?? []).length > 0 ? (
           <p className="mt-3 text-xs text-muted">
-            Eventos en curso o proximos:{" "}
+            Eventos en curso o próximos:{" "}
             {(events ?? []).map((e) => e.name as string).join(", ")}
           </p>
         ) : (
           <p className="mt-3 text-xs text-muted">
-            Este local no tiene eventos publicados en las proximas 24 horas.
+            Este local no tiene eventos publicados en las próximas 24 horas.
           </p>
         )}
       </header>
@@ -110,7 +110,7 @@ export default async function DoorPage({ searchParams }: { searchParams: SearchP
       <Scanner venueId={activeVenue.id} venueName={activeVenue.name} />
 
       <p className="mt-6 text-xs text-muted">
-        Cada validacion queda registrada con la fecha, la hora y el usuario que escaneo. Una
+        Cada validación queda registrada con la fecha, la hora y el usuario que escaneo. Una
         entrada ya utilizada no vuelve a autorizar el ingreso.
       </p>
     </div>

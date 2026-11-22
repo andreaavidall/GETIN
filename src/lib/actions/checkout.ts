@@ -15,8 +15,8 @@ import { cartSchema, guestListJoinSchema } from "@/lib/validation/schemas";
  * Server actions del flujo de compra.
  *
  * Cada una:
- *  1. exige sesion y permiso (no basta con que el boton este visible),
- *  2. valida la entrada con zod,
+ *  1. exige sesión y permiso (no basta con que el boton este visible),
+ *  2. válida la entrada con zod,
  *  3. delega en el servicio, que recalcula precios y usa las funciones atomicas.
  *
  * Devuelven un resultado en lugar de lanzar, para que el formulario pueda
@@ -40,18 +40,18 @@ export async function createOrderAction(
       return {
         ok: false,
         error:
-          "Estas en modo demostracion: los eventos son ficticios y no se puede comprar. Configura Supabase y un proveedor de pagos para habilitar el checkout.",
+          "Estás en modo demostracion: los eventos son ficticios y no se puede comprar. Configura Supabase y un proveedor de pagos para habilitar el checkout.",
         code: "demo_mode",
       };
     }
 
     const session = await getSession();
     assertCan(session?.actor ?? null, "order.create");
-    if (!session) return { ok: false, error: "Necesitas iniciar sesion" };
+    if (!session) return { ok: false, error: "Necesitas iniciar sesión" };
 
     const parsed = cartSchema.safeParse(input);
     if (!parsed.success) {
-      return { ok: false, error: parsed.error.issues[0]?.message ?? "Seleccion invalida" };
+      return { ok: false, error: parsed.error.issues[0]?.message ?? "Selección inválida" };
     }
 
     const order = await createOrderFromCart(parsed.data, {
@@ -74,7 +74,7 @@ export async function startPaymentAction(
   try {
     const session = await getSession();
     assertCan(session?.actor ?? null, "order.create");
-    if (!session) return { ok: false, error: "Necesitas iniciar sesion" };
+    if (!session) return { ok: false, error: "Necesitas iniciar sesión" };
 
     const result = await startPaymentForOrder({ orderId, userId: session.user.id });
     return { ok: true, redirectUrl: result.redirectUrl };
@@ -86,7 +86,7 @@ export async function startPaymentAction(
 export async function cancelOrderAction(orderId: string): Promise<ActionResult> {
   try {
     const session = await getSession();
-    if (!session) return { ok: false, error: "Necesitas iniciar sesion" };
+    if (!session) return { ok: false, error: "Necesitas iniciar sesión" };
 
     await cancelOrder(orderId, session.user.id);
     revalidatePath("/cuenta/compras");
@@ -110,14 +110,14 @@ export async function joinGuestListAction(
 
     const session = await getSession();
     assertCan(session?.actor ?? null, "guestList.join");
-    if (!session) return { ok: false, error: "Necesitas iniciar sesion" };
+    if (!session) return { ok: false, error: "Necesitas iniciar sesión" };
 
     const parsed = guestListJoinSchema.safeParse(input);
     if (!parsed.success) {
       return { ok: false, error: parsed.error.issues[0]?.message ?? "Datos invalidos" };
     }
 
-    // La inscripcion pasa por la funcion atomica: controla cupo y cierre.
+    // La inscripción pasa por la funcion atomica: controla cupo y cierre.
     const supabase = await createSupabaseServerClient();
     const { data, error } = await supabase.rpc("getin_join_guest_list", {
       p_guest_list_id: parsed.data.guestListId,
@@ -127,7 +127,7 @@ export async function joinGuestListAction(
 
     if (error) {
       const message = error.message.includes("LIST_CLOSED")
-        ? "La inscripcion a esta lista ya cerro"
+        ? "La inscripción a esta lista ya cerro"
         : error.message.includes("LIST_UNAVAILABLE")
           ? "Esta lista no esta disponible"
           : error.message;

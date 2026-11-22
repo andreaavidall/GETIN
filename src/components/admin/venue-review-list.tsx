@@ -25,14 +25,14 @@ export function VenueReviewList({ venues }: { venues: Venue[] }) {
   const [pending, startTransition] = useTransition();
   const [notes, setNotes] = useState<Record<string, string>>({});
 
-  function decide(venueId: string, decision: "approve" | "reject") {
+  function decide(venueId: string, decisión: "approve" | "reject") {
     startTransition(async () => {
-      const result = await decideVenueAction(venueId, decision, notes[venueId]);
+      const result = await decideVenueAction(venueId, decisión, notes[venueId]);
       if (!result.ok) {
-        toast.error("No se pudo registrar la decision", { description: result.error });
+        toast.error("No se pudo registrar la decisión", { description: result.error });
         return;
       }
-      toast.success(decision === "approve" ? "Local aprobado y publicado" : "Solicitud rechazada");
+      toast.success(decisión === "approve" ? "Local aprobado y publicado" : "Solicitud rechazada");
       router.refresh();
     });
   }
@@ -46,7 +46,7 @@ export function VenueReviewList({ venues }: { venues: Venue[] }) {
               <div className="flex flex-wrap items-center gap-2">
                 <h3 className="font-display text-base font-semibold">{venue.name}</h3>
                 <Badge variant="warning">
-                  {venue.status === "draft" ? "Borrador" : "En revision"}
+                  {venue.status === "draft" ? "Borrador" : "En revisión"}
                 </Badge>
               </div>
               <dl className="mt-2 space-y-1 text-xs text-muted">
@@ -73,7 +73,7 @@ export function VenueReviewList({ venues }: { venues: Venue[] }) {
           <Textarea
             rows={2}
             className="mt-4"
-            placeholder="Notas de la revision (quedan en el expediente y en la auditoria)"
+            placeholder="Notas de la revisión (quedan en el expediente y en la auditoria)"
             value={notes[venue.id] ?? ""}
             onChange={(e) => setNotes((prev) => ({ ...prev, [venue.id]: e.target.value }))}
           />

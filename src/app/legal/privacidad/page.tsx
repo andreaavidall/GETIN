@@ -3,19 +3,19 @@ import type { Metadata } from "next";
 import { LegalPage } from "@/components/layout/legal-page";
 
 export const metadata: Metadata = {
-  title: "Politica de privacidad",
+  title: "Política de privacidad",
   description:
-    "Como trata GETIN los datos personales conforme a la Ley 29733 (borrador sujeto a revision legal).",
+    "Como trata GETIN los datos personales conforme a la Ley 29733 (borrador sujeto a revisión legal).",
 };
 
 export default function PrivacyPage() {
   return (
-    <LegalPage title="Politica de privacidad" updated="borrador inicial">
+    <LegalPage title="Política de privacidad" updated="borrador inicial">
       <section>
         <h2>1. Responsable del tratamiento</h2>
         <p>
           GETIN (datos de la entidad titular pendientes de completar antes del lanzamiento) trata
-          tus datos personales conforme a la Ley 29733 de Proteccion de Datos Personales y su
+          tus datos personales conforme a la Ley 29733 de Protección de Datos Personales y su
           reglamento.
         </p>
       </section>
@@ -24,7 +24,7 @@ export default function PrivacyPage() {
         <h2>2. Datos que recogemos</h2>
         <ul>
           <li>
-            <strong>De tu cuenta:</strong> nombre, correo electronico, telefono (opcional) y fecha
+            <strong>De tu cuenta:</strong> nombre, correo electrónico, teléfono (opcional) y fecha
             de nacimiento, para verificar la mayoria de edad.
           </li>
           <li>
@@ -32,14 +32,14 @@ export default function PrivacyPage() {
           </li>
           <li>
             <strong>Del pago:</strong> la marca de la tarjeta y sus cuatro ultimos digitos. GETIN{" "}
-            <strong>no almacena</strong> el numero completo de la tarjeta ni el codigo de
+            <strong>no almacena</strong> el número completo de la tarjeta ni el código de
             seguridad: esos datos viajan directamente al proveedor de pagos.
           </li>
           <li>
-            <strong>Del ingreso:</strong> fecha, hora y resultado de la validacion de tu codigo QR.
+            <strong>Del ingreso:</strong> fecha, hora y resultado de la validación de tu código QR.
           </li>
           <li>
-            <strong>Tecnicos:</strong> direccion IP y navegador en operaciones sensibles, para
+            <strong>Tecnicos:</strong> dirección IP y navegador en operaciones sensibles, para
             seguridad y auditoria.
           </li>
         </ul>
@@ -81,9 +81,9 @@ export default function PrivacyPage() {
       </section>
 
       <section>
-        <h2>5. Tu codigo QR</h2>
+        <h2>5. Tu código QR</h2>
         <p>
-          El codigo QR de tu entrada <strong>no contiene datos personales</strong>: es un
+          El código QR de tu entrada <strong>no contiene datos personales</strong>: es un
           identificador aleatorio firmado criptograficamente que solo sirve para validar el
           ingreso. Si alguien lo fotografia no obtiene tu nombre, tu correo ni tu documento.
         </p>
@@ -102,13 +102,13 @@ export default function PrivacyPage() {
       <section>
         <h2>7. Tus derechos</h2>
         <p>
-          Puedes ejercer tus derechos de acceso, rectificacion, cancelacion y oposicion (ARCO), asi
+          Puedes ejercer tus derechos de acceso, rectificacion, cancelación y oposicion (ARCO), así
           como solicitar la portabilidad o la eliminacion de tu cuenta, escribiendo a{" "}
           <a href="mailto:privacidad@getin.pe" className="text-lime hover:underline">
             privacidad@getin.pe
           </a>
-          . Responderemos en los plazos legales. Tambien puedes presentar un reclamo ante la
-          Autoridad Nacional de Proteccion de Datos Personales.
+          . Responderemos en los plazos legales. También puedes presentar un reclamo ante la
+          Autoridad Nacional de Protección de Datos Personales.
         </p>
       </section>
 
@@ -116,7 +116,7 @@ export default function PrivacyPage() {
         <h2>8. Seguridad</h2>
         <p>
           Aplicamos control de acceso por roles, cifrado en transito, segregacion de datos por
-          establecimiento y registro de auditoria de las operaciones sensibles. Ningun sistema es
+          establecimiento y registro de auditoria de las operaciones sensibles. Ningún sistema es
           infalible: si detectamos un incidente que afecte tus datos, te lo comunicaremos.
         </p>
       </section>

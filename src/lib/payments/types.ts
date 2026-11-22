@@ -1,16 +1,16 @@
 /**
  * Puerto de pagos.
  *
- * La aplicacion no conoce ninguna pasarela concreta: habla con esta interfaz.
+ * La aplicación no conoce ninguna pasarela concreta: habla con esta interfaz.
  * Cambiar de Culqi a Niubiz o Mercado Pago significa escribir un adaptador
  * nuevo, no tocar el checkout.
  *
  * Reglas que todo adaptador debe respetar:
- *  1. Nunca almacenar el numero completo de la tarjeta ni el CVV. El dato
+ *  1. Nunca almacenar el número completo de la tarjeta ni el CVV. El dato
  *     sensible viaja del navegador a la pasarela y vuelve como token.
  *  2. Una orden se da por pagada SOLO cuando lo confirma el proveedor por un
- *     webhook con firma valida (o una consulta directa a su API). Nunca por una
- *     redireccion del navegador a una pagina de exito.
+ *     webhook con firma válida (o una consulta directa a su API). Nunca por una
+ *     redireccion del navegador a una página de exito.
  *  3. `verifyWebhook` tiene que validar la firma antes de leer el cuerpo.
  *  4. Los reintentos del proveedor son normales: `providerEventId` es la clave
  *     de idempotencia.
@@ -29,7 +29,7 @@ export type PaymentIntentRequest = {
   };
   /** URL a la que vuelve el comprador. Informativa: no confirma nada. */
   returnUrl: string;
-  /** Clave de idempotencia de la aplicacion. */
+  /** Clave de idempotencia de la aplicación. */
   idempotencyKey: string;
 };
 
@@ -45,7 +45,7 @@ export type PaymentIntent = {
   expiresAt?: string;
 };
 
-/** Estado al que pasa el pago segun el proveedor. */
+/** Estado al que pasa el pago según el proveedor. */
 export type PaymentWebhookStatus = "paid" | "failed" | "pending" | "refunded" | "chargeback";
 
 export type WebhookVerification =
@@ -79,7 +79,7 @@ export interface PaymentProvider {
   readonly name: string;
   /** ¿Puede cobrar de verdad, o es un simulador / le faltan credenciales? */
   readonly isLive: boolean;
-  /** Texto que se muestra al usuario sobre el estado de la integracion. */
+  /** Texto que se muestra al usuario sobre el estado de la integración. */
   readonly statusNote: string;
 
   createIntent(request: PaymentIntentRequest): Promise<PaymentIntent>;

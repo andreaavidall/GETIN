@@ -182,6 +182,37 @@ echo "$res" | grep -qiE "FORBIDDEN|row-level security|permission denied" \
   && ok "una discoteca no puede bajarse su propia comision" \
   || fail "la discoteca cambio su comision" "$res"
 
+# ------------------------------------------------------------- favoritos ----
+# Un favorito es poco, pero dice donde piensa ir alguien. Que solo lo vea su
+# dueño: ni otro cliente, ni el local, ni el personal de puerta.
+first_id() { node -e "let d='';process.stdin.on('data',c=>d+=c).on('end',()=>{try{console.log(JSON.parse(d)[0].id)}catch{console.log('')}})"; }
+
+EV_ID=$(curl -s "$API/rest/v1/events?select=id&status=eq.published&limit=1" -H "apikey: $ANON" | first_id)
+YO=$(rest "$TOK_CLIENTE" GET "profiles?select=id" | first_id)
+# Un perfil que NO es el del cliente: el de otra persona cualquiera.
+OTRO=$(rest "$TOK_ADMIN" GET "profiles?select=id&id=neq.$YO&limit=1" | first_id)
+
+# Sin user_id la politica no puede cumplirse: la columna no tiene default.
+res=$(rest "$TOK_CLIENTE" POST "favorites" "{\"event_id\":\"$EV_ID\"}")
+echo "$res" | grep -qiE "row-level security|permission denied|null value"   && ok "un favorito sin dueño explicito se rechaza"   || fail "se creo un favorito sin dueño" "$res"
+
+# En nombre de otro usuario: esto es el intento que importa.
+res=$(rest "$TOK_CLIENTE" POST "favorites" "{\"user_id\":\"$OTRO\",\"event_id\":\"$EV_ID\"}")
+echo "$res" | grep -qiE "row-level security|permission denied"   && ok "un cliente no puede guardar favoritos en nombre de otro"   || fail "el cliente creo un favorito ajeno" "$res"
+
+# El propio si, y solo lo ve el.
+res=$(rest "$TOK_CLIENTE" POST "favorites" "{\"user_id\":\"$YO\",\"event_id\":\"$EV_ID\"}")
+echo "$res" | grep -q "$EV_ID"   && ok "el cliente guarda su propio favorito"   || fail "el cliente no pudo guardar su favorito" "$res"
+
+n=$(rest "$TOK_CLUB" GET "favorites?select=id" | count)
+[ "$n" = "0" ] && ok "una discoteca no ve los favoritos de sus clientes (ve 0)"               || fail "la discoteca vio favoritos" "ve $n"
+
+n=$(rest "$TOK_PUERTA" GET "favorites?select=id" | count)
+[ "$n" = "0" ] && ok "el personal de puerta no ve favoritos (ve 0)"               || fail "la puerta vio favoritos" "ve $n"
+
+# Se limpia lo que la prueba creo.
+rest "$TOK_CLIENTE" DELETE "favorites?event_id=eq.$EV_ID" > /dev/null
+
 echo
 if [ "$fallos" -eq 0 ]; then
   echo "Todas las pruebas de RLS pasaron."

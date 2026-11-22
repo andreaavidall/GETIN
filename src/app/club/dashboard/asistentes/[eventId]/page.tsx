@@ -47,7 +47,7 @@ export default async function AttendeesPage({ params }: { params: Params }) {
       {attendees.length === 0 ? (
         <EmptyState
           title="Sin entradas emitidas"
-          description="Las entradas aparecen aqui cuando el pago queda confirmado por el proveedor."
+          description="Las entradas aparecen aquí cuando el pago queda confirmado por el proveedor."
         />
       ) : (
         <div className="surface overflow-x-auto">
@@ -71,7 +71,7 @@ export default async function AttendeesPage({ params }: { params: Params }) {
                   <td className="p-4 font-mono text-xs">{a.orderCode}</td>
                   <td className="p-4">
                     <Badge variant={a.status === "used" ? "outline" : "success"}>
-                      {a.status === "used" ? "Utilizada" : "Valida"}
+                      {a.status === "used" ? "Utilizada" : "Válida"}
                     </Badge>
                   </td>
                   <td className="p-4 text-xs text-muted">

@@ -13,7 +13,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { ShareButton } from "@/components/catalog/share-button";
+import { EventActions } from "@/components/catalog/event-actions";
+import { FavoriteButton } from "@/components/catalog/favorite-button";
 import { GuestListPanel } from "@/components/checkout/guest-list-panel";
 import { TablePicker } from "@/components/checkout/table-picker";
 import { TicketSelector } from "@/components/checkout/ticket-selector";
@@ -21,6 +22,7 @@ import { Badge } from "@/components/ui/badge";
 import { DemoNotice } from "@/components/ui/feedback";
 import { getSession } from "@/lib/auth/session";
 import { getEventBySlug, isDemoMode } from "@/lib/data/catalog";
+import { getFavoriteIds } from "@/lib/data/favorites";
 import { formatEventDate, formatTime } from "@/lib/utils";
 
 type Params = Promise<{ slug: string }>;
@@ -50,7 +52,11 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
 
 export default async function EventPage({ params }: { params: Params }) {
   const { slug } = await params;
-  const [event, session] = await Promise.all([getEventBySlug(slug), getSession()]);
+  const [event, session, favoritos] = await Promise.all([
+    getEventBySlug(slug),
+    getSession(),
+    getFavoriteIds(),
+  ]);
   if (!event) notFound();
 
   const demo = isDemoMode();
@@ -69,18 +75,31 @@ export default async function EventPage({ params }: { params: Params }) {
         <div className="container relative flex min-h-[420px] flex-col justify-end pb-8 pt-16">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
             <div className="flex flex-wrap gap-2">
-              {event.isDemo ? <Badge variant="demo">Evento de demostracion</Badge> : null}
+              {event.isDemo ? <Badge variant="demo">Evento de demostración</Badge> : null}
               <Badge variant={event.availability.tone === "soldout" ? "danger" : "lime"}>
                 {event.availability.label}
               </Badge>
               <Badge variant="outline">{event.minAge}+</Badge>
             </div>
-            <ShareButton
-              title={`${event.name} · ${event.venue.name}`}
-              text={`${event.name} en ${event.venue.name}, ${event.venue.district}. ${formatEventDate(
-                event.startsAt,
-              )}.`}
-            />
+            <div className="flex flex-wrap items-center gap-2">
+              {demo ? null : (
+                <FavoriteButton
+                  target="event"
+                  id={event.id}
+                  initial={favoritos.events.has(event.id)}
+                  isAuthenticated={Boolean(session)}
+                  next={`/eventos/${event.slug}`}
+                  variant="full"
+                />
+              )}
+              <EventActions
+                name={event.name}
+                venueName={event.venue.name}
+                address={`${event.venue.address}, ${event.venue.district}`}
+                startsAt={event.startsAt.toISOString()}
+                endsAt={event.endsAt ? event.endsAt.toISOString() : null}
+              />
+            </div>
           </div>
 
           <h1 className="text-display max-w-3xl text-4xl leading-[1.02] sm:text-5xl lg:text-6xl">
@@ -115,7 +134,8 @@ export default async function EventPage({ params }: { params: Params }) {
         </div>
       </header>
 
-      <div className="container grid gap-10 py-10 lg:grid-cols-[1fr_minmax(340px,420px)]">
+      {/* pb-28 en movil: deja sitio a la barra inferior de compra. */}
+      <div className="container grid gap-10 pb-28 pt-10 lg:grid-cols-[1fr_minmax(340px,420px)] lg:pb-10">
         {/* ----------------------------------------------------- contenido */}
         <div className="space-y-10">
           {demo ? <DemoNotice /> : null}
@@ -162,7 +182,7 @@ export default async function EventPage({ params }: { params: Params }) {
               rows={[
                 event.doorsOpenAt ? ["Apertura de puertas", formatTime(event.doorsOpenAt)] : null,
                 ["Inicio", formatTime(event.startsAt)],
-                event.lastEntryAt ? ["Ultimo ingreso", formatTime(event.lastEntryAt)] : null,
+                event.lastEntryAt ? ["Último ingreso", formatTime(event.lastEntryAt)] : null,
                 event.endsAt ? ["Cierre", formatTime(event.endsAt)] : null,
               ]}
             />
@@ -170,10 +190,10 @@ export default async function EventPage({ params }: { params: Params }) {
               icon={Users}
               title="Ingreso"
               rows={[
-                ["Edad minima", `${event.minAge} años`],
-                event.venue.dressCode ? ["Codigo de vestimenta", event.venue.dressCode] : null,
+                ["Edad mínima", `${event.minAge} años`],
+                event.venue.dressCode ? ["Código de vestimenta", event.venue.dressCode] : null,
                 event.musicGenres.length > 0
-                  ? ["Genero musical", event.musicGenres.join(", ")]
+                  ? ["Género musical", event.musicGenres.join(", ")]
                   : null,
               ]}
             />
@@ -186,8 +206,8 @@ export default async function EventPage({ params }: { params: Params }) {
                 <h2 className="font-display text-base font-semibold">Reglas de ingreso</h2>
                 <p className="mt-1 whitespace-pre-line text-sm text-muted">{event.entryRules}</p>
                 <p className="mt-3 text-xs text-muted">
-                  El ingreso depende del aforo autorizado del local y de su derecho de admision.
-                  Tu entrada pagada es valida para este evento, pero GETIN no puede garantizar el
+                  El ingreso depende del aforo autorizado del local y de su derecho de admisión.
+                  Tu entrada pagada es válida para este evento, pero GETIN no puede garantizar el
                   acceso si el local alcanza su aforo.
                 </p>
               </div>
@@ -198,7 +218,7 @@ export default async function EventPage({ params }: { params: Params }) {
             <section className="surface flex gap-3 p-5">
               <Info className="mt-0.5 size-5 shrink-0 text-lime" />
               <div>
-                <h2 className="font-display text-base font-semibold">Politica de cancelacion</h2>
+                <h2 className="font-display text-base font-semibold">Política de cancelación</h2>
                 <p className="mt-1 whitespace-pre-line text-sm text-muted">
                   {event.cancellationPolicy}
                 </p>
@@ -206,7 +226,7 @@ export default async function EventPage({ params }: { params: Params }) {
                   href="/legal/reembolsos"
                   className="mt-2 inline-block text-xs text-lime hover:underline"
                 >
-                  Ver politica general de reembolsos →
+                  Ver política general de reembolsos →
                 </Link>
               </div>
             </section>
@@ -217,9 +237,15 @@ export default async function EventPage({ params }: { params: Params }) {
             <section id="mesas" className="scroll-mt-24">
               <h2 className="text-display mb-1 text-xl">Mesas VIP</h2>
               <p className="mb-4 text-sm text-muted">
-                Al reservar pagas un adelanto; el saldo y el consumo minimo se abonan en el local.
+                Al reservar pagas un adelanto; el saldo y el consumo mínimo se abonan en el local.
               </p>
-              <TablePicker eventId={event.id} tables={event.tables} canBuy={Boolean(session) && !demo} />
+              <TablePicker
+                eventId={event.id}
+                eventSlug={event.slug}
+                tables={event.tables}
+                isAuthenticated={Boolean(session)}
+                demoMode={demo}
+              />
             </section>
           ) : null}
 
@@ -228,15 +254,17 @@ export default async function EventPage({ params }: { params: Params }) {
             <section id="listas" className="scroll-mt-24">
               <h2 className="text-display mb-1 text-xl">Listas de invitados</h2>
               <p className="mb-4 text-sm text-muted">
-                La inscripcion no garantiza el ingreso: depende del cupo, del horario y del
-                criterio de admision del local.
+                La inscripción no garantiza el ingreso: depende del cupo, del horario y del
+                criterio de admisión del local.
               </p>
               <div className="space-y-3">
                 {event.guestLists.map((list) => (
                   <GuestListPanel
                     key={list.id}
                     list={list}
-                    canJoin={Boolean(session) && !demo}
+                    eventSlug={event.slug}
+                    isAuthenticated={Boolean(session)}
+                    demoMode={demo}
                     defaultName={session?.user.fullName ?? ""}
                   />
                 ))}
@@ -245,7 +273,7 @@ export default async function EventPage({ params }: { params: Params }) {
           ) : null}
 
           <section>
-            <h2 className="text-display mb-3 text-xl">Ubicacion</h2>
+            <h2 className="text-display mb-3 text-xl">Ubicación</h2>
             <div className="surface overflow-hidden">
               <div className="p-5">
                 <p className="text-sm font-medium">{event.venue.name}</p>
@@ -266,8 +294,7 @@ export default async function EventPage({ params }: { params: Params }) {
               ) : null}
             </div>
             <p className="mt-2 text-xs text-muted">
-              El mapa interactivo embebido llega en una fase posterior; por ahora el enlace abre la
-              ubicacion en el mapa del telefono.
+              El enlace abre la ubicación exacta en el mapa de tu teléfono.
             </p>
           </section>
         </div>
@@ -281,6 +308,9 @@ export default async function EventPage({ params }: { params: Params }) {
             isAuthenticated={Boolean(session)}
             demoMode={demo}
             eventSlug={event.slug}
+            minAge={event.minAge}
+            dressCode={event.venue.dressCode}
+            lastEntryAt={event.lastEntryAt}
           />
         </aside>
       </div>

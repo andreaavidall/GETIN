@@ -10,8 +10,8 @@ import { createSupabaseAdminClient } from "@/lib/supabase/server";
  * Arranque del pago.
  *
  * Importante: esta funcion NO marca nada como pagado. Solo crea la intencion en
- * el proveedor y devuelve a donde hay que llevar al comprador. La confirmacion
- * llega despues, por webhook firmado.
+ * el proveedor y devuelve a donde hay que llevar al comprador. La confirmación
+ * llega después, por webhook firmado.
  */
 export async function startPaymentForOrder(input: {
   orderId: string;
@@ -36,7 +36,7 @@ export async function startPaymentForOrder(input: {
     throw new OrderError(`La orden esta en estado ${order.status} y no se puede pagar`, "internal", 409);
   }
   if (order.expires_at && new Date(order.expires_at as string) <= new Date()) {
-    throw new OrderError("La reserva vencio. Vuelve a seleccionar tus entradas.", "internal", 410);
+    throw new OrderError("La reserva venció. Vuelve a seleccionar tus entradas.", "internal", 410);
   }
 
   // Red de seguridad: el importe se recalcula desde los conceptos.
@@ -83,7 +83,7 @@ export async function startPaymentForOrder(input: {
         order_id: input.orderId,
         provider: intent.provider,
         provider_payment_id: intent.providerPaymentId,
-        // Nunca 'paid' aqui: eso solo lo decide el webhook.
+        // Nunca 'paid' aquí: eso solo lo decide el webhook.
         status: intent.status === "paid" ? "pending" : intent.status,
         amount_cents: amountCents,
         currency: "PEN",
@@ -144,7 +144,7 @@ export async function markPaymentFailed(input: {
     .eq("id", payment.id as string);
 
   // La orden vuelve a 'pending': el comprador puede reintentar mientras la
-  // retencion siga viva, en lugar de perder la seleccion.
+  // retencion siga viva, en lugar de perder la selección.
   await admin.from("orders").update({ status: "pending" }).eq("id", payment.order_id as string);
 
   await recordAudit({

@@ -19,14 +19,14 @@ const STATUS: Record<
   confirmed: {
     label: "Confirmado",
     variant: "success",
-    note: "Estas en la lista. El ingreso sigue sujeto al aforo y al horario del local.",
+    note: "Estás en la lista. El ingreso sigue sujeto al aforo y al horario del local.",
   },
   pending: {
     label: "Pendiente",
     variant: "warning",
-    note: "El local aun no decide. Te avisaremos cuando lo haga.",
+    note: "El local aún no decide. Te avisaremos cuando lo haga.",
   },
-  rejected: { label: "Rechazado", variant: "danger", note: "El local no aprobo esta solicitud." },
+  rejected: { label: "Rechazado", variant: "danger", note: "El local no aprobó esta solicitud." },
   cancelled: { label: "Cancelado", variant: "outline" },
   used: { label: "Utilizado", variant: "outline", note: "Ya registramos tu ingreso." },
 };
@@ -36,7 +36,7 @@ export default async function MyGuestListsPage() {
     return (
       <div className="space-y-4">
         <DemoNotice />
-        <EmptyState icon={ClipboardList} title="Sin inscripciones en modo demostracion" />
+        <EmptyState icon={ClipboardList} title="Sin inscripciones en modo demostración" />
       </div>
     );
   }
@@ -47,7 +47,7 @@ export default async function MyGuestListsPage() {
     return (
       <EmptyState
         icon={ClipboardList}
-        title="No estas en ninguna lista"
+        title="No estás en ninguna lista"
         description="Algunos eventos ofrecen listas de invitados con ingreso sin costo antes de cierta hora."
         action={
           <Button asChild>
@@ -90,7 +90,7 @@ export default async function MyGuestListsPage() {
               </div>
               {entry.lastEntryAt ? (
                 <div>
-                  <dt className="text-muted">Ingreso maximo</dt>
+                  <dt className="text-muted">Ingreso máximo</dt>
                   <dd className="mt-0.5">{formatTime(entry.lastEntryAt)}</dd>
                 </div>
               ) : null}

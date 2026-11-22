@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 /**
  * Boton base (patron shadcn/ui, adaptado a la paleta GETIN).
  *
- * `primary` es amarillo lima y se reserva para la accion principal de cada
+ * `primary` es amarillo lima y se reserva para la acción principal de cada
  * pantalla: comprar, reservar, apuntarse. Si hay dos botones lima en una
  * vista, uno de los dos esta mal.
  *

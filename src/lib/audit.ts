@@ -12,12 +12,14 @@ import { createSupabaseAdminClient } from "@/lib/supabase/server";
  * cliente: una bitacora que el propio actor puede borrar no sirve de nada.
  *
  * Nunca falla hacia arriba: si la auditoria no se puede escribir, se avisa por
- * consola pero no se rompe la operacion del usuario.
+ * consola pero no se rompe la operación del usuario.
  */
 export type AuditAction =
   | "auth.signup"
   | "auth.signin"
   | "auth.signout"
+  | "complaint.create"
+  | "complaint.respond"
   | "order.create"
   | "order.cancel"
   | "payment.intent"

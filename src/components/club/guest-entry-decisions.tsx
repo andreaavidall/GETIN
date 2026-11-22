@@ -24,7 +24,7 @@ export function GuestEntryDecisions({ venueId, entries }: { venueId: string; ent
     startTransition(async () => {
       const result = await decideGuestEntryAction(venueId, entryId, approve);
       if (!result.ok) {
-        toast.error("No se pudo registrar la decision", { description: result.error });
+        toast.error("No se pudo registrar la decisión", { description: result.error });
         return;
       }
       toast.success(approve ? "Invitado confirmado" : "Solicitud rechazada");

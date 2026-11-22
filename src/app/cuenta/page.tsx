@@ -27,7 +27,7 @@ export default async function ProfilePage() {
         <dl className="space-y-3 text-sm">
           <Row icon={User} label="Nombre" value={user.fullName ?? "Sin completar"} />
           <Row icon={Mail} label="Correo" value={user.email} />
-          <Row icon={Phone} label="Telefono" value={user.phone ?? "Sin completar"} />
+          <Row icon={Phone} label="Teléfono" value={user.phone ?? "Sin completar"} />
           <div className="flex items-center justify-between gap-4 border-t border-white/5 pt-3">
             <dt className="flex items-center gap-2 text-muted">
               <ShieldCheck className="size-4" />
@@ -42,8 +42,7 @@ export default async function ProfilePage() {
         </dl>
 
         <p className="mt-5 text-xs text-muted">
-          La edicion del perfil y el cambio de contraseña se añaden en la siguiente iteracion. Por
-          ahora, si necesitas corregir un dato escribenos desde{" "}
+          Para corregir cualquier dato de tu cuenta, escríbenos desde{" "}
           <Link href="/cuenta/soporte" className="text-lime hover:underline">
             Soporte
           </Link>
@@ -59,19 +58,19 @@ export default async function ProfilePage() {
         <h2 className="text-display mb-4 text-lg">Tus datos personales</h2>
         <p className="text-sm text-muted">
           GETIN trata tus datos para gestionar tus compras y tu acceso a los eventos, conforme a la
-          Ley 29733 de Proteccion de Datos Personales. Puedes ejercer tus derechos de acceso,
-          rectificacion, cancelacion y oposicion escribiendo a{" "}
+          Ley 29733 de Protección de Datos Personales. Puedes ejercer tus derechos de acceso,
+          rectificacion, cancelación y oposicion escribiendo a{" "}
           <a href="mailto:privacidad@getin.pe" className="text-lime hover:underline">
             privacidad@getin.pe
           </a>
           .
         </p>
         <p className="mt-3 text-sm text-muted">
-          Tu codigo QR no contiene datos personales: es un identificador aleatorio firmado que solo
+          Tu código QR no contiene datos personales: es un identificador aleatorio firmado que solo
           sirve para validar tu ingreso.
         </p>
         <Button asChild variant="outline" size="sm" className="mt-4">
-          <Link href="/legal/privacidad">Leer la politica de privacidad</Link>
+          <Link href="/legal/privacidad">Leer la política de privacidad</Link>
         </Button>
       </section>
     </div>

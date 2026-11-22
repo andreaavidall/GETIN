@@ -15,7 +15,7 @@ export const dynamic = "force-dynamic";
 const STATUS: Record<string, { label: string; variant: "success" | "warning" | "outline" | "danger" }> = {
   paid: { label: "Pagada", variant: "success" },
   pending: { label: "Pendiente de pago", variant: "warning" },
-  awaiting_payment: { label: "Esperando confirmacion", variant: "warning" },
+  awaiting_payment: { label: "Esperando confirmación", variant: "warning" },
   failed: { label: "Pago rechazado", variant: "danger" },
   expired: { label: "Vencida", variant: "outline" },
   cancelled: { label: "Cancelada", variant: "outline" },
@@ -28,7 +28,7 @@ export default async function PurchaseHistoryPage() {
     return (
       <div className="space-y-4">
         <DemoNotice />
-        <EmptyState icon={Receipt} title="Sin compras en modo demostracion" />
+        <EmptyState icon={Receipt} title="Sin compras en modo demostración" />
       </div>
     );
   }
@@ -39,8 +39,8 @@ export default async function PurchaseHistoryPage() {
     return (
       <EmptyState
         icon={Receipt}
-        title="Sin compras todavia"
-        description="Aqui apareceran tus ordenes con su desglose: precio del local, cargo por servicio e impuestos."
+        title="Sin compras todavía"
+        description="Aquí apareceran tus ordenes con su desglose: precio del local, cargo por servicio e impuestos."
         action={
           <Button asChild>
             <Link href="/eventos">Explorar eventos</Link>

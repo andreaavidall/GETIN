@@ -13,10 +13,10 @@ import type {
  *
  * Existe para que `npm run dev` funcione sin Supabase y para poder enseñar la
  * plataforma. Los mismos datos estan en `supabase/seed.sql`, de modo que la
- * version con base de datos se vea igual.
+ * versión con base de datos se vea igual.
  *
  * Cada local y evento lleva `isDemo: true`, y la interfaz pinta el aviso "DEMO"
- * en cada tarjeta: ningun evento de aqui se presenta como real ni se puede
+ * en cada tarjeta: ningún evento de aquí se presenta como real ni se puede
  * comprar (el checkout exige Supabase).
  */
 
@@ -28,7 +28,7 @@ const HOUR = 3_600_000;
  *
  * Si se construyen con `setHours()` quedan en la zona del servidor y la
  * interfaz, que formatea en America/Lima, las muestra desplazadas (una fiesta
- * "a las 6 p. m."). Peru no aplica horario de verano: siempre UTC-5, asi que se
+ * "a las 6 p. m."). Perú no aplica horario de verano: siempre UTC-5, así que se
  * puede fijar el desfase directamente.
  */
 const LIMA_OFFSET = "-05:00";
@@ -49,7 +49,7 @@ function at(daysFromNow: number, hour: number, minute = 0): Date {
   return limaDate(daysFromNow, hhmm);
 }
 
-/** Dia de la semana actual en Lima (0 = domingo). */
+/** Día de la semana actual en Lima (0 = domingo). */
 function limaDayOfWeek(): number {
   const name = new Intl.DateTimeFormat("en-US", {
     timeZone: "America/Lima",
@@ -58,7 +58,7 @@ function limaDayOfWeek(): number {
   return ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].indexOf(name);
 }
 
-/** Proximo sabado a las 23:00 (hora de Lima). */
+/** Próximo sábado a las 23:00 (hora de Lima). */
 function nextSaturday(hour = 23): Date {
   const delta = (6 - limaDayOfWeek() + 7) % 7 || 7;
   return at(delta, hour);
@@ -72,12 +72,12 @@ function nextFriday(hour = 19): Date {
 /**
  * Horas relativas al INICIO de cada evento.
  *
- * Todas las fechas de un evento (cierre, puertas, ultimo ingreso, ventanas de
+ * Todas las fechas de un evento (cierre, puertas, último ingreso, ventanas de
  * venta, cierre de listas) se derivan de su `startsAt`. Antes cada una era un
  * desfase independiente desde "hoy", y eso producia incoherencias visibles: la
- * preventa del sabado cerraba "dentro de 4 dias" mientras el evento era "el
- * proximo sabado", que segun el dia podia estar a uno o dos. Es decir, la venta
- * cerraba despues de la fiesta.
+ * preventa del sábado cerraba "dentro de 4 días" mientras el evento era "el
+ * próximo sábado", que según el día podia estar a uno o dos. Es decir, la venta
+ * cerraba después de la fiesta.
  */
 function before(start: Date, hours: number): Date {
   return new Date(start.getTime() - hours * HOUR);
@@ -151,7 +151,7 @@ export const DEMO_VENUES: VenueDetail[] = [
     address: "Av. Grau 234, Barranco",
     city: "Lima",
     description:
-      "Casona republicana convertida en club de tres ambientes: pista principal, patio y sotano de techno.",
+      "Casona republicana convertida en club de tres ambientes: pista principal, patio y sótano de techno.",
     coverUrl:
       "https://images.unsplash.com/photo-1566417713940-fe7c737a9ef2?w=1600&q=70",
     musicGenres: ["House", "Techno", "Reggaeton"],
@@ -274,7 +274,7 @@ const SEEDS: DemoEventSeed[] = [
         description: "Cupo limitado, primera tanda.",
         conditions: "Válida solo hasta las 00:30. No incluye consumo.",
         maxPerOrder: 4,
-        // Cierra tres horas antes de que abran las puertas, nunca despues.
+        // Cierra tres horas antes de que abran las puertas, nunca después.
         salesEndAt: before(START_SATURDAY, 3),
       }),
       ticket("t1-general", "General", 7000, 400, 96, {

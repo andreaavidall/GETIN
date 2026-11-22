@@ -1,120 +1,137 @@
-import { BookOpen, Mail } from "lucide-react";
+import { BookOpen } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { LegalPage } from "@/components/layout/legal-page";
+import { ComplaintForm } from "@/components/legal/complaint-form";
+import { getSession } from "@/lib/auth/session";
 
 export const metadata: Metadata = {
   title: "Libro de Reclamaciones",
   description:
-    "Libro de Reclamaciones virtual de GETIN, conforme al Codigo de Proteccion y Defensa del Consumidor.",
+    "Libro de Reclamaciones virtual de GETIN, conforme al Código de Protección y Defensa del Consumidor.",
 };
+
+export const dynamic = "force-dynamic";
 
 /**
  * Libro de Reclamaciones virtual.
  *
- * En Peru es OBLIGATORIO para quien vende por internet (Codigo de Proteccion y
- * Defensa del Consumidor, Ley 29571, y su reglamento). Tiene requisitos
- * formales: formulario con datos concretos, correlativo, acuse inmediato al
- * consumidor y respuesta en plazo.
- *
- * Esta pagina explica el canal provisional por correo y deja claro que el
- * formulario formal falta. No se finge que el libro este operativo: hacerlo
- * seria precisamente el incumplimiento que la norma castiga.
+ * Obligatorio en Perú para quien vende por internet. Antes esta página era un
+ * instructivo que mandaba a escribir un correo; ahora registra de verdad, con
+ * correlativo y constancia inmediata, que es lo que la norma exige.
  */
-export default function ComplaintsBookPage() {
+export default async function ComplaintsBookPage() {
+  const session = await getSession();
+
   return (
-    <LegalPage title="Libro de Reclamaciones" updated="borrador inicial">
-      <div className="flex gap-3 rounded-xl border border-white/10 bg-surface p-5">
-        <BookOpen className="mt-0.5 size-5 shrink-0 text-lime" />
+    <div className="container max-w-3xl py-10">
+      <div className="flex items-start gap-3">
+        <BookOpen className="mt-1 size-6 shrink-0 text-lime" />
         <div>
-          <h2 className="font-display text-base font-semibold text-paper">
-            Pendiente de habilitar antes del lanzamiento comercial
-          </h2>
-          <p className="mt-1 text-sm text-muted">
-            El formulario formal todavia no esta implementado. Mientras tanto, atendemos quejas y
-            reclamos por correo, y los registramos con el mismo detalle. Antes de vender al
-            publico hay que publicar aqui el formulario que exige la norma.
+          <h1 className="text-display text-3xl sm:text-4xl">Libro de Reclamaciones</h1>
+          <p className="mt-2 text-sm text-muted">
+            Conforme al Código de Protección y Defensa del Consumidor (Ley 29571) y su
+            reglamento. Puedes presentar una reclamación tengas o no cuenta en GETIN.
           </p>
         </div>
       </div>
 
-      <section>
-        <h2>Como presentar una queja o un reclamo ahora</h2>
-        <p>
-          Escribe a{" "}
-          <a href="mailto:reclamos@getin.pe" className="text-lime hover:underline">
-            reclamos@getin.pe
-          </a>{" "}
-          con esta informacion:
-        </p>
-        <ul>
-          <li>Nombre completo, documento de identidad, telefono y correo.</li>
-          <li>Codigo de la orden (formato GETIN-XXXXXX), si tu caso es por una compra.</li>
-          <li>Si es un <strong>reclamo</strong> (disconformidad con el servicio o el producto) o
-            una <strong>queja</strong> (malestar con la atencion recibida).</li>
-          <li>Descripcion de lo ocurrido y que solucion esperas.</li>
-        </ul>
-        <p>
-          Te respondemos con un numero de registro y atendemos el caso dentro del plazo legal de
-          quince (15) dias habiles, prorrogable cuando la naturaleza del reclamo lo justifique.
+      <div className="mt-6 grid gap-3 sm:grid-cols-2">
+        <div className="surface p-4">
+          <h2 className="text-sm font-semibold">Reclamo</h2>
+          <p className="mt-1 text-xs text-muted">
+            Disconformidad con el servicio o el producto: no recibiste tu entrada, te cobraron de
+            más, el evento cambió sin aviso.
+          </p>
+        </div>
+        <div className="surface p-4">
+          <h2 className="text-sm font-semibold">Queja</h2>
+          <p className="mt-1 text-xs text-muted">
+            Malestar con la atención recibida: trato inadecuado, demoras en la respuesta,
+            información confusa.
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-6">
+        <ComplaintForm
+          defaultEmail={session?.user.email}
+          defaultName={session?.user.fullName ?? undefined}
+        />
+      </div>
+
+      <section className="surface mt-8 p-5">
+        <h2 className="font-display text-base font-semibold">Datos del proveedor</h2>
+        <dl className="mt-3 space-y-2 text-sm">
+          <div className="flex justify-between gap-4">
+            <dt className="text-muted">Nombre comercial</dt>
+            <dd>GETIN</dd>
+          </div>
+          <div className="flex justify-between gap-4">
+            <dt className="text-muted">Razón social</dt>
+            <dd className="text-right text-amber-300">Pendiente de constitución</dd>
+          </div>
+          <div className="flex justify-between gap-4">
+            <dt className="text-muted">RUC</dt>
+            <dd className="text-right text-amber-300">Pendiente de constitución</dd>
+          </div>
+          <div className="flex justify-between gap-4">
+            <dt className="text-muted">Domicilio fiscal</dt>
+            <dd className="text-right text-amber-300">Pendiente de constitución</dd>
+          </div>
+          <div className="flex justify-between gap-4">
+            <dt className="text-muted">Correo de reclamaciones</dt>
+            <dd>
+              <a href="mailto:reclamos@getin.pe" className="text-lime hover:underline">
+                reclamos@getin.pe
+              </a>
+            </dd>
+          </div>
+        </dl>
+        <p className="mt-4 text-xs text-amber-200/80">
+          Los datos marcados como pendientes se publicarán en cuanto la empresa esté constituida.
+          No se indican datos provisionales ni aproximados: publicar una razón social o un RUC que
+          no existen sería precisamente lo que la norma sanciona.
         </p>
       </section>
 
-      <section>
-        <h2>Que debe tener la version definitiva</h2>
-        <p>
-          Lo dejo anotado para quien implemente esta pagina, porque la norma es concreta:
-        </p>
-        <ul>
-          <li>Formulario en linea con numeracion correlativa automatica.</li>
+      <section className="mt-6 space-y-4 text-sm leading-relaxed text-white/80">
+        <h2 className="font-display text-lg font-semibold text-paper">Qué ocurre después</h2>
+        <ul className="space-y-2 [&>li]:ml-5 [&>li]:list-disc">
           <li>
-            Datos del consumidor, del bien o servicio contratado, monto reclamado, detalle y
-            pedido.
+            Al registrar tu reclamación recibes un <strong>número correlativo</strong> en
+            pantalla. Ese número acredita que la presentaste: guárdalo o imprímelo.
           </li>
-          <li>Distincion explicita entre queja y reclamo.</li>
-          <li>Copia del registro enviada al consumidor de forma inmediata y automatica.</li>
-          <li>Conservacion de los registros por el plazo que exige el reglamento.</li>
           <li>
-            Aviso visible del Libro de Reclamaciones en la plataforma, enlazado desde el pie de
-            pagina.
+            Enviamos una copia al correo que indiques. Si no te llega, la constancia en pantalla
+            tiene la misma validez.
+          </li>
+          <li>
+            GETIN responde en un plazo máximo de <strong>quince (15) días hábiles</strong> desde
+            el registro. Ese plazo no se prorroga.
+          </li>
+          <li>
+            GETIN intermedia la venta: el evento lo presta el establecimiento. Según el caso,
+            trasladaremos tu reclamación al local y te lo indicaremos en la respuesta.
+          </li>
+          <li>
+            Presentar una reclamación aquí <strong>no impide</strong> acudir al Indecopi ni
+            interrumpe los plazos que la ley te concede.
           </li>
         </ul>
-      </section>
 
-      <section>
-        <h2>Si no quedas conforme</h2>
-        <p>
-          Puedes acudir al Indecopi. El reclamo ante GETIN no te impide ejercer tus derechos ante
-          la autoridad de consumo ni interrumpe los plazos que la ley te concede.
-        </p>
-        <p>
-          Recuerda ademas que GETIN intermedia la venta: el evento lo presta el establecimiento.
-          Segun el caso, el reclamo puede corresponder al local, y te lo indicaremos derivandolo.
-        </p>
-      </section>
-
-      <section>
-        <h2>Otros canales</h2>
-        <p className="flex items-center gap-2">
-          <Mail className="size-4 text-lime" />
-          Soporte general:{" "}
-          <a href="mailto:soporte@getin.pe" className="text-lime hover:underline">
-            soporte@getin.pe
-          </a>
-        </p>
-        <p>
-          Ver tambien la{" "}
+        <p className="text-xs text-muted">
+          Ver también la{" "}
           <Link href="/legal/reembolsos" className="text-lime hover:underline">
-            politica de reembolsos
+            política de reembolsos
           </Link>{" "}
           y los{" "}
           <Link href="/legal/terminos" className="text-lime hover:underline">
-            terminos del servicio
+            términos del servicio
           </Link>
           .
         </p>
       </section>
-    </LegalPage>
+    </div>
   );
 }

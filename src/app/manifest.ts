@@ -10,7 +10,7 @@ import type { MetadataRoute } from "next";
  */
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "GETIN · La noche empieza aqui",
+    name: "GETIN · La noche empieza aquí",
     short_name: "GETIN",
     description:
       "Descubre eventos, compra entradas y reserva mesas VIP en las discotecas de Lima.",

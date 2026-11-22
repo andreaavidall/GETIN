@@ -17,9 +17,9 @@ type Params = Promise<{ orderId: string }>;
  * Pantalla de retorno del proveedor de pagos.
  *
  * Deliberadamente NO da por bueno el pago porque el navegador haya llegado
- * aqui: lee el estado real de la orden, que solo cambia a "paid" cuando el
+ * aquí: lee el estado real de la orden, que solo cambia a "paid" cuando el
  * webhook firmado lo confirma. Si el usuario vuelve antes de que llegue el
- * webhook, ve "procesando" y la pagina se refresca.
+ * webhook, ve "procesando" y la página se refresca.
  */
 export default async function PaymentResultPage({ params }: { params: Params }) {
   const { orderId } = await params;
@@ -36,7 +36,7 @@ export default async function PaymentResultPage({ params }: { params: Params }) 
         detail={`Pagaste ${formatPEN(order.totalCents)} por ${order.event.name}.`}
       >
         <p className="text-sm text-muted">
-          Tus entradas y sus codigos QR ya estan en tu cuenta. Tambien te enviamos el detalle por
+          Tus entradas y sus códigos QR ya están en tu cuenta. También te enviamos el detalle por
           correo.
         </p>
         <div className="mt-6 flex flex-col gap-2 sm:flex-row sm:justify-center">
@@ -63,8 +63,8 @@ export default async function PaymentResultPage({ params }: { params: Params }) 
         refreshSeconds={5}
       >
         <p className="text-sm text-muted">
-          No cierres esta pagina. Tu entrada se emite cuando el proveedor de pagos confirma la
-          operacion; no antes. Si el cobro no se completa, la reserva se libera y no se te cobra
+          No cierres esta página. Tu entrada se emite cuando el proveedor de pagos confirma la
+          operación; no antes. Si el cobro no se completa, la reserva se libera y no se te cobra
           nada.
         </p>
         <div className="mt-6">
@@ -79,11 +79,11 @@ export default async function PaymentResultPage({ params }: { params: Params }) 
   return (
     <Shell
       icon={<XCircle className="size-12 text-red-400" />}
-      title={order.status === "expired" ? "La reserva vencio" : "El pago no se completo"}
+      title={order.status === "expired" ? "La reserva venció" : "El pago no se completo"}
       detail={
         order.status === "expired"
-          ? "Las entradas volvieron a la venta. No se realizo ningun cargo."
-          : "No se realizo ningun cargo. Puedes intentarlo de nuevo."
+          ? "Las entradas volvieron a la venta. No se realizo ningún cargo."
+          : "No se realizo ningún cargo. Puedes intentarlo de nuevo."
       }
     >
       <div className="mt-6 flex flex-col gap-2 sm:flex-row sm:justify-center">

@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Input, Select } from "@/components/ui/input";
 import { Field } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/feedback";
+import { weekendRange } from "@/lib/domain/event-filters";
+import { cn, limaISODate } from "@/lib/utils";
 import { LIMA_DISTRICTS, MUSIC_GENRES } from "@/types/catalog";
 
 /**
@@ -18,12 +20,15 @@ import { LIMA_DISTRICTS, MUSIC_GENRES } from "@/types/catalog";
  * primera carga. En movil el panel esta plegado para no comerse la pantalla.
  */
 const SORTS = [
-  { value: "fecha", label: "Fecha: mas proximos" },
-  { value: "fecha_desc", label: "Fecha: mas lejanos" },
+  { value: "fecha", label: "Fecha: más próximos" },
+  { value: "fecha_desc", label: "Fecha: más lejanos" },
   { value: "precio", label: "Precio: menor a mayor" },
   { value: "precio_desc", label: "Precio: mayor a menor" },
 ];
 
+// Nombres de los parametros de la URL: SIN acentos a proposito. Son un
+// contrato (enlaces compartidos, marcadores), no texto de interfaz; las
+// etiquetas visibles si llevan tilde.
 const FILTER_KEYS = ["q", "distrito", "genero", "desde", "hasta", "precioMax", "orden"] as const;
 
 export function EventFiltersPanel() {
@@ -43,14 +48,64 @@ export function EventFiltersPanel() {
     startTransition(() => router.replace(query ? `/eventos?${query}` : "/eventos"));
   }
 
+  // Atajos de fecha, siempre en hora de Lima.
+  const hoy = limaISODate();
+  const manana = limaISODate(new Date(Date.now() + 86_400_000));
+  const finde = weekendRange();
+  const atajos = [
+    { label: "Hoy", desde: hoy, hasta: hoy },
+    { label: "Mañana", desde: manana, hasta: manana },
+    {
+      label: finde.isUpcoming ? "Próximo finde" : "Este finde",
+      desde: limaISODate(finde.from),
+      hasta: limaISODate(finde.to),
+    },
+  ];
+
+  function aplicarAtajo(atajo: { desde: string; hasta: string }) {
+    const next = new URLSearchParams(params.toString());
+    const yaActivo = get("desde") === atajo.desde && get("hasta") === atajo.hasta;
+    if (yaActivo) {
+      next.delete("desde");
+      next.delete("hasta");
+    } else {
+      next.set("desde", atajo.desde);
+      next.set("hasta", atajo.hasta);
+    }
+    const query = next.toString();
+    startTransition(() => router.replace(query ? `/eventos?${query}` : "/eventos"));
+  }
+
+  const ETIQUETAS: Record<string, string> = {
+    q: "Búsqueda",
+    distrito: "Distrito",
+    genero: "Género",
+    desde: "Desde",
+    hasta: "Hasta",
+    precioMax: "Hasta S/",
+  };
+
+  const chips = FILTER_KEYS.filter((k) => k !== "orden" && params.get(k)).map((k) => ({
+    key: k as string,
+    label: `${ETIQUETAS[k] ?? k}: ${params.get(k)}`,
+  }));
+
+  function quitar(key: string) {
+    update(key, "");
+  }
+
   function clearAll() {
     startTransition(() => router.replace("/eventos"));
     setOpen(false);
   }
 
   return (
-    <section className="surface p-4" aria-label="Filtros">
-      <div className="flex items-center justify-between gap-3">
+    <section className="surface overflow-hidden p-4" aria-label="Filtros">
+      {/* En móvil el selector de orden baja a su propia fila. Antes iba en la
+          misma línea con un ancho mínimo de 190px y, con un filtro activo, el
+          contenido medía 424px en una pantalla de 390: cortaba el selector y
+          obligaba a desplazar horizontalmente. */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <button
           type="button"
           onClick={() => setOpen((v) => !v)}
@@ -68,18 +123,21 @@ export function EventFiltersPanel() {
           {pending ? <Spinner className="text-muted" /> : null}
         </button>
 
-        <div className="flex items-center gap-2">
+        <div className="flex shrink-0 items-center gap-2">
           {activeCount > 0 ? (
             <Button variant="ghost" size="sm" onClick={clearAll}>
               <X className="size-3.5" />
               Limpiar
             </Button>
           ) : null}
+        </div>
+
+        <div className="order-last w-full sm:order-none sm:w-auto">
           <Select
             value={get("orden") || "fecha"}
             onChange={(e) => update("orden", e.target.value === "fecha" ? "" : e.target.value)}
             aria-label="Ordenar por"
-            className="h-9 w-auto min-w-[190px] text-xs"
+            className="h-9 w-full text-xs sm:w-[200px]"
           >
             {SORTS.map((s) => (
               <option key={s.value} value={s.value}>
@@ -90,12 +148,62 @@ export function EventFiltersPanel() {
         </div>
       </div>
 
+      {/* Accesos rápidos calculados en hora de Lima. Ponen `desde` y `hasta`
+          a la vez, de modo que «Hoy» signifique hoy de verdad y no «de hoy en
+          adelante». */}
+      <div className="mt-3 flex flex-wrap gap-2 border-t border-white/5 pt-3">
+        {atajos.map((atajo) => {
+          const activo = get("desde") === atajo.desde && get("hasta") === atajo.hasta;
+          return (
+            <button
+              key={atajo.label}
+              type="button"
+              onClick={() => aplicarAtajo(atajo)}
+              aria-pressed={activo}
+              className={cn(
+                "rounded-full px-3 py-1.5 text-xs transition-colors",
+                activo
+                  ? "bg-lime font-semibold text-ink"
+                  : "bg-white/5 text-muted hover:bg-white/10 hover:text-paper",
+              )}
+            >
+              {atajo.label}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Cada filtro activo se ve y se quita por separado, sin tener que abrir
+          el panel ni borrarlos todos. */}
+      {chips.length > 0 ? (
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          <span className="text-[11px] uppercase tracking-wide text-muted">Filtros activos</span>
+          {chips.map((chip) => (
+            <button
+              key={chip.key}
+              type="button"
+              onClick={() => quitar(chip.key)}
+              className="group flex items-center gap-1.5 rounded-full border border-lime/40 bg-lime/10 px-3 py-1 text-xs text-lime transition-colors hover:bg-lime/20"
+              aria-label={`Quitar filtro ${chip.label}`}
+            >
+              {chip.label}
+              <X className="size-3 opacity-70 group-hover:opacity-100" />
+            </button>
+          ))}
+        </div>
+      ) : null}
+
       <div
         id="panel-filtros"
         className={`${open ? "grid" : "hidden sm:grid"} mt-4 gap-3 border-t border-white/5 pt-4 sm:grid-cols-2 lg:grid-cols-5`}
       >
         <Field label="Buscar" htmlFor="f-q">
+          {/* La `key` cuelga del valor de la URL: al pulsar Limpiar el
+              parametro desaparece, la key cambia y el campo se vuelve a montar
+              vacio. Sin esto el texto escrito se quedaba en pantalla aunque la
+              búsqueda ya se hubiera borrado. */}
           <Input
+            key={`q-${get("q")}`}
             id="f-q"
             defaultValue={get("q")}
             placeholder="Nombre o discoteca"
@@ -121,7 +229,7 @@ export function EventFiltersPanel() {
           </Select>
         </Field>
 
-        <Field label="Genero" htmlFor="f-genero">
+        <Field label="Género" htmlFor="f-genero">
           <Select
             id="f-genero"
             value={get("genero")}
@@ -145,14 +253,15 @@ export function EventFiltersPanel() {
           />
         </Field>
 
-        <Field label="Precio maximo (S/)" htmlFor="f-precio">
+        <Field label="Precio máximo (S/)" htmlFor="f-precio">
           <Input
+            key={`precio-${get("precioMax")}`}
             id="f-precio"
             type="number"
             min={0}
             step={5}
             inputMode="numeric"
-            placeholder="Sin limite"
+            placeholder="Sin límite"
             defaultValue={get("precioMax")}
             onBlur={(e) => update("precioMax", e.target.value)}
           />

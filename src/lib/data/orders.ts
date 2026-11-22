@@ -8,7 +8,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
  * Lecturas de la cuenta del cliente.
  *
  * Usan el cliente con RLS a proposito: si una consulta se escapara sin filtrar
- * por usuario, la base no devolveria datos de otro. La unica excepcion es la
+ * por usuario, la base no devolveria datos de otro. La única excepcion es la
  * reconstruccion del token QR, que necesita el secreto del servidor.
  */
 
@@ -144,6 +144,8 @@ export type TicketView = {
   usedAt: Date | null;
   typeName: string;
   orderCode: string;
+  /** Estado de la orden: distingue "pago pendiente" de "entrada anulada". */
+  orderStatus: string;
   /** Contenido del QR. Solo se calcula para entradas emitidas y pagadas. */
   qrToken: string | null;
   event: {
@@ -154,6 +156,9 @@ export type TicketView = {
     venueName: string;
     address: string;
     district: string;
+    minAge: number;
+    dressCode: string | null;
+    entryRules: string | null;
   };
 };
 
@@ -166,7 +171,10 @@ export async function listMyTickets(options: { onlyUpcoming?: boolean } = {}): P
       `id, serial, status, holder_name, used_at,
        ticket_types!inner (name),
        orders!inner (code, status),
-       events!inner (slug, name, starts_at, last_entry_at, venues!inner (name, address, district)),
+       events!inner (
+         slug, name, starts_at, last_entry_at, min_age, entry_rules,
+         venues!inner (name, address, district, dress_code)
+       ),
        qr_credentials (nonce, revoked_at)`,
     )
     .order("created_at", { ascending: false })
@@ -185,7 +193,9 @@ export async function listMyTickets(options: { onlyUpcoming?: boolean } = {}): P
       name: string;
       starts_at: string;
       last_entry_at: string | null;
-      venues: { name: string; address: string; district: string } | null;
+      min_age: number;
+      entry_rules: string | null;
+      venues: { name: string; address: string; district: string; dress_code: string | null } | null;
     } | null;
     qr_credentials: { nonce: string; revoked_at: string | null }[] | null;
   };
@@ -206,7 +216,8 @@ export async function listMyTickets(options: { onlyUpcoming?: boolean } = {}): P
       usedAt: row.used_at ? new Date(row.used_at) : null,
       typeName: row.ticket_types?.name ?? "Entrada",
       orderCode: row.orders?.code ?? "",
-      // El QR se dibuja solo si el pago esta confirmado y la entrada sigue valida.
+      orderStatus: row.orders?.status ?? "pending",
+      // El QR se dibuja solo si el pago esta confirmado y la entrada sigue válida.
       qrToken:
         credential && paid && issued ? rebuildQrToken("ticket", row.id, credential.nonce, secret) : null,
       event: {
@@ -217,9 +228,15 @@ export async function listMyTickets(options: { onlyUpcoming?: boolean } = {}): P
         venueName: row.events?.venues?.name ?? "",
         address: row.events?.venues?.address ?? "",
         district: row.events?.venues?.district ?? "",
+        minAge: row.events?.min_age ?? 18,
+        dressCode: row.events?.venues?.dress_code ?? null,
+        entryRules: row.events?.entry_rules ?? null,
       },
     };
   });
+
+  // Lo mas proximo primero: es lo que alguien busca al abrir la pagina.
+  tickets.sort((a, b) => a.event.startsAt.getTime() - b.event.startsAt.getTime());
 
   if (!options.onlyUpcoming) return tickets;
   return tickets.filter((t) => t.event.startsAt > new Date(now.getTime() - 12 * 3_600_000));

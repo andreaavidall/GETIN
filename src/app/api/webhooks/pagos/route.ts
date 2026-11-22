@@ -11,13 +11,13 @@ import { createSupabaseAdminClient } from "@/lib/supabase/server";
  *
  * Secuencia:
  *   1. Leer el cuerpo en crudo (la firma se calcula sobre los bytes exactos).
- *   2. Verificar la firma. Si no es valida: 401 y se registra el intento.
+ *   2. Verificar la firma. Si no es válida: 401 y se registra el intento.
  *   3. Guardar el evento en payment_webhook_events. El UNIQUE
  *      (provider, provider_event_id) hace la idempotencia: un reintento del
  *      proveedor no vuelve a emitir entradas.
- *   4. Segun el estado, confirmar o marcar fallido.
+ *   4. Según el estado, confirmar o marcar fallido.
  *
- * Se responde 200 tambien cuando el evento ya estaba procesado, para que el
+ * Se responde 200 también cuando el evento ya estaba procesado, para que el
  * proveedor deje de reintentar.
  */
 export const dynamic = "force-dynamic";
@@ -40,7 +40,7 @@ export async function POST(request: Request) {
       metadata: { provider: provider.name, reason: verification.reason },
     });
     // 401: la firma no cuadra. No se revela nada mas.
-    return NextResponse.json({ error: "firma invalida" }, { status: 401 });
+    return NextResponse.json({ error: "firma inválida" }, { status: 401 });
   }
 
   const admin = createSupabaseAdminClient();
@@ -76,7 +76,7 @@ export async function POST(request: Request) {
         throw new Error("el evento no trae orderId");
       }
 
-      // Localiza el pago por el id del proveedor para cerrarlo tambien.
+      // Localiza el pago por el id del proveedor para cerrarlo también.
       const { data: payment } = await admin
         .from("payments")
         .select("id, amount_cents, order_id")
@@ -94,7 +94,7 @@ export async function POST(request: Request) {
         );
       }
 
-      // Solo metadatos de la tarjeta (marca y 4 ultimos). Nunca el numero ni el CVV.
+      // Solo metadatos de la tarjeta (marca y 4 ultimos). Nunca el número ni el CVV.
       if (verification.card) {
         await admin
           .from("payments")
@@ -159,7 +159,7 @@ export async function POST(request: Request) {
       .eq("id", eventRowId!);
 
     console.error("[webhook] fallo al procesar", message);
-    // 500 para que el proveedor reintente: el evento quedo registrado sin procesar.
+    // 500 para que el proveedor reintente: el evento quedó registrado sin procesar.
     return NextResponse.json({ error: "no se pudo procesar" }, { status: 500 });
   }
 }

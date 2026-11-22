@@ -4,7 +4,7 @@ import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Contacto",
-  description: "Como contactar al equipo de GETIN: soporte, locales, privacidad y prensa.",
+  description: "Cómo contactar al equipo de GETIN: soporte, locales, privacidad y prensa.",
 };
 
 const CHANNELS = [
@@ -12,19 +12,19 @@ const CHANNELS = [
     icon: LifeBuoy,
     title: "Soporte a compradores",
     email: "soporte@getin.pe",
-    text: "Problemas con una compra, una entrada o un reembolso. Incluye el codigo de la orden (GETIN-XXXXXX).",
+    text: "Problemas con una compra, una entrada o un reembolso. Incluye el código de la orden (GETIN-XXXXXX).",
   },
   {
     icon: Building2,
     title: "Discotecas y eventos",
     email: "locales@getin.pe",
-    text: "Quieres publicar tu local, revisar tu liquidacion o cambiar tus condiciones comerciales.",
+    text: "Quieres publicar tu local, revisar tu liquidación o cambiar tus condiciones comerciales.",
   },
   {
     icon: ShieldCheck,
     title: "Privacidad y datos personales",
     email: "privacidad@getin.pe",
-    text: "Ejercicio de derechos de acceso, rectificacion, cancelacion y oposicion (Ley 29733).",
+    text: "Ejercicio de derechos de acceso, rectificacion, cancelación y oposicion (Ley 29733).",
   },
 ];
 
@@ -60,8 +60,8 @@ export default function ContactPage() {
       <div className="surface mt-6 p-5">
         <h2 className="font-display text-base font-semibold">Datos de la empresa</h2>
         <p className="mt-2 text-sm text-muted">
-          Los datos registrales (razon social, RUC y domicilio fiscal) deben publicarse aqui antes
-          del lanzamiento comercial, como exige la normativa peruana de proteccion al consumidor.
+          Los datos registrales (razon social, RUC y domicilio fiscal) deben publicarse aquí antes
+          del lanzamiento comercial, como exige la normativa peruana de protección al consumidor.
           Quedan pendientes hasta la constitucion de la empresa.
         </p>
         <div className="mt-3 flex flex-col gap-1.5 text-sm">

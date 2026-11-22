@@ -29,7 +29,7 @@ export async function GET(
 
   const session = await getSession();
   if (!session) {
-    return NextResponse.json({ error: "necesitas iniciar sesion" }, { status: 401 });
+    return NextResponse.json({ error: "necesitas iniciar sesión" }, { status: 401 });
   }
 
   const supabase = await createSupabaseServerClient();

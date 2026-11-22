@@ -4,10 +4,10 @@ import { NextResponse, type NextRequest } from "next/server";
 import { isSupabaseConfigured, publicEnv } from "@/lib/env";
 
 /**
- * Middleware: refresca la sesion de Supabase en cada navegacion y bloquea las
+ * Middleware: refresca la sesión de Supabase en cada navegacion y bloquea las
  * zonas privadas antes de renderizar.
  *
- * El control fino de roles NO se hace aqui (el middleware no debe ser la unica
+ * El control fino de roles NO se hace aquí (el middleware no debe ser la única
  * barrera): cada layout privado vuelve a pedir el permiso con los guards del
  * servidor, y la base lo comprueba por tercera vez con RLS. Esto solo evita que
  * un usuario anonimo llegue a una pantalla privada.
@@ -17,9 +17,9 @@ const PROTECTED_PREFIXES = ["/cuenta", "/club", "/admin", "/puerta", "/checkout"
 /**
  * Rutas que caen bajo un prefijo privado pero son publicas a proposito.
  *
- * `/club/registro` es la pagina con la que un local decide si quiere publicar
+ * `/club/registro` es la página con la que un local decide si quiere publicar
  * en GETIN: tiene que poder leerla cualquiera, sin cuenta. Solo el formulario
- * de envio pide sesion, y eso lo resuelve la propia pagina.
+ * de envio pide sesión, y eso lo resuelve la propia página.
  */
 const PUBLIC_EXCEPTIONS = ["/club/registro"];
 

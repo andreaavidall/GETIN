@@ -7,7 +7,7 @@ import { isSupabaseConfigured, publicEnv, serverEnv } from "@/lib/env";
 
 /**
  * Cliente de Supabase para componentes de servidor, server actions y rutas API.
- * Usa la clave anonima + la cookie de sesion, asi que **todas las consultas
+ * Usa la clave anonima + la cookie de sesión, así que **todas las consultas
  * pasan por RLS**. Es el cliente por defecto.
  */
 export async function createSupabaseServerClient() {
@@ -31,7 +31,7 @@ export async function createSupabaseServerClient() {
             });
           } catch {
             // En componentes de servidor de solo lectura no se pueden escribir
-            // cookies: el refresco de sesion lo hace el middleware.
+            // cookies: el refresco de sesión lo hace el middleware.
           }
         },
       },
@@ -40,7 +40,7 @@ export async function createSupabaseServerClient() {
 }
 
 /**
- * Cliente con la service role. **Nunca** se usa para responder a una peticion
+ * Cliente con la service role. **Nunca** se usa para responder a una petición
  * del usuario sin haber comprobado permisos antes: salta RLS por completo.
  *
  * Usos legitimos en este proyecto:

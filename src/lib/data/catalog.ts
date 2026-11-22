@@ -28,9 +28,9 @@ import type {
  * Una sola interfaz con dos implementaciones:
  *  - `demo`: dataset ficticio en memoria (para arrancar sin Supabase).
  *  - `live`: consultas a Postgres por el cliente con RLS, de modo que un evento
- *    en borrador o de un local no aprobado no puede salir aqui ni por error.
+ *    en borrador o de un local no aprobado no puede salir aquí ni por error.
  *
- * Las paginas no saben en cual de los dos estan; solo `isDemoMode()` para
+ * Las páginas no saben en cual de los dos estan; solo `isDemoMode()` para
  * pintar el aviso.
  */
 
@@ -217,7 +217,7 @@ export async function listEvents(
 
 export async function getFeaturedEvents(limit = 6, now: Date = new Date()): Promise<EventSummary[]> {
   const events = await listEvents({ limit: 24 }, now);
-  // Destacados = los mas proximos que todavia tienen entradas.
+  // Destacados = los mas próximos que todavia tienen entradas.
   return events.filter((e) => e.availability.tone !== "soldout").slice(0, limit);
 }
 

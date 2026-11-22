@@ -12,13 +12,13 @@ import type { CartInput } from "@/lib/validation/schemas";
 /**
  * Servicio de ordenes.
  *
- * Todo lo que toca dinero o inventario pasa por aqui, en el servidor, con la
+ * Todo lo que toca dinero o inventario pasa por aquí, en el servidor, con la
  * service role, y SIEMPRE recalculando los precios desde `ticket_types`. Nunca
  * se confia en un importe que venga del navegador.
  *
  * El inventario no se "comprueba y luego se escribe" desde JavaScript: se pide
  * a Postgres con `getin_hold_tickets`, que bloquea la fila y decide. Si dos
- * personas piden la ultima entrada a la vez, una de las dos recibe SOLD_OUT.
+ * personas piden la última entrada a la vez, una de las dos recibe SOLD_OUT.
  */
 
 export class OrderError extends Error {
@@ -211,7 +211,7 @@ export async function createOrderFromCart(
 
     // Se cobra el adelanto; el saldo se abona en el local.
     // La etiqueta de la mesa ya suele incluir la palabra "Mesa" ("Mesa 1",
-    // "Box A"), asi que no se antepone otra.
+    // "Box A"), así que no se antepone otra.
     const tableLabel = tableRow.venue_tables?.label?.trim() ?? "";
     lines.push({
       refId: tableRow.id,
@@ -335,7 +335,7 @@ export async function createOrderFromCart(
 
 /**
  * Recalcula el importe de la orden desde sus conceptos y lo compara con el
- * guardado. Es la ultima red antes de cobrar: si algo manipulo la fila, no se
+ * guardado. Es la última red antes de cobrar: si algo manipulo la fila, no se
  * inicia el pago.
  */
 export async function assertOrderAmountIntact(orderId: string): Promise<number> {
@@ -437,8 +437,8 @@ export async function confirmPaidOrder(input: {
   const tableCount = (items ?? []).filter((i) => i.kind === "table").length;
 
   const secret = serverEnv().QR_TOKEN_SECRET;
-  // El id real del ticket aun no existe; el nonce no depende de el, y el token
-  // definitivo se reconstruye al mostrarlo. Lo que importa aqui es que el nonce
+  // El id real del ticket aún no existe; el nonce no depende de el, y el token
+  // definitivo se reconstruye al mostrarlo. Lo que importa aquí es que el nonce
   // y su hash los genere el servidor con el secreto, no la base de datos.
   const credentials = Array.from({ length: ticketCount + tableCount }, () => {
     const cred = createQrCredential("ticket", crypto.randomUUID(), secret);
@@ -473,8 +473,8 @@ export async function confirmPaidOrder(input: {
 
 /**
  * Vuelve a calcular token_hash de cada credencial usando el id definitivo del
- * objeto (entrada o reserva) y el nonce ya guardado. Despues de esto, el QR que
- * ve el usuario y el hash que valida la puerta coinciden.
+ * objeto (entrada o reserva) y el nonce ya guardado. Después de esto, el QR que
+ * ve el usuario y el hash que válida la puerta coinciden.
  */
 async function resealCredentials(orderId: string): Promise<void> {
   const admin = createSupabaseAdminClient();

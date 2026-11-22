@@ -26,7 +26,7 @@ export default async function MyTablesPage() {
     return (
       <div className="space-y-4">
         <DemoNotice />
-        <EmptyState icon={Sofa} title="Sin reservas en modo demostracion" />
+        <EmptyState icon={Sofa} title="Sin reservas en modo demostración" />
       </div>
     );
   }
@@ -37,7 +37,7 @@ export default async function MyTablesPage() {
     return (
       <EmptyState
         icon={Sofa}
-        title="Todavia no tienes mesas reservadas"
+        title="Todavía no tienes mesas reservadas"
         description="Al reservar una mesa pagas un adelanto y el saldo se abona en el local."
         action={
           <Button asChild>
@@ -101,9 +101,9 @@ export default async function MyTablesPage() {
                 <div className="flex flex-col items-center gap-2 border-t border-dashed border-white/15 p-5">
                   <div className="rounded-xl bg-white p-2">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={qr} alt="Codigo QR de la reserva" width={168} height={168} />
+                    <img src={qr} alt="Código QR de la reserva" width={168} height={168} />
                   </div>
-                  <p className="text-[11px] text-muted">Muestra este codigo al llegar</p>
+                  <p className="text-[11px] text-muted">Muestra este código al llegar</p>
                 </div>
               ) : null}
             </article>

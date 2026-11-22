@@ -16,8 +16,8 @@ type Errors = Record<string, string>;
 /**
  * Formulario de acceso y registro.
  *
- * Valida con el MISMO esquema zod que el servidor: la validacion del navegador
- * es solo para dar respuesta rapida, y la que decide es la del servidor.
+ * Válida con el MISMO esquema zod que el servidor: la validación del navegador
+ * es solo para dar respuesta rápida, y la que decide es la del servidor.
  */
 export function AuthForm({ mode }: { mode: "signin" | "signup" }) {
   const router = useRouter();
@@ -26,6 +26,8 @@ export function AuthForm({ mode }: { mode: "signin" | "signup" }) {
   const [errors, setErrors] = useState<Errors>({});
 
   const next = params.get("siguiente") ?? undefined;
+  const withNext = (path: string) =>
+    next ? `${path}?siguiente=${encodeURIComponent(next)}` : path;
   const justRegistered = params.get("registrado") === "1";
 
   function submit(event: React.FormEvent<HTMLFormElement>) {
@@ -104,7 +106,7 @@ export function AuthForm({ mode }: { mode: "signin" | "signup" }) {
         label="Contraseña"
         htmlFor="password"
         error={errors.password}
-        hint={mode === "signup" ? "Minimo 10 caracteres, con mayuscula, minuscula y numero" : undefined}
+        hint={mode === "signup" ? "Mínimo 10 caracteres, con mayuscula, minuscula y número" : undefined}
         required
       >
         <Input
@@ -118,7 +120,7 @@ export function AuthForm({ mode }: { mode: "signin" | "signup" }) {
       {mode === "signup" ? (
         <>
           <Field
-            label="Telefono"
+            label="Teléfono"
             htmlFor="phone"
             error={errors.phone}
             hint="Opcional. Lo usamos solo para avisos de tu reserva."
@@ -152,7 +154,7 @@ export function AuthForm({ mode }: { mode: "signin" | "signup" }) {
               </Link>{" "}
               y la{" "}
               <Link href="/legal/privacidad" className="text-lime hover:underline">
-                politica de privacidad
+                política de privacidad
               </Link>
               .
             </span>
@@ -176,8 +178,34 @@ export function AuthForm({ mode }: { mode: "signin" | "signup" }) {
           ? "Un momento..."
           : mode === "signup"
             ? "Crear mi cuenta"
-            : "Iniciar sesion"}
+            : "Iniciar sesión"}
       </Button>
+
+      {/* Estos enlaces arrastran `siguiente`. Antes se perdía: quien llegaba
+          desde un evento para comprar acababa en su cuenta y tenía que volver
+          a buscar el evento. */}
+      <div className="flex flex-col gap-2 border-t border-white/10 pt-4 text-center text-sm">
+        {mode === "signin" ? (
+          <>
+            <Link href={withNext("/recuperar")} className="text-muted hover:text-paper">
+              ¿Olvidaste tu contraseña?
+            </Link>
+            <p className="text-muted">
+              ¿No tienes cuenta?{" "}
+              <Link href={withNext("/registro")} className="text-lime hover:underline">
+                Regístrate
+              </Link>
+            </p>
+          </>
+        ) : (
+          <p className="text-muted">
+            ¿Ya tienes cuenta?{" "}
+            <Link href={withNext("/login")} className="text-lime hover:underline">
+              Inicia sesión
+            </Link>
+          </p>
+        )}
+      </div>
     </form>
   );
 }

@@ -149,7 +149,7 @@ export function TicketTypeManager({
             <Field label="Aforo" htmlFor={`tt-cap-${eventId}`} error={errors.capacity} required>
               <Input id={`tt-cap-${eventId}`} name="capacity" type="number" min={1} placeholder="300" />
             </Field>
-            <Field label="Maximo por compra" htmlFor={`tt-max-${eventId}`} error={errors.maxPerOrder}>
+            <Field label="Máximo por compra" htmlFor={`tt-max-${eventId}`} error={errors.maxPerOrder}>
               <Input
                 id={`tt-max-${eventId}`}
                 name="maxPerOrder"
@@ -175,10 +175,10 @@ export function TicketTypeManager({
                 id={`tt-c-${eventId}`}
                 name="conditions"
                 rows={2}
-                placeholder="Valida hasta las 00:30. No incluye consumo."
+                placeholder="Válida hasta las 00:30. No incluye consumo."
               />
             </Field>
-            <Field label="Descripcion" htmlFor={`tt-d-${eventId}`} className="sm:col-span-2">
+            <Field label="Descripción" htmlFor={`tt-d-${eventId}`} className="sm:col-span-2">
               <Input id={`tt-d-${eventId}`} name="description" placeholder="Ingreso a los tres ambientes" />
             </Field>
           </div>

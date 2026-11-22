@@ -17,7 +17,7 @@ const EXPERIENCES = [
 
 /**
  * Buscador de la portada. Compone la URL del explorador: el estado vive en los
- * parametros de busqueda, asi que un resultado se puede compartir o guardar.
+ * parametros de busqueda, así que un resultado se puede compartir o guardar.
  */
 export function SearchBar() {
   const router = useRouter();
@@ -50,8 +50,8 @@ export function SearchBar() {
         <Input
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="Discoteca, evento o genero"
-          aria-label="Discoteca, evento o genero"
+          placeholder="Discoteca, evento o género"
+          aria-label="Discoteca, evento o género"
           className="pl-10"
         />
       </div>

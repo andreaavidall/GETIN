@@ -30,7 +30,7 @@ export function CommissionSettings({
         toast.error("No se pudo guardar", { description: result.error });
         return;
       }
-      toast.success("Comision por defecto actualizada");
+      toast.success("Comisión por defecto actualizada");
       router.refresh();
     });
   }
@@ -43,7 +43,7 @@ export function CommissionSettings({
         toast.error("No se pudo guardar", { description: result.error });
         return;
       }
-      toast.success("Comision del local actualizada");
+      toast.success("Comisión del local actualizada");
       router.refresh();
     });
   }
@@ -52,9 +52,9 @@ export function CommissionSettings({
     <div className="space-y-4">
       <div className="surface p-5">
         <Field
-          label="Comision por defecto (%)"
+          label="Comisión por defecto (%)"
           htmlFor="comision-global"
-          hint="Se aplica a los locales que no tengan una comision propia. Afecta solo a las ordenes nuevas: las ya creadas conservan la que tenian."
+          hint="Se aplica a los locales que no tengan una comisión propia. Afecta solo a las ordenes nuevas: las ya creadas conservan la que tenian."
         >
           <div className="flex gap-2">
             <Input
@@ -77,7 +77,7 @@ export function CommissionSettings({
       {venues.length > 0 ? (
         <div className="surface overflow-hidden">
           <h3 className="border-b border-white/10 p-5 font-display text-base font-semibold">
-            Comision por local
+            Comisión por local
           </h3>
           <ul className="divide-y divide-white/5">
             {venues.map((venue) => (
@@ -112,9 +112,9 @@ export function CommissionSettings({
       ) : null}
 
       <p className="text-xs text-muted">
-        GETIN cobra esta comision como cargo por servicio al comprador. El reparto efectivo del
+        GETIN cobra esta comisión como cargo por servicio al comprador. El reparto efectivo del
         dinero entre GETIN y el local depende del proveedor de pagos y del acuerdo comercial: la
-        plataforma registra el desglose por operacion, pero no asume que la division sea automatica.
+        plataforma registra el desglose por operación, pero no asume que la division sea automática.
       </p>
     </div>
   );

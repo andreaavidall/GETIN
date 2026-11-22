@@ -1,6 +1,7 @@
 "use client";
 
 import { Sofa, Users } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState, useTransition } from "react";
 import { toast } from "sonner";
@@ -21,12 +22,16 @@ import type { TableView } from "@/types/catalog";
  */
 export function TablePicker({
   eventId,
+  eventSlug,
   tables,
-  canBuy,
+  isAuthenticated,
+  demoMode,
 }: {
   eventId: string;
+  eventSlug: string;
   tables: TableView[];
-  canBuy: boolean;
+  isAuthenticated: boolean;
+  demoMode: boolean;
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -92,7 +97,7 @@ export function TablePicker({
 
                   {/* Tres cifras que la gente confunde: lo que cuesta la mesa,
                       lo que paga ahora y lo que debera pagar en la puerta. El
-                      consumo minimo es ADEMAS, no parte del precio: decirlo mal
+                      consumo mínimo es ADEMAS, no parte del precio: decirlo mal
                       acaba en una discusion con el local. */}
                   <dl className="mt-3 space-y-1.5 border-t border-white/5 pt-3 text-xs">
                     <div className="flex justify-between">
@@ -111,7 +116,7 @@ export function TablePicker({
                       <>
                         <div className="flex justify-between">
                           <dt className="text-muted">
-                            Consumo minimo <span className="text-muted/70">(aparte)</span>
+                            Consumo mínimo <span className="text-muted/70">(aparte)</span>
                           </dt>
                           <dd>{formatPEN(table.minConsumptionCents)}</dd>
                         </div>
@@ -127,7 +132,7 @@ export function TablePicker({
 
                   {table.minConsumptionCents > 0 ? (
                     <p className="mt-2 rounded-lg bg-amber-400/[0.07] px-3 py-2 text-[11px] text-amber-100/80">
-                      El consumo minimo <strong className="font-semibold">no esta incluido</strong>{" "}
+                      El consumo mínimo <strong className="font-semibold">no está incluido</strong>{" "}
                       en el precio de la mesa: se gasta en barra dentro del local.
                     </p>
                   ) : null}
@@ -136,8 +141,27 @@ export function TablePicker({
                     <p className="mt-3 text-[11px] text-muted">{table.conditions}</p>
                   ) : null}
 
+                  {/* Una mesa marcada «Disponible» con un boton apagado que
+                      dice «Reserva no disponible» es una contradiccion. Si lo
+                      único que falta es la sesión, se ofrece iniciarla; si es
+                      la demo, se explica por que no se puede reservar. */}
                   {bookable ? (
-                    canBuy ? (
+                    demoMode ? (
+                      <div className="mt-4">
+                        <Button full size="sm" variant="outline" disabled>
+                          Reservas no disponibles en la demostración
+                        </Button>
+                        <p className="mt-1.5 text-[11px] text-muted">
+                          Esta instalación usa un catálogo de ejemplo y no admite reservas reales.
+                        </p>
+                      </div>
+                    ) : !isAuthenticated ? (
+                      <Button asChild full size="sm" className="mt-4">
+                        <Link href={`/login?siguiente=${encodeURIComponent(`/eventos/${eventSlug}#mesas`)}`}>
+                          Inicia sesión para reservar
+                        </Link>
+                      </Button>
+                    ) : (
                       <Button
                         full
                         size="sm"
@@ -150,10 +174,6 @@ export function TablePicker({
                       >
                         {pending && active ? "Reteniendo..." : "Reservar mesa"}
                       </Button>
-                    ) : (
-                      <Button full size="sm" variant="outline" className="mt-4" disabled>
-                        Reserva no disponible
-                      </Button>
                     )
                   ) : null}
                 </div>
@@ -165,8 +185,8 @@ export function TablePicker({
 
       <p className="text-xs text-muted">
         Al reservar pagas solo el adelanto, al que se suma el cargo por servicio de GETIN. El
-        saldo de la mesa y el consumo minimo se abonan en el local, y el consumo minimo es
-        independiente del precio de la mesa. Una mesa reservada no se vende a nadie mas para este
+        saldo de la mesa y el consumo mínimo se abonan en el local, y el consumo mínimo es
+        independiente del precio de la mesa. Una mesa reservada no se vende a nadie más para este
         evento: mientras completas el pago queda retenida unos minutos y, si no pagas, vuelve a
         estar disponible.
       </p>

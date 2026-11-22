@@ -16,7 +16,7 @@ type Params = Promise<{ orderId: string }>;
 
 const STATUS_LABEL: Record<string, string> = {
   pending: "Pendiente de pago",
-  awaiting_payment: "Esperando confirmacion del proveedor",
+  awaiting_payment: "Esperando confirmación del proveedor",
   paid: "Pagada",
   failed: "Pago rechazado",
   expired: "Reserva vencida",
@@ -69,7 +69,7 @@ export default async function CheckoutPage({ params }: { params: Params }) {
         {/* ---------------------------------------------------- conceptos */}
         <section className="surface overflow-hidden">
           <h2 className="border-b border-white/10 p-5 font-display text-base font-semibold">
-            Lo que estas comprando
+            Lo que estás comprando
           </h2>
           <ul className="divide-y divide-white/5">
             {order.items.map((item) => (
@@ -109,16 +109,16 @@ export default async function CheckoutPage({ params }: { params: Params }) {
         {/* --------------------------------------------------- condiciones */}
         {order.event.cancellationPolicy ? (
           <section className="surface p-5">
-            <h2 className="font-display text-base font-semibold">Politica de cancelacion</h2>
+            <h2 className="font-display text-base font-semibold">Política de cancelación</h2>
             <p className="mt-1 text-sm text-muted">{order.event.cancellationPolicy}</p>
             <p className="mt-3 text-xs text-muted">
-              Al pagar aceptas esta politica, los{" "}
+              Al pagar aceptas esta política, los{" "}
               <Link href="/legal/terminos" className="text-lime hover:underline">
-                terminos del servicio
+                términos del servicio
               </Link>{" "}
               y la{" "}
               <Link href="/legal/privacidad" className="text-lime hover:underline">
-                politica de privacidad
+                política de privacidad
               </Link>
               .
             </p>
@@ -135,13 +135,13 @@ export default async function CheckoutPage({ params }: { params: Params }) {
           <div className="mt-3 space-y-2 text-xs text-muted">
             <p className="flex items-start gap-2">
               <Lock className="mt-0.5 size-3.5 shrink-0 text-lime" />
-              Los datos de la tarjeta se envian directamente al proveedor de pagos. GETIN no
-              almacena el numero de tarjeta ni el codigo de seguridad.
+              Los datos de la tarjeta se envían directamente al proveedor de pagos. GETIN no
+              almacena el número de tarjeta ni el código de seguridad.
             </p>
             <p className="flex items-start gap-2">
               <ShieldCheck className="mt-0.5 size-3.5 shrink-0 text-lime" />
-              Tu entrada y su codigo QR se emiten cuando el proveedor confirma el pago, no al
-              volver a esta pagina.
+              Tu entrada y su código QR se emiten cuando el proveedor confirma el pago, no al
+              volver a esta página.
             </p>
           </div>
 

@@ -2,15 +2,31 @@ import { BadgeCheck, MapPin } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
+import { FavoriteButton } from "@/components/catalog/favorite-button";
 import { Badge } from "@/components/ui/badge";
 import type { VenueSummary } from "@/types/catalog";
 
-export function VenueCard({ venue }: { venue: VenueSummary }) {
+export function VenueCard({
+  venue,
+  favorite,
+}: {
+  venue: VenueSummary;
+  favorite?: { saved: boolean; isAuthenticated: boolean };
+}) {
   return (
-    <Link
-      href={`/discotecas/${venue.slug}`}
-      className="surface surface-hover group block overflow-hidden"
-    >
+    <div className="surface surface-hover group relative overflow-hidden">
+      {favorite ? (
+        <div className="absolute right-3 top-3 z-10">
+          <FavoriteButton
+            target="venue"
+            id={venue.id}
+            initial={favorite.saved}
+            isAuthenticated={favorite.isAuthenticated}
+            next={`/discotecas/${venue.slug}`}
+          />
+        </div>
+      ) : null}
+      <Link href={`/discotecas/${venue.slug}`} className="block">
       <div className="relative aspect-[16/9] bg-white/5">
         {venue.coverUrl ? (
           <Image
@@ -24,7 +40,7 @@ export function VenueCard({ venue }: { venue: VenueSummary }) {
         <div className="absolute inset-0 photo-scrim" />
         <div className="absolute left-3 top-3 flex gap-1.5">
           {venue.isDemo ? <Badge variant="demo">Demo</Badge> : null}
-          {venue.isVerified ? (
+          {venue.isVerified && !venue.isDemo ? (
             <Badge variant="lime">
               <BadgeCheck className="size-3" />
               Verificado
@@ -55,6 +71,7 @@ export function VenueCard({ venue }: { venue: VenueSummary }) {
               : `${venue.upcomingEvents} eventos`}
         </p>
       </div>
-    </Link>
+      </Link>
+    </div>
   );
 }

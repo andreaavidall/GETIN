@@ -72,7 +72,7 @@ export default async function ClubDashboardPage({ searchParams }: { searchParams
             {venue?.district}
             {venue ? (
               <Badge variant={venue.status === "approved" ? "success" : "warning"}>
-                {venue.status === "approved" ? "Aprobado" : "Pendiente de aprobacion"}
+                {venue.status === "approved" ? "Aprobado" : "Pendiente de aprobación"}
               </Badge>
             ) : null}
             {venue?.is_verified ? <Badge variant="lime">Verificado</Badge> : null}
@@ -107,9 +107,9 @@ export default async function ClubDashboardPage({ searchParams }: { searchParams
 
       {venue?.status !== "approved" ? (
         <div className="rounded-xl border border-amber-400/30 bg-amber-400/[0.08] p-4 text-sm text-amber-100/90">
-          <strong className="font-semibold">Tu local aun no esta aprobado.</strong> Puedes preparar
-          tus eventos y entradas, pero no apareceran en el catalogo publico ni se podran comprar
-          hasta que el equipo de GETIN verifique la informacion comercial.
+          <strong className="font-semibold">Tu local aún no esta aprobado.</strong> Puedes preparar
+          tus eventos y entradas, pero no apareceran en el catálogo publico ni se podran comprar
+          hasta que el equipo de GETIN verifique la información comercial.
         </div>
       ) : null}
 
@@ -125,17 +125,17 @@ export default async function ClubDashboardPage({ searchParams }: { searchParams
           <Stat label="Mesas reservadas" value={String(stats.tablesReserved)} />
           <Stat label="Asistentes registrados" value={String(stats.checkins)} icon={Users} />
           <Stat label="Ingresos brutos" value={formatPEN(stats.grossCents)} />
-          <Stat label="Comision GETIN" value={formatPEN(stats.getinFeeCents)} />
+          <Stat label="Comisión GETIN" value={formatPEN(stats.getinFeeCents)} />
           <Stat
             label="Ingreso neto estimado"
             value={formatPEN(stats.netEstimateCents)}
-            hint="Antes de la liquidacion"
+            hint="Antes de la liquidación"
           />
           <Stat label="Invitados confirmados" value={String(stats.guestsConfirmed)} />
         </div>
         <p className="mt-3 text-xs text-muted">
           Las cifras se calculan sobre ordenes efectivamente pagadas. El ingreso neto es una
-          estimacion previa a la liquidacion: el reparto definitivo depende del proveedor de pagos
+          estimacion previa a la liquidación: el reparto definitivo depende del proveedor de pagos
           y del acuerdo comercial.
         </p>
       </section>
@@ -165,7 +165,7 @@ export default async function ClubDashboardPage({ searchParams }: { searchParams
         <div className="mt-4 space-y-4">
           {events.length === 0 ? (
             <EmptyState
-              title="Aun no has creado ningun evento"
+              title="Aún no has creado ningún evento"
               description="Crea tu primer evento, configura sus entradas y publicalo cuando este listo."
             />
           ) : (
@@ -189,7 +189,7 @@ export default async function ClubDashboardPage({ searchParams }: { searchParams
                     <div className="flex flex-wrap gap-2">
                       {event.status === "published" ? (
                         <Button asChild size="sm" variant="ghost">
-                          <Link href={`/eventos/${event.slug}`}>Ver pagina</Link>
+                          <Link href={`/eventos/${event.slug}`}>Ver página</Link>
                         </Button>
                       ) : null}
                       <Button asChild size="sm" variant="ghost">
@@ -219,7 +219,7 @@ export default async function ClubDashboardPage({ searchParams }: { searchParams
       </section>
 
       <p className="text-xs text-muted">
-        Sesion de {session.user.email}. Las operaciones sobre pagos confirmados no se pueden
+        Sesión de {session.user.email}. Las operaciones sobre pagos confirmados no se pueden
         modificar desde este panel: quedan registradas en la auditoria de GETIN.
       </p>
     </div>

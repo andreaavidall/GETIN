@@ -3,8 +3,8 @@ import { NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 /**
- * Retorno de los enlaces de Supabase Auth (confirmacion de correo,
- * recuperacion de contraseña). Canjea el codigo por una sesion y redirige.
+ * Retorno de los enlaces de Supabase Auth (confirmación de correo,
+ * recuperacion de contraseña). Canjea el código por una sesión y redirige.
  */
 export async function GET(request: Request) {
   const url = new URL(request.url);

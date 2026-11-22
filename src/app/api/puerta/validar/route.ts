@@ -9,20 +9,20 @@ import { createSupabaseAdminClient, createSupabaseServerClient } from "@/lib/sup
 import { scanSchema } from "@/lib/validation/schemas";
 
 /**
- * Validacion de un QR en la puerta.
+ * Validación de un QR en la puerta.
  *
  * Orden de las comprobaciones (de lo mas barato a lo mas caro):
- *   1. sesion y permiso de escaneo en ESE local (triple barrera: aqui, en la
+ *   1. sesión y permiso de escaneo en ESE local (triple barrera: aquí, en la
  *      funcion de Postgres y por RLS),
  *   2. control de frecuencia, para que un escaner comprometido no sirva para
  *      sondear tokens,
  *   3. firma HMAC del token: si no es nuestra, se descarta sin tocar la base,
  *   4. `getin_scan_qr`, que comprueba y marca como usada en una sola
- *      transaccion con bloqueo de fila. Dos escaneos simultaneos del mismo QR
+ *      transacción con bloqueo de fila. Dos escaneos simultaneos del mismo QR
  *      no pueden autorizar dos ingresos: el segundo recibe "ya utilizada".
  *
  * Siempre responde 200 con un veredicto (verde / rojo / amarillo), salvo en
- * errores de autorizacion: el personal de puerta necesita una respuesta clara,
+ * errores de autorización: el personal de puerta necesita una respuesta clara,
  * no un error HTTP.
  */
 export const runtime = "nodejs";
@@ -31,12 +31,12 @@ export const dynamic = "force-dynamic";
 export async function POST(request: Request) {
   const session = await getSession();
   if (!session) {
-    return NextResponse.json({ error: "necesitas iniciar sesion" }, { status: 401 });
+    return NextResponse.json({ error: "necesitas iniciar sesión" }, { status: 401 });
   }
 
   const parsed = scanSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) {
-    return NextResponse.json({ error: "peticion invalida" }, { status: 400 });
+    return NextResponse.json({ error: "petición inválida" }, { status: 400 });
   }
   const { token, venueId, device } = parsed.data;
 
@@ -84,12 +84,12 @@ export async function POST(request: Request) {
       result: "denied_invalid",
       detail:
         verification.error === "signature"
-          ? "Codigo no emitido por GETIN"
-          : "Codigo con formato invalido",
+          ? "Código no emitido por GETIN"
+          : "Código con formato invalido",
     });
   }
 
-  // Comprobar + marcar usada, de forma atomica. Se llama con la sesion del
+  // Comprobar + marcar usada, de forma atomica. Se llama con la sesión del
   // usuario (no con la service role) para que la propia funcion revalide el
   // permiso sobre el local.
   const supabase = await createSupabaseServerClient();

@@ -10,29 +10,29 @@ import { isDemoMode } from "@/lib/data/catalog";
 export const metadata: Metadata = {
   title: "Publicar mi local",
   description:
-    "Registra tu discoteca en GETIN: vende entradas, administra mesas VIP y controla el ingreso con codigos QR.",
+    "Registra tu discoteca en GETIN: vende entradas, administra mesas VIP y controla el ingreso con códigos QR.",
 };
 
 /**
- * Pagina publica.
+ * Página publica.
  *
  * Es la puerta de entrada comercial: un local tiene que poder leerla sin tener
- * cuenta. Antes exigia sesion para toda la pagina, asi que en el despliegue sin
- * base de datos aparecia como una pantalla de configuracion, que es justo lo
+ * cuenta. Antes exigia sesión para toda la página, así que en el despliegue sin
+ * base de datos aparecia como una pantalla de configuración, que es justo lo
  * contrario de lo que debe ver un posible cliente. Ahora solo el formulario
- * pide sesion.
+ * pide sesión.
  */
 const BENEFITS = [
   "Venta de entradas con inventario controlado: sin sobreventa, aunque dos personas compren a la vez.",
   "Mesas VIP con adelanto en linea y saldo en el local.",
-  "Listas de invitados con aprobacion automatica o manual.",
-  "Control de puerta con QR: cada codigo vale una sola vez y queda registrado.",
-  "Reportes de asistentes y liquidacion por evento, descargables en CSV.",
+  "Listas de invitados con aprobación automática o manual.",
+  "Control de puerta con QR: cada código vale una sola vez y queda registrado.",
+  "Reportes de asistentes y liquidación por evento, descargables en CSV.",
 ];
 
 const STEPS = [
-  ["1", "Envias los datos de tu local", "Nombre comercial, razon social, RUC, aforo y direccion."],
-  ["2", "GETIN verifica la informacion", "Revisamos los datos antes de que aparezcas en el catalogo."],
+  ["1", "Envias los datos de tu local", "Nombre comercial, razon social, RUC, aforo y dirección."],
+  ["2", "GETIN verifica la información", "Revisamos los datos antes de que aparezcas en el catálogo."],
   ["3", "Publicas tu primer evento", "Configuras entradas, mesas y listas desde tu panel."],
   ["4", "Cobras y controlas la puerta", "Los asistentes entran con su QR y tu ves las ventas en vivo."],
 ];
@@ -48,7 +48,7 @@ export default async function VenueRegistrationPage() {
           <h1 className="text-display text-3xl sm:text-4xl">Publica tu discoteca en GETIN</h1>
           <p className="mt-3 text-sm text-muted">
             Vende tus entradas directamente, sin depender de promotores informales. Tus clientes
-            compran en la plataforma, reciben su codigo y entran con el.
+            compran en la plataforma, reciben su código y entran con el.
           </p>
 
           <ul className="mt-6 space-y-2">
@@ -76,19 +76,19 @@ export default async function VenueRegistrationPage() {
           </ol>
 
           <p className="mt-6 text-xs text-muted">
-            GETIN cobra una comision por transaccion, configurable por acuerdo comercial. El
-            contrato y las condiciones de liquidacion se revisan antes de activar los cobros.
+            GETIN cobra una comisión por transacción, configurable por acuerdo comercial. El
+            contrato y las condiciones de liquidación se revisan antes de activar los cobros.
           </p>
         </div>
 
         <div>
           {demo ? (
             <div className="surface p-6">
-              <h2 className="text-display text-lg">Estas viendo una demostracion</h2>
+              <h2 className="text-display text-lg">Estas viendo una demostración</h2>
               <p className="mt-2 text-sm text-muted">
-                Esta instalacion corre con un catalogo de ejemplo y sin base de datos, asi que el
+                Esta instalación corre con un catálogo de ejemplo y sin base de datos, así que el
                 formulario de alta esta desactivado. Todo lo que ves arriba si esta implementado:
-                el panel del local, la configuracion de entradas y mesas, el control de puerta y
+                el panel del local, la configuración de entradas y mesas, el control de puerta y
                 los reportes.
               </p>
               <p className="mt-3 text-sm text-muted">

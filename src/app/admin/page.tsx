@@ -67,7 +67,7 @@ export default async function AdminPage() {
       <header>
         <h1 className="text-display text-3xl">Panel GETIN</h1>
         <p className="mt-1 text-sm text-muted">
-          Aprobacion de locales, comisiones, transacciones y auditoria.
+          Aprobación de locales, comisiones, transacciones y auditoria.
         </p>
       </header>
 
@@ -86,7 +86,7 @@ export default async function AdminPage() {
           Locales por revisar ({pending.length})
         </h2>
         <p className="mb-4 text-sm text-muted">
-          Un local no aparece en el catalogo ni puede vender hasta que se apruebe. Verifica la
+          Un local no aparece en el catálogo ni puede vender hasta que se apruebe. Verifica la
           razon social y el RUC antes de aprobar.
         </p>
         {pending.length === 0 ? (
@@ -136,7 +136,7 @@ export default async function AdminPage() {
           </ul>
         )}
         <p className="mt-3 text-xs text-muted">
-          Aprobar una solicitud la marca como autorizada; la devolucion efectiva la ejecuta el
+          Aprobar una solicitud la marca como autorizada; la devolución efectiva la ejecuta el
           adaptador del proveedor de pagos. Con el adaptador de pruebas no se mueve dinero.
         </p>
       </section>
@@ -149,8 +149,8 @@ export default async function AdminPage() {
         </h2>
         {(auditRes.data ?? []).length === 0 ? (
           <EmptyState
-            title="Sin registros todavia"
-            description="Cada operacion sensible (aprobaciones, pagos, escaneos, cambios de comision) deja aqui su rastro."
+            title="Sin registros todavía"
+            description="Cada operación sensible (aprobaciones, pagos, escaneos, cambios de comisión) deja aquí su rastro."
           />
         ) : (
           <ul className="surface divide-y divide-white/5 text-sm">

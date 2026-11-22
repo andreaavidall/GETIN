@@ -1,6 +1,7 @@
 "use client";
 
 import { ClipboardList } from "lucide-react";
+import Link from "next/link";
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
 
@@ -14,11 +15,15 @@ import type { GuestListView } from "@/types/catalog";
 
 export function GuestListPanel({
   list,
-  canJoin,
+  eventSlug,
+  isAuthenticated,
+  demoMode,
   defaultName,
 }: {
   list: GuestListView;
-  canJoin: boolean;
+  eventSlug: string;
+  isAuthenticated: boolean;
+  demoMode: boolean;
   defaultName: string;
 }) {
   const [pending, startTransition] = useTransition();
@@ -45,7 +50,7 @@ export function GuestListPanel({
       setDone(result.status);
       toast.success(
         result.status === "confirmed"
-          ? "Estas en la lista"
+          ? "Estás en la lista"
           : "Solicitud enviada: el local la revisara",
       );
     });
@@ -71,19 +76,19 @@ export function GuestListPanel({
       <dl className="mt-4 grid gap-2 border-t border-white/5 pt-4 text-xs sm:grid-cols-2">
         {list.signupDeadline ? (
           <div className="flex justify-between gap-2">
-            <dt className="text-muted">Inscripcion hasta</dt>
+            <dt className="text-muted">Inscripción hasta</dt>
             <dd className="text-right">{formatEventDate(list.signupDeadline)}</dd>
           </div>
         ) : null}
         {list.lastEntryAt ? (
           <div className="flex justify-between gap-2">
-            <dt className="text-muted">Ingreso maximo</dt>
+            <dt className="text-muted">Ingreso máximo</dt>
             <dd className="text-right">{formatTime(list.lastEntryAt)}</dd>
           </div>
         ) : null}
         <div className="flex justify-between gap-2">
-          <dt className="text-muted">Aprobacion</dt>
-          <dd className="text-right">{list.autoApprove ? "Automatica" : "Manual del local"}</dd>
+          <dt className="text-muted">Aprobación</dt>
+          <dd className="text-right">{list.autoApprove ? "Automática" : "Manual del local"}</dd>
         </div>
         {list.benefits ? (
           <div className="flex justify-between gap-2">
@@ -102,11 +107,11 @@ export function GuestListPanel({
       {done ? (
         <p className="mt-4 rounded-lg bg-lime/10 p-3 text-sm text-lime">
           {done === "confirmed"
-            ? "Inscripcion confirmada. Puedes verla en «Mis listas»."
+            ? "Inscripción confirmada. Puedes verla en «Mis listas»."
             : "Solicitud registrada como pendiente. El local decidira antes del cierre."}
         </p>
       ) : list.isOpen && spotsLeft > 0 ? (
-        canJoin ? (
+        !demoMode && isAuthenticated ? (
           <form onSubmit={submit} className="mt-4 space-y-3">
             <div className="grid gap-3 sm:grid-cols-[2fr_1fr]">
               <Field label="Nombre con el que entras" htmlFor={`gl-name-${list.id}`} required>
@@ -143,8 +148,8 @@ export function GuestListPanel({
                 required
               />
               <span>
-                Entiendo que la inscripcion no garantiza el ingreso y que depende del cupo, del
-                horario y del criterio de admision del local.
+                Entiendo que la inscripción no garantiza el ingreso y que depende del cupo, del
+                horario y del criterio de admisión del local.
               </span>
             </label>
 
@@ -152,9 +157,20 @@ export function GuestListPanel({
               {pending ? "Enviando..." : "Apuntarme a la lista"}
             </Button>
           </form>
+        ) : demoMode ? (
+          <div className="mt-4">
+            <Button full size="sm" variant="outline" disabled>
+              Inscripciones no disponibles en la demostración
+            </Button>
+            <p className="mt-1.5 text-[11px] text-muted">
+              Esta instalación usa un catálogo de ejemplo y no admite inscripciones reales.
+            </p>
+          </div>
         ) : (
-          <Button full size="sm" variant="outline" className="mt-4" disabled>
-            Inicia sesion para apuntarte
+          <Button asChild full size="sm" className="mt-4">
+            <Link href={`/login?siguiente=${encodeURIComponent(`/eventos/${eventSlug}#listas`)}`}>
+              Inicia sesión para apuntarte
+            </Link>
           </Button>
         )
       ) : null}

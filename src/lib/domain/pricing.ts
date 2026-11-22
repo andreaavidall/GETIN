@@ -3,7 +3,7 @@
  *
  * Reglas:
  *  - Todo en centimos (enteros). Nada de coma flotante.
- *  - La comision de GETIN y la del proveedor de pagos se calculan sobre el bruto
+ *  - La comisión de GETIN y la del proveedor de pagos se calculan sobre el bruto
  *    y se guardan por separado: la plataforma no asume que el dinero se divida
  *    automaticamente (eso depende del proveedor y del acuerdo comercial).
  *  - El IGV se expone como informativo: el responsable tributario de la venta es
@@ -22,15 +22,15 @@ export type LineItemInput = {
 };
 
 export type PricingConfig = {
-  /** Comision de GETIN en puntos base. 700 = 7.00% */
+  /** Comisión de GETIN en puntos base. 700 = 7.00% */
   commissionBps: number;
   /** Cargo fijo por orden, en centimos (0 por defecto). */
   serviceFeeFixedCents: number;
   /** IGV en puntos base, informativo. 1800 = 18.00% */
   igvBps: number;
-  /** Comision estimada de la pasarela en puntos base (para la liquidacion). */
+  /** Comisión estimada de la pasarela en puntos base (para la liquidación). */
   gatewayBps?: number;
-  /** Cargo fijo de la pasarela por transaccion, en centimos. */
+  /** Cargo fijo de la pasarela por transacción, en centimos. */
   gatewayFixedCents?: number;
 };
 
@@ -76,7 +76,7 @@ function assertSafeInt(value: number, name: string): void {
 /**
  * Calcula el desglose completo de una orden.
  * Invariante: totalCents === subtotalCents + serviceFeeCents (el IGV ya va dentro
- * del precio del local, como es costumbre en Peru, y se informa aparte).
+ * del precio del local, como es costumbre en Perú, y se informa aparte).
  */
 export function computeOrderTotals(
   items: LineItemInput[],
@@ -89,14 +89,14 @@ export function computeOrderTotals(
   const lines: PricedLine[] = items.map((item) => {
     assertSafeInt(item.unitPriceCents, "unitPriceCents");
     if (!Number.isInteger(item.quantity) || item.quantity <= 0) {
-      throw new Error(`Cantidad invalida para ${item.description}: ${item.quantity}`);
+      throw new Error(`Cantidad inválida para ${item.description}: ${item.quantity}`);
     }
     return { ...item, totalCents: item.unitPriceCents * item.quantity };
   });
 
   const subtotalCents = lines.reduce((acc, line) => acc + line.totalCents, 0);
 
-  // Cargo por servicio que paga el comprador = comision de GETIN + cargo fijo.
+  // Cargo por servicio que paga el comprador = comisión de GETIN + cargo fijo.
   const serviceFeeCents =
     subtotalCents === 0 ? 0 : applyBps(subtotalCents, config.commissionBps) + config.serviceFeeFixedCents;
 
@@ -118,7 +118,7 @@ export function computeOrderTotals(
     getinFeeCents: serviceFeeCents,
     gatewayFeeCents,
     // Al local le corresponde el precio que fijo. El coste de pasarela lo absorbe
-    // GETIN en este modelo; cambiar esto es una decision comercial, no tecnica.
+    // GETIN en este modelo; cambiar esto es una decisión comercial, no técnica.
     venueAmountCents: subtotalCents,
   };
 }

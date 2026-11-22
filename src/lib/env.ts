@@ -1,13 +1,13 @@
 import { z } from "zod";
 
 /**
- * Validacion de variables de entorno.
+ * Validación de variables de entorno.
  *
  * - `publicEnv` se puede leer en el navegador (solo NEXT_PUBLIC_*).
  * - `serverEnv()` se lee unicamente en el servidor; si se importa desde un
  *   componente de cliente, Next falla en el build gracias a "server-only".
  *
- * Nada se valida de forma estricta al arrancar para que el proyecto pueda
+ * Nada se válida de forma estricta al arrancar para que el proyecto pueda
  * ejecutarse en modo demo sin Supabase; cada funcion avisa de lo que falta.
  */
 

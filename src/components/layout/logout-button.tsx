@@ -30,7 +30,7 @@ export function LogoutButton() {
       }
     >
       <LogOut className="size-4" />
-      {pending ? "Cerrando..." : "Cerrar sesion"}
+      {pending ? "Cerrando..." : "Cerrar sesión"}
     </Button>
   );
 }

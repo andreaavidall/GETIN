@@ -17,9 +17,9 @@ import type { ActionResult } from "@/lib/actions/checkout";
 /**
  * Acciones del panel de discotecas.
  *
- * Todas comprueban el permiso en el SERVIDOR con `can(actor, accion, venueId)`,
+ * Todas comprueban el permiso en el SERVIDOR con `can(actor, acción, venueId)`,
  * y escriben con el cliente sujeto a RLS: si el guard se equivocara, la base
- * tambien niega. Un administrador de un local no puede tocar otro.
+ * también niega. Un administrador de un local no puede tocar otro.
  */
 
 async function requireVenuePermission(
@@ -30,7 +30,7 @@ async function requireVenuePermission(
   | { ok: false; error: string }
 > {
   const session = await getSession();
-  if (!session) return { ok: false, error: "Necesitas iniciar sesion" };
+  if (!session) return { ok: false, error: "Necesitas iniciar sesión" };
   if (!can(session.actor, action, venueId)) {
     return { ok: false, error: "No tienes permiso sobre este local" };
   }
@@ -59,7 +59,7 @@ export async function createEventAction(
   const data = parsed.data;
 
   const supabase = await createSupabaseServerClient();
-  // Slug unico: nombre + sufijo corto para no chocar con otro evento.
+  // Slug único: nombre + sufijo corto para no chocar con otro evento.
   const slug = `${slugify(data.name)}-${Math.random().toString(36).slice(2, 6)}`;
 
   const { data: created, error } = await supabase
@@ -114,7 +114,7 @@ export async function publishEventAction(
   const supabase = await createSupabaseServerClient();
 
   if (publish) {
-    // No se publica un evento sin entradas configuradas: seria una pagina que
+    // No se publica un evento sin entradas configuradas: seria una página que
     // no se puede comprar.
     const { count } = await supabase
       .from("ticket_types")
@@ -179,7 +179,7 @@ export async function createTicketTypeAction(
       event_id: eventId,
       name: data.name,
       description: data.description || null,
-      // Soles -> centimos. El redondeo se hace una sola vez, aqui.
+      // Soles -> centimos. El redondeo se hace una sola vez, aquí.
       price_cents: Math.round(data.price * 100),
       capacity: data.capacity,
       max_per_order: data.maxPerOrder,
@@ -212,7 +212,7 @@ export async function createTicketTypeAction(
 /**
  * Cambia el aforo o activa/desactiva un tipo de entrada.
  * No puede bajar el aforo por debajo de lo ya vendido o retenido: el trigger
- * `ticket_types_guard` lo rechaza, y aqui se traduce a un mensaje claro.
+ * `ticket_types_guard` lo rechaza, y aquí se traduce a un mensaje claro.
  */
 export async function updateTicketTypeAction(
   venueId: string,
@@ -257,14 +257,14 @@ export async function updateTicketTypeAction(
 
 /**
  * Solicitud para publicar un local. Queda en `draft` + expediente
- * `pending_review`: la publicacion la aprueba GETIN, nunca el propio local
+ * `pending_review`: la publicación la aprueba GETIN, nunca el propio local
  * (lo refuerzan los triggers `venues_guard_insert` y `venues_guard`).
  */
 export async function applyAsVenueAction(
   input: unknown,
 ): Promise<ActionResult<{ venueId: string }>> {
   const session = await getSession();
-  if (!session) return { ok: false, error: "Necesitas iniciar sesion" };
+  if (!session) return { ok: false, error: "Necesitas iniciar sesión" };
 
   const parsed = venueApplicationSchema.safeParse(input);
   if (!parsed.success) {

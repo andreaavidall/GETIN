@@ -52,7 +52,7 @@ export function VenueApplicationForm() {
         return;
       }
       toast.success("Solicitud enviada", {
-        description: "Ya puedes preparar tus eventos mientras GETIN revisa la informacion.",
+        description: "Ya puedes preparar tus eventos mientras GETIN revisa la información.",
       });
       router.push("/club/dashboard");
     });
@@ -86,11 +86,11 @@ export function VenueApplicationForm() {
           </Select>
         </Field>
 
-        <Field label="Direccion" htmlFor="v-address" error={errors.address} required className="sm:col-span-2">
+        <Field label="Dirección" htmlFor="v-address" error={errors.address} required className="sm:col-span-2">
           <Input id="v-address" name="address" placeholder="Av. Grau 234, Barranco" />
         </Field>
 
-        <Field label="Telefono de contacto" htmlFor="v-phone" error={errors.phone} required>
+        <Field label="Teléfono de contacto" htmlFor="v-phone" error={errors.phone} required>
           <Input id="v-phone" name="phone" type="tel" placeholder="+51 999 000 000" />
         </Field>
 
@@ -102,7 +102,7 @@ export function VenueApplicationForm() {
           <Input id="v-capacity" name="capacity" type="number" min={10} placeholder="400" />
         </Field>
 
-        <Field label="Edad minima" htmlFor="v-age" error={errors.minAge} required>
+        <Field label="Edad mínima" htmlFor="v-age" error={errors.minAge} required>
           <Select id="v-age" name="minAge" defaultValue="18">
             {[18, 20, 21, 23, 25].map((age) => (
               <option key={age} value={age}>
@@ -128,13 +128,13 @@ export function VenueApplicationForm() {
           </select>
         </Field>
 
-        <Field label="Descripcion del local" htmlFor="v-desc" error={errors.description} className="sm:col-span-2">
+        <Field label="Descripción del local" htmlFor="v-desc" error={errors.description} className="sm:col-span-2">
           <Textarea id="v-desc" name="description" rows={3} />
         </Field>
       </div>
 
       <p className="text-xs text-muted">
-        Al enviar declaras que estas autorizado a representar al establecimiento. La carga de la
+        Al enviar declaras que estás autorizado a representar al establecimiento. La carga de la
         licencia de funcionamiento y la ficha RUC se habilita en el panel tras el registro.
       </p>
 

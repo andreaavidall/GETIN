@@ -22,14 +22,14 @@ import type {
  *      /api/webhooks/pagos, igual que lo haria Culqi.
  *   3. Solo ese webhook confirma la orden y emite los QR.
  *
- * El paso 2 es a proposito: asi el camino de confirmacion que se prueba en
+ * El paso 2 es a proposito: así el camino de confirmación que se prueba en
  * desarrollo es exactamente el que se usara en produccion.
  */
 export class TestPaymentProvider implements PaymentProvider {
   readonly name = "test";
   readonly isLive = false;
   readonly statusNote =
-    "Modo de pruebas: ningun cargo real. Las ordenes se confirman con un webhook simulado.";
+    "Modo de pruebas: ningún cargo real. Las ordenes se confirman con un webhook simulado.";
 
   constructor(private readonly webhookSecret: string) {}
 
@@ -64,7 +64,7 @@ export class TestPaymentProvider implements PaymentProvider {
     const a = Buffer.from(received);
     const b = Buffer.from(expected);
     if (a.length !== b.length || !timingSafeEqual(a, b)) {
-      return { valid: false, reason: "firma invalida" };
+      return { valid: false, reason: "firma inválida" };
     }
 
     let body: Record<string, unknown>;

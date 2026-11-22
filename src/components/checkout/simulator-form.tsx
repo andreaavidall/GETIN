@@ -12,20 +12,20 @@ import { Field } from "@/components/ui/label";
 /**
  * Formulario de pago del ADAPTADOR DE PRUEBAS.
  *
- * Decision central: **los datos de la tarjeta no salen de este componente**.
- * Se quedan en el estado de React y se descartan al navegar. Lo unico que viaja
+ * Decisión central: **los datos de la tarjeta no salen de este componente**.
+ * Se quedan en el estado de React y se descartan al navegar. Lo único que viaja
  * al servidor es `{orderId, paymentId, outcome}`.
  *
- * Por que asi y no mandandolos:
+ * Por que así y no mandandolos:
  *  - La demo se ve y se siente como un checkout real, que es lo que se quiere
- *    enseñar, sin que exista en ningun sitio un numero de tarjeta que guardar,
+ *    enseñar, sin que exista en ningún sitio un número de tarjeta que guardar,
  *    cifrar, registrar en un log o filtrar.
  *  - Si mañana entra una pasarela de verdad, el dato sensible ira del navegador
  *    a la pasarela (tokenizado con su SDK) y este archivo se borra entero. No
- *    hay nada aqui que migrar ni limpiar.
+ *    hay nada aquí que migrar ni limpiar.
  *
  * `autoComplete="off"` en los campos de tarjeta es deliberado: con `cc-number`
- * el navegador ofreceria autocompletar una tarjeta REAL guardada, y lo ultimo
+ * el navegador ofreceria autocompletar una tarjeta REAL guardada, y lo último
  * que queremos en una demostracion es que alguien meta la suya sin pensar.
  */
 type Outcome = "paid" | "failed" | "pending";
@@ -76,7 +76,7 @@ export function SimulatorForm({
   function validate(): boolean {
     const next: Record<string, string> = {};
     const digits = number.replace(/\D/g, "");
-    // Se acepta CUALQUIER numero: solo se comprueba que tenga pinta de tarjeta,
+    // Se acepta CUALQUIER número: solo se comprueba que tenga pinta de tarjeta,
     // para que el formulario se comporte, no para validar nada de verdad.
     if (digits.length < 13) next.number = "Escribe al menos 13 digitos";
     if (holder.trim().length < 3) next.holder = "Escribe el nombre de la tarjeta";
@@ -108,7 +108,7 @@ export function SimulatorForm({
       }
 
       if (outcome === "paid") {
-        toast.success("Pago confirmado", { description: "No se realizo ningun cargo." });
+        toast.success("Pago confirmado", { description: "No se realizo ningún cargo." });
         router.push(`/checkout/${orderId}/resultado`);
       } else {
         toast.info(outcome === "failed" ? "Pago rechazado" : "Pago pendiente");
@@ -132,7 +132,7 @@ export function SimulatorForm({
         className="space-y-4"
         noValidate
       >
-        <Field label="Numero de tarjeta" htmlFor="card-number" error={errors.number} required>
+        <Field label="Número de tarjeta" htmlFor="card-number" error={errors.number} required>
           <div className="relative">
             <CreditCard className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-muted" />
             <Input
@@ -196,15 +196,15 @@ export function SimulatorForm({
       <div className="space-y-2 rounded-xl bg-white/[0.04] p-4">
         <p className="flex items-start gap-2 text-xs text-muted">
           <Lock className="mt-0.5 size-3.5 shrink-0 text-lime" />
-          Puedes escribir cualquier numero: <strong className="text-paper">no se cobra nada</strong> y
+          Puedes escribir cualquier número: <strong className="text-paper">no se cobra nada</strong> y
           los datos de la tarjeta <strong className="text-paper">no salen de tu navegador</strong>.
           Al servidor solo viaja el resultado que elijas.
         </p>
         <p className="flex items-start gap-2 text-xs text-muted">
           <ShieldCheck className="mt-0.5 size-3.5 shrink-0 text-lime" />
-          Aun asi, el camino es el real: el servidor firma un webhook y lo entrega al mismo
-          endpoint que usaria una pasarela, y es ese webhook —no esta pantalla— el que emite tu
-          entrada y su codigo QR.
+          Aún así, el camino es el real: el servidor firma un webhook y lo entrega al mismo
+          endpoint que usaría una pasarela, y es ese webhook —no esta pantalla— el que emite tu
+          entrada y su código QR.
         </p>
       </div>
 

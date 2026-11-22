@@ -55,7 +55,7 @@ export function NewEventForm({ venueId }: { venueId: string }) {
         return;
       }
       toast.success("Evento creado como borrador", {
-        description: "Configura sus entradas y despues publicalo.",
+        description: "Configura sus entradas y después publicalo.",
       });
       setOpen(false);
       router.refresh();
@@ -81,7 +81,7 @@ export function NewEventForm({ venueId }: { venueId: string }) {
         </Field>
 
         <Field label="Frase corta" htmlFor="ev-tagline" error={errors.tagline} className="sm:col-span-2">
-          <Input id="ev-tagline" name="tagline" placeholder="La fiesta de casa, cada sabado" />
+          <Input id="ev-tagline" name="tagline" placeholder="La fiesta de casa, cada sábado" />
         </Field>
 
         <Field label="Inicio" htmlFor="ev-start" error={errors.startsAt} required>
@@ -92,11 +92,11 @@ export function NewEventForm({ venueId }: { venueId: string }) {
           <Input id="ev-end" name="endsAt" type="datetime-local" />
         </Field>
 
-        <Field label="Ultimo ingreso" htmlFor="ev-last" error={errors.lastEntryAt}>
+        <Field label="Último ingreso" htmlFor="ev-last" error={errors.lastEntryAt}>
           <Input id="ev-last" name="lastEntryAt" type="datetime-local" />
         </Field>
 
-        <Field label="Edad minima" htmlFor="ev-age" error={errors.minAge} required>
+        <Field label="Edad mínima" htmlFor="ev-age" error={errors.minAge} required>
           <Select id="ev-age" name="minAge" defaultValue="18">
             {[18, 20, 21, 23, 25].map((age) => (
               <option key={age} value={age}>
@@ -131,13 +131,13 @@ export function NewEventForm({ venueId }: { venueId: string }) {
           label="URL de la portada"
           htmlFor="ev-cover"
           error={errors.coverUrl}
-          hint="La subida de imagenes al Storage de Supabase llega en la siguiente iteracion."
+          hint="Pega el enlace de una imagen en horizontal. Se usa como portada del evento."
           className="sm:col-span-2"
         >
           <Input id="ev-cover" name="coverUrl" type="url" placeholder="https://..." />
         </Field>
 
-        <Field label="Descripcion" htmlFor="ev-desc" error={errors.description} className="sm:col-span-2">
+        <Field label="Descripción" htmlFor="ev-desc" error={errors.description} className="sm:col-span-2">
           <Textarea id="ev-desc" name="description" rows={3} />
         </Field>
 
@@ -146,12 +146,12 @@ export function NewEventForm({ venueId }: { venueId: string }) {
             id="ev-rules"
             name="entryRules"
             rows={2}
-            placeholder="Documento obligatorio, codigo de vestimenta, sin reingreso..."
+            placeholder="Documento obligatorio, código de vestimenta, sin reingreso..."
           />
         </Field>
 
         <Field
-          label="Politica de cancelacion"
+          label="Política de cancelación"
           htmlFor="ev-cancel"
           error={errors.cancellationPolicy}
           hint="El comprador la ve antes de pagar y queda guardada en su compra."

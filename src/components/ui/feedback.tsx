@@ -67,7 +67,7 @@ export function EmptyState({
 
 /** Error recuperable, con el detalle visible (no un "algo salio mal" vacio). */
 export function ErrorState({
-  title = "No pudimos cargar esta seccion",
+  title = "No pudimos cargar esta sección",
   detail,
   action,
 }: {
@@ -96,7 +96,7 @@ export function DemoNotice({ className }: { className?: string }) {
     >
       <AlertTriangle className="mt-0.5 size-4 shrink-0 text-amber-400" />
       <p className="text-sm text-amber-100/90">
-        <strong className="font-semibold">Modo demostracion.</strong> Las discotecas, eventos y
+        <strong className="font-semibold">Modo demostración.</strong> Las discotecas, eventos y
         precios de esta pantalla son ficticios y no estan a la venta. Para operar con datos reales
         hay que configurar Supabase y un proveedor de pagos.
       </p>

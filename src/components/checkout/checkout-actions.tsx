@@ -14,7 +14,7 @@ import { cancelOrderAction, startPaymentAction } from "@/lib/actions/checkout";
  *
  * La cuenta atras es informativa: la verdad la tiene el servidor (`expires_at`),
  * y el barrido `getin_expire_stale_orders` libera el inventario aunque el
- * navegador este cerrado. Cuando llega a cero se recarga la pagina para que el
+ * navegador este cerrado. Cuando llega a cero se recarga la página para que el
  * estado real aparezca.
  */
 export function CheckoutActions({
@@ -123,7 +123,7 @@ export function CheckoutActions({
       {expired ? (
         <>
           <p className="rounded-xl border border-red-500/30 bg-red-500/[0.08] p-3 text-sm text-red-200">
-            La reserva vencio y las entradas volvieron a la venta. No se te cobro nada.
+            La reserva venció y las entradas volvieron a la venta. No se te cobro nada.
           </p>
           <Button asChild full>
             <Link href={`/eventos/${eventSlug}`}>Elegir de nuevo</Link>

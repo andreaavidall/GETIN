@@ -25,7 +25,7 @@ const display = Space_Grotesk({
 export const metadata: Metadata = {
   metadataBase: new URL(publicEnv.NEXT_PUBLIC_SITE_URL),
   title: {
-    default: "GETIN · La noche empieza aqui",
+    default: "GETIN · La noche empieza aquí",
     template: "%s · GETIN",
   },
   description:
@@ -36,7 +36,7 @@ export const metadata: Metadata = {
     type: "website",
     locale: "es_PE",
     siteName: "GETIN",
-    title: "GETIN · La noche empieza aqui",
+    title: "GETIN · La noche empieza aquí",
     description:
       "Entradas, mesas VIP y listas de invitados para la noche de Lima, sin intermediarios informales.",
   },

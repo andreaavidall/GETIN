@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { Suspense } from "react";
 
 import { AuthForm } from "@/components/auth/auth-form";
@@ -37,12 +36,6 @@ export default function RegisterPage() {
         </div>
       )}
 
-      <p className="mt-6 text-center text-sm text-muted">
-        ¿Ya tienes cuenta?{" "}
-        <Link href="/login" className="text-lime hover:underline">
-          Inicia sesion
-        </Link>
-      </p>
     </div>
   );
 }

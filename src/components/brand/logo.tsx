@@ -3,7 +3,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 /**
- * Logotipo GETIN — version tipografica PROVISIONAL.
+ * Logotipo GETIN — versión tipografica PROVISIONAL.
  *
  * No es el logo definitivo: es un marcador hecho con texto y CSS para no
  * bloquear el desarrollo. La "I" lleva un trazo vertical lima que insinua el

@@ -13,14 +13,14 @@ import type { ActionResult } from "@/lib/actions/checkout";
  * Acciones del panel GETIN (superadministrador).
  *
  * Cada una verifica el rol en el servidor y queda registrada en `audit_logs`:
- * aprobar un local, cambiar una comision o suspender una cuenta son decisiones
- * que deben poder reconstruirse despues.
+ * aprobar un local, cambiar una comisión o suspender una cuenta son decisiones
+ * que deben poder reconstruirse después.
  */
 async function requireAdmin(): Promise<
   { ok: true; userId: string } | { ok: false; error: string }
 > {
   const session = await getSession();
-  if (!session) return { ok: false, error: "Necesitas iniciar sesion" };
+  if (!session) return { ok: false, error: "Necesitas iniciar sesión" };
   if (!isSuperadmin(session.actor)) return { ok: false, error: "Solo el equipo GETIN puede hacer esto" };
   return { ok: true, userId: session.user.id };
 }
@@ -76,7 +76,7 @@ export async function decideVenueAction(
 }
 
 const commissionSchema = z.object({
-  /** Comision en porcentaje, p. ej. 7.5 */
+  /** Comisión en porcentaje, p. ej. 7.5 */
   percent: z.coerce.number().min(0).max(100),
 });
 
@@ -170,7 +170,7 @@ export async function suspendUserAction(
  * Decide un reembolso ya solicitado.
  *
  * No mueve dinero por si solo: deja el registro en estado `approved` y anula las
- * entradas. La devolucion efectiva la ejecuta el adaptador del proveedor, y por
+ * entradas. La devolución efectiva la ejecuta el adaptador del proveedor, y por
  * eso queda explicito en el mensaje al operador.
  */
 export async function decideRefundAction(

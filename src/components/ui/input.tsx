@@ -23,8 +23,8 @@ Textarea.displayName = "Textarea";
 /**
  * Select nativo con estilo propio.
  *
- * Decision deliberada frente al select de Radix: en movil el selector nativo es
- * mas rapido, accesible por defecto y no necesita JavaScript. Los filtros del
+ * Decisión deliberada frente al select de Radix: en movil el selector nativo es
+ * mas rápido, accesible por defecto y no necesita JavaScript. Los filtros del
  * explorador son justamente lo que mas se usa desde el celular.
  */
 const Select = React.forwardRef<

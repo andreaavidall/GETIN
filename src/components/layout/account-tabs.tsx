@@ -10,6 +10,7 @@ const TABS = [
   { href: "/cuenta/entradas", label: "Mis entradas" },
   { href: "/cuenta/mesas", label: "Mis mesas" },
   { href: "/cuenta/listas", label: "Mis listas" },
+  { href: "/cuenta/favoritos", label: "Favoritos" },
   { href: "/cuenta/compras", label: "Compras" },
   { href: "/cuenta/soporte", label: "Soporte" },
 ];
