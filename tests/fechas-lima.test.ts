@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { weekendRange } from "@/lib/domain/event-filters";
 import {
+  formatCloseTime,
   formatEventDate,
   formatEventRange,
   limaDayNumber,
@@ -90,5 +91,19 @@ describe("el fin de semana que se nombra es el que se enseña", () => {
     const { from, isUpcoming } = weekendRange(lunesTemprano);
     expect(isUpcoming).toBe(false);
     expect(limaISODate(from)).toBe("2026-11-27");
+  });
+});
+
+describe("hora de cierre", () => {
+  it("dice el día cuando la fiesta termina de madrugada", () => {
+    const inicio = new Date("2026-11-28T23:00:00-05:00");
+    const cierre = new Date("2026-11-29T06:00:00-05:00");
+    expect(formatCloseTime(inicio, cierre)).toBe("6:00 a. m. del domingo 29");
+  });
+
+  it("no añade nada si cierra el mismo día", () => {
+    const inicio = new Date("2026-11-28T19:00:00-05:00");
+    const cierre = new Date("2026-11-28T23:30:00-05:00");
+    expect(formatCloseTime(inicio, cierre)).toBe("11:30 p. m.");
   });
 });

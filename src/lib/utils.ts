@@ -124,6 +124,21 @@ export function formatEventRange(start: Date | string, end?: Date | string | nul
   return `${base} – ${DAYS[e.weekday]} ${e.day}, ${formatTime(end)}`;
 }
 
+/**
+ * Hora de cierre, con el día si el evento termina al día siguiente.
+ *
+ * "6:00 a. m." a secas hace pensar en la mañana del mismo día. Una fiesta de
+ * Lima que empieza a las 23:00 cierra el domingo, y eso hay que decirlo donde
+ * se lee la hora, no solo en el rango completo.
+ */
+export function formatCloseTime(start: Date | string, end: Date | string): string {
+  const s = limaParts(start);
+  const e = limaParts(end);
+  const sameDay = s.year === e.year && s.month === e.month && s.day === e.day;
+  if (sameDay) return formatTime(end);
+  return `${formatTime(end)} del ${DAYS[e.weekday]} ${e.day}`;
+}
+
 /** "11:00 p. m." en hora de Lima. */
 export function formatTime(date: Date | string): string {
   const d = typeof date === "string" ? new Date(date) : date;

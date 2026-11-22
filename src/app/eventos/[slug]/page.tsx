@@ -23,7 +23,7 @@ import { DemoNotice } from "@/components/ui/feedback";
 import { getSession } from "@/lib/auth/session";
 import { getEventBySlug, isDemoMode } from "@/lib/data/catalog";
 import { getFavoriteIds } from "@/lib/data/favorites";
-import { formatEventDate, formatTime } from "@/lib/utils";
+import { formatCloseTime, formatEventDate, formatTime } from "@/lib/utils";
 
 type Params = Promise<{ slug: string }>;
 
@@ -128,7 +128,7 @@ export default async function EventPage({ params }: { params: Params }) {
             <span className="flex items-center gap-1.5">
               <Clock className="size-4 text-muted" />
               {formatTime(event.startsAt)}
-              {event.endsAt ? ` – ${formatTime(event.endsAt)}` : null}
+              {event.endsAt ? ` – ${formatCloseTime(event.startsAt, event.endsAt)}` : null}
             </span>
           </div>
         </div>
@@ -183,7 +183,7 @@ export default async function EventPage({ params }: { params: Params }) {
                 event.doorsOpenAt ? ["Apertura de puertas", formatTime(event.doorsOpenAt)] : null,
                 ["Inicio", formatTime(event.startsAt)],
                 event.lastEntryAt ? ["Último ingreso", formatTime(event.lastEntryAt)] : null,
-                event.endsAt ? ["Cierre", formatTime(event.endsAt)] : null,
+                event.endsAt ? ["Cierre", formatCloseTime(event.startsAt, event.endsAt)] : null,
               ]}
             />
             <InfoBlock
