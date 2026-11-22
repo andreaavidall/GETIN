@@ -11,6 +11,7 @@ const TABS = [
   { href: "/cuenta/mesas", label: "Mis mesas" },
   { href: "/cuenta/listas", label: "Mis listas" },
   { href: "/cuenta/favoritos", label: "Favoritos" },
+  { href: "/cuenta/avisos", label: "Avisos" },
   { href: "/cuenta/compras", label: "Compras" },
   { href: "/cuenta/soporte", label: "Soporte" },
 ];

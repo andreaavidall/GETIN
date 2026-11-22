@@ -1,24 +1,27 @@
 "use client";
 
-import { Sofa, Users } from "lucide-react";
+import { LayoutGrid, Map as MapIcon, Sofa, Users } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState, useTransition } from "react";
 import { toast } from "sonner";
 
+import { WaitlistButton } from "@/components/checkout/waitlist-button";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { createOrderAction } from "@/lib/actions/checkout";
 import { isTableBookable, tableBalanceDueCents, tableStateLabel } from "@/lib/domain/availability";
-import { formatPEN } from "@/lib/utils";
+import { cn, formatPEN } from "@/lib/utils";
 import type { TableView } from "@/types/catalog";
 
 /**
- * Listado de mesas VIP.
+ * Mesas VIP: lista por zona y, si el local colocó sus mesas en el plano,
+ * tambien una vista de plano.
  *
- * El mapa visual del local queda para una fase posterior (las coordenadas ya
- * estan en `venue_tables.position_x/y`): para el MVP, una lista agrupada por
- * zona es mas clara en movil y no necesita que cada local dibuje su plano.
+ * El plano solo aparece cuando hay coordenadas de verdad en
+ * `venue_tables.position_x/y`. Dibujar un plano inventado seria peor que no
+ * tenerlo: la gente elegiria "la mesa junto a la pista" mirando un dibujo que
+ * no corresponde al local.
  */
 export function TablePicker({
   eventId,
@@ -26,17 +29,25 @@ export function TablePicker({
   tables,
   isAuthenticated,
   demoMode,
+  waitingTables = [],
 }: {
   eventId: string;
   eventSlug: string;
   tables: TableView[];
   isAuthenticated: boolean;
   demoMode: boolean;
+  /** Mesas para las que esta persona ya pidió aviso. */
+  waitingTables?: string[];
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [selected, setSelected] = useState<string | null>(null);
+  const [vista, setVista] = useState<"lista" | "plano">("lista");
   const now = useMemo(() => new Date(), []);
+
+  // Hay plano solo si TODAS las mesas tienen coordenadas: con la mitad
+  // colocadas, el plano miente por omision.
+  const hayPlano = tables.length > 0 && tables.every((t) => t.positionX !== null && t.positionY !== null);
 
   const byZone = useMemo(() => {
     const groups = new Map<string, TableView[]>();
@@ -65,7 +76,40 @@ export function TablePicker({
 
   return (
     <div className="space-y-5">
-      {byZone.map(([zone, zoneTables]) => (
+      {hayPlano ? (
+        <div className="flex gap-1 rounded-xl bg-white/5 p-1" role="tablist" aria-label="Vista de mesas">
+          {(["lista", "plano"] as const).map((v) => (
+            <button
+              key={v}
+              type="button"
+              role="tab"
+              aria-selected={vista === v}
+              onClick={() => setVista(v)}
+              className={cn(
+                "flex flex-1 items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium transition-colors",
+                vista === v ? "bg-lime text-ink" : "text-muted hover:text-paper",
+              )}
+            >
+              {v === "lista" ? <LayoutGrid className="size-3.5" /> : <MapIcon className="size-3.5" />}
+              {v === "lista" ? "Lista" : "Plano del local"}
+            </button>
+          ))}
+        </div>
+      ) : null}
+
+      {hayPlano && vista === "plano" ? (
+        <TableMap
+          tables={tables}
+          now={now}
+          selected={selected}
+          onSelect={(id) => {
+            setSelected(id);
+            setVista("lista");
+          }}
+        />
+      ) : null}
+
+      {hayPlano && vista === "plano" ? null : byZone.map(([zone, zoneTables]) => (
         <div key={zone}>
           <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">{zone}</h3>
           <div className="grid gap-3 sm:grid-cols-2">
@@ -175,7 +219,18 @@ export function TablePicker({
                         {pending && active ? "Reteniendo..." : "Reservar mesa"}
                       </Button>
                     )
-                  ) : null}
+                  ) : demoMode ? null : (
+                    <div className="mt-4">
+                      <WaitlistButton
+                        eventId={eventId}
+                        eventSlug={eventSlug}
+                        venueTableId={table.venueTableId}
+                        initial={waitingTables.includes(table.venueTableId)}
+                        isAuthenticated={isAuthenticated}
+                        label="Avísame si se libera"
+                      />
+                    </div>
+                  )}
                 </div>
               );
             })}
@@ -190,6 +245,76 @@ export function TablePicker({
         evento: mientras completas el pago queda retenida unos minutos y, si no pagas, vuelve a
         estar disponible.
       </p>
+    </div>
+  );
+}
+
+/**
+ * Plano del local con las mesas colocadas.
+ *
+ * Las coordenadas son porcentajes del ancho y el alto del salón, tal como las
+ * guarda el local. Se dibuja en SVG para que escale en cualquier pantalla y
+ * cada mesa es un botón de verdad: se puede llegar con el tabulador y leer con
+ * un lector de pantalla, que es lo que un plano en imagen no permite.
+ */
+function TableMap({
+  tables,
+  now,
+  selected,
+  onSelect,
+}: {
+  tables: TableView[];
+  now: Date;
+  selected: string | null;
+  onSelect: (id: string) => void;
+}) {
+  return (
+    <div className="surface p-4">
+      <div className="relative aspect-[4/3] w-full overflow-hidden rounded-xl bg-white/[0.03]">
+        {/* Referencia fija: donde esta la pista. Sin ella, el plano es una
+            nube de puntos sin arriba ni abajo. */}
+        <div className="absolute inset-x-6 bottom-4 rounded-lg border border-dashed border-white/15 py-2 text-center text-[10px] uppercase tracking-widest text-muted">
+          Pista
+        </div>
+
+        {tables.map((table) => {
+          const bookable = isTableBookable(table, now);
+          const activa = selected === table.id;
+          return (
+            <button
+              key={table.id}
+              type="button"
+              onClick={() => onSelect(table.id)}
+              aria-label={`${table.label}, ${tableStateLabel(table, now)}, hasta ${table.capacity} personas, ${formatPEN(table.priceCents)}`}
+              style={{ left: `${table.positionX}%`, top: `${table.positionY}%` }}
+              className={cn(
+                "absolute -translate-x-1/2 -translate-y-1/2 rounded-xl border px-2.5 py-1.5 text-[11px] font-semibold transition",
+                bookable
+                  ? "border-lime/50 bg-lime/15 text-lime hover:bg-lime/25"
+                  : "border-white/15 bg-white/5 text-muted",
+                activa && "ring-2 ring-lime",
+              )}
+            >
+              {table.label}
+              <span className="block text-[10px] font-normal opacity-80">
+                {formatPEN(table.priceCents)}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
+      <div className="mt-3 flex flex-wrap items-center gap-4 text-[11px] text-muted">
+        <span className="flex items-center gap-1.5">
+          <span className="size-2.5 rounded-sm border border-lime/50 bg-lime/15" />
+          Disponible
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="size-2.5 rounded-sm border border-white/15 bg-white/5" />
+          Reservada o bloqueada
+        </span>
+        <span>Toca una mesa para ver su precio y reservarla.</span>
+      </div>
     </div>
   );
 }

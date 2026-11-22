@@ -38,10 +38,15 @@ export type TicketTypeView = TicketTypeSnapshot & {
 };
 
 export type TableView = TableAvailabilitySnapshot & {
+  /** Id de la mesa fisica del local (no el de su disponibilidad en el evento). */
+  venueTableId: string;
   label: string;
   zone: string | null;
   capacity: number;
   conditions: string | null;
+  /** Posicion en el plano del local, si el local la configuro. */
+  positionX: number | null;
+  positionY: number | null;
 };
 
 export type GuestListView = {

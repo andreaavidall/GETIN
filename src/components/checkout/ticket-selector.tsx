@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useMemo, useState, useTransition } from "react";
 import { toast } from "sonner";
 
+import { WaitlistButton } from "@/components/checkout/waitlist-button";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { createOrderAction } from "@/lib/actions/checkout";
@@ -36,6 +37,7 @@ export function TicketSelector({
   minAge,
   dressCode,
   lastEntryAt,
+  waitingTicketTypes = [],
 }: {
   eventId: string;
   eventName: string;
@@ -46,6 +48,8 @@ export function TicketSelector({
   minAge: number;
   dressCode?: string | null;
   lastEntryAt?: Date | null;
+  /** Tipos de entrada para los que esta persona ya pidió aviso. */
+  waitingTicketTypes?: string[];
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -190,6 +194,18 @@ export function TicketSelector({
                     {formatPEN(type.priceCents)}
                   </p>
                 </div>
+
+                {soldOut && !demoMode ? (
+                  <div className="mt-4">
+                    <WaitlistButton
+                      eventId={eventId}
+                      eventSlug={eventSlug}
+                      ticketTypeId={type.id}
+                      initial={waitingTicketTypes.includes(type.id)}
+                      isAuthenticated={isAuthenticated}
+                    />
+                  </div>
+                ) : null}
 
                 {onSale && !soldOut ? (
                   <div className="mt-4 flex items-center justify-between">

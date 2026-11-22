@@ -257,7 +257,7 @@ export async function getEventBySlug(
       .from("event_table_availability")
       .select(
         `id, state, price_cents, min_consumption_cents, deposit_cents, conditions, held_until,
-         venue_tables!inner (label, zone, capacity)`,
+         venue_tables!inner (id, label, zone, capacity, position_x, position_y)`,
       )
       .eq("event_id", row.id),
     supabase
@@ -278,7 +278,14 @@ export async function getEventBySlug(
     deposit_cents: number;
     conditions: string | null;
     held_until: string | null;
-    venue_tables: { label: string; zone: string | null; capacity: number } | null;
+    venue_tables: {
+      id: string;
+      label: string;
+      zone: string | null;
+      capacity: number;
+      position_x: number | string | null;
+      position_y: number | string | null;
+    } | null;
   };
 
   const tables: TableView[] = ((tablesRes.data ?? []) as unknown as TableRow[]).map((t) => ({
@@ -289,9 +296,16 @@ export async function getEventBySlug(
     depositCents: Number(t.deposit_cents),
     minConsumptionCents: Number(t.min_consumption_cents),
     conditions: t.conditions,
+    venueTableId: t.venue_tables?.id ?? "",
     label: t.venue_tables?.label ?? "Mesa",
     zone: t.venue_tables?.zone ?? null,
     capacity: t.venue_tables?.capacity ?? 0,
+    positionX: t.venue_tables?.position_x === null || t.venue_tables?.position_x === undefined
+      ? null
+      : Number(t.venue_tables.position_x),
+    positionY: t.venue_tables?.position_y === null || t.venue_tables?.position_y === undefined
+      ? null
+      : Number(t.venue_tables.position_y),
   }));
 
   type ListRow = {
@@ -431,7 +445,7 @@ export async function getEventsWithTables(limit = 4, now: Date = new Date()): Pr
     .from("event_table_availability")
     .select(
       `id, state, price_cents, min_consumption_cents, deposit_cents, conditions, held_until,
-       venue_tables!inner (label, zone, capacity),
+       venue_tables!inner (id, label, zone, capacity, position_x, position_y),
        events!inner (${EVENT_SELECT})`,
     )
     .eq("state", "available")
@@ -448,7 +462,14 @@ export async function getEventsWithTables(limit = 4, now: Date = new Date()): Pr
     deposit_cents: number;
     conditions: string | null;
     held_until: string | null;
-    venue_tables: { label: string; zone: string | null; capacity: number } | null;
+    venue_tables: {
+      id: string;
+      label: string;
+      zone: string | null;
+      capacity: number;
+      position_x: number | string | null;
+      position_y: number | string | null;
+    } | null;
     events: EventRow | null;
   };
 
@@ -465,9 +486,12 @@ export async function getEventsWithTables(limit = 4, now: Date = new Date()): Pr
       depositCents: Number(row.deposit_cents),
       minConsumptionCents: Number(row.min_consumption_cents),
       conditions: row.conditions,
+      venueTableId: row.venue_tables?.id ?? "",
       label: row.venue_tables?.label ?? "Mesa",
       zone: row.venue_tables?.zone ?? null,
       capacity: row.venue_tables?.capacity ?? 0,
+      positionX: row.venue_tables?.position_x == null ? null : Number(row.venue_tables.position_x),
+      positionY: row.venue_tables?.position_y == null ? null : Number(row.venue_tables.position_y),
     });
     grouped.set(summary.id, entry);
   }

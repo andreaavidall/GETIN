@@ -128,8 +128,10 @@ const table = (
   minConsumptionCents: number,
   state: TableView["state"] = "available",
   conditions: string | null = null,
+  position: [number, number] | null = null,
 ): TableView => ({
   id,
+  venueTableId: `vt-${id}`,
   label,
   zone,
   capacity,
@@ -139,6 +141,8 @@ const table = (
   state,
   heldUntil: null,
   conditions,
+  positionX: position?.[0] ?? null,
+  positionY: position?.[1] ?? null,
 });
 
 // ------------------------------------------------------------------ locales ---

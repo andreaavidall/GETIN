@@ -23,6 +23,7 @@ import { DemoNotice } from "@/components/ui/feedback";
 import { getSession } from "@/lib/auth/session";
 import { getEventBySlug, isDemoMode } from "@/lib/data/catalog";
 import { getFavoriteIds } from "@/lib/data/favorites";
+import { getWaitlistIds } from "@/lib/data/waitlist";
 import { formatCloseTime, formatEventDate, formatTime } from "@/lib/utils";
 
 type Params = Promise<{ slug: string }>;
@@ -60,6 +61,8 @@ export default async function EventPage({ params }: { params: Params }) {
   if (!event) notFound();
 
   const demo = isDemoMode();
+  // Que está esperando ya esta persona en este evento.
+  const espera = await getWaitlistIds(event.id);
 
   return (
     <article>
@@ -245,6 +248,7 @@ export default async function EventPage({ params }: { params: Params }) {
                 tables={event.tables}
                 isAuthenticated={Boolean(session)}
                 demoMode={demo}
+                waitingTables={[...espera.tables]}
               />
             </section>
           ) : null}
@@ -311,6 +315,7 @@ export default async function EventPage({ params }: { params: Params }) {
             minAge={event.minAge}
             dressCode={event.venue.dressCode}
             lastEntryAt={event.lastEntryAt}
+            waitingTicketTypes={[...espera.ticketTypes]}
           />
         </aside>
       </div>
