@@ -34,6 +34,7 @@ const COLUMNS = [
       { href: "/legal/terminos", label: "Terminos y condiciones" },
       { href: "/legal/privacidad", label: "Politica de privacidad" },
       { href: "/legal/reembolsos", label: "Politica de reembolsos" },
+      { href: "/legal/libro-de-reclamaciones", label: "Libro de Reclamaciones" },
       { href: "/contacto", label: "Contacto" },
     ],
   },

@@ -109,6 +109,11 @@ Cosas reales que faltan y conviene no olvidar:
       verificar la frecuencia y **probar una restauración** antes de operar.
 - [ ] **Registro de errores.** `src/app/error.tsx` solo escribe en consola. Conectar Sentry
       u equivalente.
+- [ ] **Libro de Reclamaciones virtual.** Obligatorio en Perú para quien vende por internet.
+      La página `/legal/libro-de-reclamaciones` explica el canal provisional por correo y deja
+      anotados los requisitos formales (correlativo, acuse inmediato, plazo de 15 días
+      hábiles). **El formulario no está implementado**: hay que hacerlo antes de vender al
+      público.
 - [ ] **Verificación de correo obligatoria.** Está desactivada en `config.toml` para
       desarrollar cómodo. En producción debe activarse.
 - [ ] **2FA para el superadministrador.** Supabase lo soporta (MFA); no está habilitado.

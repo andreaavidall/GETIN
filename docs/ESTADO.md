@@ -143,6 +143,33 @@ vive `pgcrypto`.
   con `culqi.js`, la ruta `/checkout/[orderId]/pago` (no existe) y confirmar el formato de
   firma del webhook. Lista completa en [`PAGOS.md`](PAGOS.md).
 
+### Revisión del sitio desplegado (modo demo)
+
+Una auditoría del despliegue señaló nueve puntos. Conviene separarlos, porque no todos eran
+defectos:
+
+**Fallo real, corregido.** Cada fecha de un evento se calculaba como un desfase
+independiente desde «hoy» (la preventa cerraba «dentro de 4 días»), mientras el evento se
+anclaba al próximo sábado o viernes. Según el día en que se mirase la web, **la preventa
+cerraba después de la fiesta**. Ahora todas las fechas de un evento cuelgan de su propio
+`starts_at`, en el catálogo demo y en el seed, y `tests/demo-catalog.test.ts` lo vigila con
+11 comprobaciones que fallan cualquier día en que reaparezca.
+
+**Mejoras de claridad, hechas.** El cargo por servicio se anuncia con un ejemplo antes de
+elegir entradas, no solo al final. El consumo mínimo de una mesa se marca explícitamente
+como importe aparte, con el total de lo que se paga en el local. `/club/registro` pasó a ser
+pública: antes exigía sesión para toda la página y en un despliegue sin base de datos
+aparecía como una pantalla de configuración, justo lo contrario de lo que debe ver un posible
+cliente.
+
+**No eran defectos.** «Registro de discotecas bloqueado» y «compra y reserva deshabilitadas»
+son el modo demostración funcionando como debe: sin base de datos no hay cuentas ni cobros, y
+la interfaz lo dice en lugar de fingir. Se resuelven conectando Supabase, que es una decisión
+pendiente, no un error. Lo mismo con «solo cinco eventos ficticios».
+
+**Fuera del alcance actual.** La revisión legal profesional no la puede hacer el equipo
+técnico. Favoritos e invitar amigos necesitan cuenta y base de datos (fase 2).
+
 ### Lo que sigue sin recorrerse
 
 - **Escaneo del QR de una mesa** en la puerta (el de una entrada sí está probado, y la

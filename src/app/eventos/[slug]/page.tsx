@@ -13,6 +13,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { ShareButton } from "@/components/catalog/share-button";
 import { GuestListPanel } from "@/components/checkout/guest-list-panel";
 import { TablePicker } from "@/components/checkout/table-picker";
 import { TicketSelector } from "@/components/checkout/ticket-selector";
@@ -66,12 +67,20 @@ export default async function EventPage({ params }: { params: Params }) {
         <div className="absolute inset-0 hero-scrim" />
 
         <div className="container relative flex min-h-[420px] flex-col justify-end pb-8 pt-16">
-          <div className="mb-4 flex flex-wrap gap-2">
-            {event.isDemo ? <Badge variant="demo">Evento de demostracion</Badge> : null}
-            <Badge variant={event.availability.tone === "soldout" ? "danger" : "lime"}>
-              {event.availability.label}
-            </Badge>
-            <Badge variant="outline">{event.minAge}+</Badge>
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <div className="flex flex-wrap gap-2">
+              {event.isDemo ? <Badge variant="demo">Evento de demostracion</Badge> : null}
+              <Badge variant={event.availability.tone === "soldout" ? "danger" : "lime"}>
+                {event.availability.label}
+              </Badge>
+              <Badge variant="outline">{event.minAge}+</Badge>
+            </div>
+            <ShareButton
+              title={`${event.name} · ${event.venue.name}`}
+              text={`${event.name} en ${event.venue.name}, ${event.venue.district}. ${formatEventDate(
+                event.startsAt,
+              )}.`}
+            />
           </div>
 
           <h1 className="text-display max-w-3xl text-4xl leading-[1.02] sm:text-5xl lg:text-6xl">

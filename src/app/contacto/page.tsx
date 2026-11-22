@@ -60,14 +60,18 @@ export default function ContactPage() {
       <div className="surface mt-6 p-5">
         <h2 className="font-display text-base font-semibold">Datos de la empresa</h2>
         <p className="mt-2 text-sm text-muted">
-          Los datos registrales (razon social, RUC y domicilio fiscal) y el Libro de Reclamaciones
-          virtual deben publicarse aqui antes del lanzamiento comercial, como exige la normativa
-          peruana de proteccion al consumidor. Quedan pendientes hasta la constitucion de la
-          empresa.
+          Los datos registrales (razon social, RUC y domicilio fiscal) deben publicarse aqui antes
+          del lanzamiento comercial, como exige la normativa peruana de proteccion al consumidor.
+          Quedan pendientes hasta la constitucion de la empresa.
         </p>
-        <Link href="/legal/terminos" className="mt-3 inline-block text-sm text-lime hover:underline">
-          Ver terminos y condiciones →
-        </Link>
+        <div className="mt-3 flex flex-col gap-1.5 text-sm">
+          <Link href="/legal/libro-de-reclamaciones" className="text-lime hover:underline">
+            Libro de Reclamaciones →
+          </Link>
+          <Link href="/legal/terminos" className="text-lime hover:underline">
+            Ver terminos y condiciones →
+          </Link>
+        </div>
       </div>
     </div>
   );
