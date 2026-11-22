@@ -42,12 +42,26 @@ Después, `npm run dev`. El esquema y el seed se aplican solos al arrancar; para
 
 ### Para un proyecto alojado
 
+Con la CLI (mantiene el historial de migraciones):
+
 ```bash
-npx supabase link --project-ref <tu-ref>
+npx supabase login
+npx supabase link --project-ref TU_REF
 npx supabase db push
 ```
 
-Usa las claves de tu proyecto en `.env.local` en lugar de las locales.
+**Sin la CLI**, si prefieres no manejar la contraseña de la base: abre tu proyecto en
+supabase.com → **SQL Editor** → *New query*, pega entero
+[`supabase/esquema-completo.sql`](supabase/esquema-completo.sql) y ejecútalo. Es la
+concatenación en orden de las cuatro migraciones: crea las 28 tablas y las 15 funciones, y
+activa RLS en todas. Ejecútalo una sola vez sobre un proyecto nuevo.
+
+Si además quieres el catálogo de ejemplo, pega después `supabase/seed.sql`. Ten en cuenta que
+crea usuarios de prueba con contraseña conocida (`demo1234`): **no lo cargues en un proyecto
+que vaya a ser público de verdad**.
+
+Luego pon las claves de tu proyecto en `.env.local` (o en las variables de entorno de Vercel)
+en lugar de las locales.
 
 ### Usuarios de prueba (solo con el seed local)
 
