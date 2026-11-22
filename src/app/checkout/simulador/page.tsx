@@ -38,11 +38,11 @@ export default async function SimulatorPage({ searchParams }: { searchParams: Se
         <div className="flex items-start gap-3 border-b border-amber-400/30 bg-amber-400/[0.08] p-5">
           <FlaskConical className="mt-0.5 size-5 shrink-0 text-amber-400" />
           <div>
-            <h1 className="font-display text-lg font-semibold">Simulador de pago</h1>
+            <h1 className="font-display text-lg font-semibold">Pago de demostracion</h1>
             <p className="mt-1 text-sm text-amber-100/90">
-              Esta pantalla pertenece al adaptador de pruebas: <strong>no se mueve dinero</strong>.
-              Elige un desenlace y el servidor enviara un webhook firmado al mismo endpoint que
-              usara la pasarela real.
+              GETIN todavia no tiene una pasarela conectada, asi que{" "}
+              <strong>aqui no se cobra nada</strong>. Escribe cualquier tarjeta: sirve para
+              recorrer la compra completa y recibir tu codigo QR.
             </p>
           </div>
         </div>
@@ -65,7 +65,11 @@ export default async function SimulatorPage({ searchParams }: { searchParams: Se
         </dl>
 
         <div className="border-t border-white/10 p-5">
-          <SimulatorForm orderId={order.id} paymentId={pago} />
+          <SimulatorForm
+            orderId={order.id}
+            paymentId={pago}
+            amountLabel={formatPEN(order.totalCents)}
+          />
         </div>
       </div>
     </div>
