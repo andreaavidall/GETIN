@@ -13,6 +13,8 @@ import {
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type {
   EventDetail,
+  Promotion,
+  VenuePhoto,
   EventFilters,
   EventSummary,
   GuestListView,
@@ -52,6 +54,7 @@ type TicketRow = {
   sales_start_at: string | null;
   sales_end_at: string | null;
   conditions: string | null;
+  includes: string[] | null;
   is_active: boolean;
 };
 
@@ -69,6 +72,7 @@ function toTicketType(row: TicketRow): TicketTypeView {
     salesEndAt: row.sales_end_at ? new Date(row.sales_end_at) : null,
     isActive: row.is_active,
     conditions: row.conditions,
+    includes: row.includes ?? [],
   };
 }
 
@@ -91,9 +95,18 @@ type VenueRow = {
   capacity: number | null;
   min_age: number;
   dress_code: string | null;
+  ambiences: string[] | null;
+  accessibility: string | null;
+  parking: string | null;
+  entrance_notes: string | null;
 };
 
-function toVenueDetail(row: VenueRow, upcoming = 0): VenueDetail {
+function toVenueDetail(
+  row: VenueRow,
+  upcoming = 0,
+  photos: VenuePhoto[] = [],
+  promotions: Promotion[] = [],
+): VenueDetail {
   return {
     id: row.id,
     slug: row.slug,
@@ -114,6 +127,12 @@ function toVenueDetail(row: VenueRow, upcoming = 0): VenueDetail {
     capacity: row.capacity,
     minAge: row.min_age,
     dressCode: row.dress_code,
+    ambiences: row.ambiences ?? [],
+    accessibility: row.accessibility,
+    parking: row.parking,
+    entranceNotes: row.entrance_notes,
+    photos,
+    promotions,
   };
 }
 
@@ -145,11 +164,12 @@ const EVENT_SELECT = `
   venues!inner (
     id, slug, name, district, address, city, description, cover_url,
     music_genres, is_verified, is_demo, lat, lng, phone, instagram,
-    capacity, min_age, dress_code
+    capacity, min_age, dress_code, ambiences, accessibility, parking,
+    entrance_notes
   ),
   ticket_types (
     id, name, description, price_cents, capacity, sold_count, held_count,
-    max_per_order, sales_start_at, sales_end_at, conditions, is_active
+    max_per_order, sales_start_at, sales_end_at, conditions, includes, is_active
   )
 `;
 
@@ -181,6 +201,60 @@ function toEventSummary(row: EventRow, now: Date): EventSummary {
     hasTables: false,
     hasGuestList: false,
   };
+}
+
+/**
+ * Fotos y promociones de un local.
+ *
+ * Van juntas porque las dos cuelgan del local y las dos se piden en la ficha
+ * del evento y en la del local. Si el local no subio fotos, la lista llega
+ * vacia y la pagina lo dice: no se rellena con imagenes de archivo.
+ */
+async function venueExtras(
+  venueId: string,
+  eventId: string | null,
+  now: Date,
+): Promise<{ photos: VenuePhoto[]; promotions: Promotion[] }> {
+  const supabase = await createSupabaseServerClient();
+
+  const [imagesRes, promosRes] = await Promise.all([
+    supabase
+      .from("venue_images")
+      .select("id, url, alt, kind, position")
+      .eq("venue_id", venueId)
+      .order("position"),
+    supabase
+      .from("promotions")
+      .select("id, title, description, conditions, starts_at, ends_at, event_id")
+      .eq("venue_id", venueId)
+      .eq("is_active", true),
+  ]);
+
+  const photos: VenuePhoto[] = (imagesRes.data ?? []).map((r) => ({
+    id: r.id as string,
+    url: r.url as string,
+    alt: (r.alt as string | null) ?? null,
+    kind: (r.kind as string) ?? "ambiente",
+  }));
+
+  const promotions: Promotion[] = (promosRes.data ?? [])
+    // Una promocion de OTRO evento del mismo local no pinta nada en esta ficha.
+    .filter((r) => !eventId || r.event_id === null || r.event_id === eventId)
+    .filter((r) => {
+      const desde = r.starts_at ? new Date(r.starts_at as string) : null;
+      const hasta = r.ends_at ? new Date(r.ends_at as string) : null;
+      return (!desde || desde <= now) && (!hasta || hasta >= now);
+    })
+    .map((r) => ({
+      id: r.id as string,
+      title: r.title as string,
+      description: r.description as string,
+      conditions: r.conditions as string,
+      startsAt: r.starts_at ? new Date(r.starts_at as string) : null,
+      endsAt: r.ends_at ? new Date(r.ends_at as string) : null,
+    }));
+
+  return { photos, promotions };
 }
 
 // ------------------------------------------------------------------ queries ---
@@ -251,8 +325,9 @@ export async function getEventBySlug(
 
   const row = data as unknown as EventRow;
   const summary = toEventSummary(row, now);
-  const venue = row.venues ? toVenueDetail(row.venues) : null;
-  if (!venue) return null;
+  if (!row.venues) return null;
+  const extras = await venueExtras(row.venues.id, row.id, now);
+  const venue = toVenueDetail(row.venues, 0, extras.photos, extras.promotions);
 
   const [tablesRes, listsRes] = await Promise.all([
     supabase
@@ -382,6 +457,7 @@ export async function listVenues(
     .select(
       `id, slug, name, district, address, city, description, cover_url, music_genres,
        is_verified, is_demo, lat, lng, phone, instagram, capacity, min_age, dress_code,
+       ambiences, accessibility, parking, entrance_notes,
        events (id, status, starts_at)`,
     )
     .eq("status", "approved")
@@ -419,7 +495,8 @@ export async function getVenueBySlug(
     .from("venues")
     .select(
       `id, slug, name, district, address, city, description, cover_url, music_genres,
-       is_verified, is_demo, lat, lng, phone, instagram, capacity, min_age, dress_code`,
+       is_verified, is_demo, lat, lng, phone, instagram, capacity, min_age, dress_code,
+       ambiences, accessibility, parking, entrance_notes`,
     )
     .eq("slug", slug)
     .maybeSingle();
@@ -427,8 +504,15 @@ export async function getVenueBySlug(
   if (error) throw new Error(`No se pudo cargar la discoteca: ${error.message}`);
   if (!data) return null;
 
-  const events = await listEvents({ venueSlug: slug, limit: 20 }, now);
-  return { venue: toVenueDetail(data as unknown as VenueRow, events.length), events };
+  const row = data as unknown as VenueRow;
+  const [events, extras] = await Promise.all([
+    listEvents({ venueSlug: slug, limit: 20 }, now),
+    venueExtras(row.id, null, now),
+  ]);
+  return {
+    venue: toVenueDetail(row, events.length, extras.photos, extras.promotions),
+    events,
+  };
 }
 
 /** Eventos con mesas VIP libres, para la seccion de la portada. */

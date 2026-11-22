@@ -185,6 +185,18 @@ export function TicketSelector({
                     {type.description ? (
                       <p className="mt-1 text-xs text-muted">{type.description}</p>
                     ) : null}
+                    {/* Que incluye, en lista: es lo primero que se pregunta
+                        y lo que mas se discute en la puerta. */}
+                    {type.includes.length > 0 ? (
+                      <ul className="mt-2 space-y-0.5">
+                        {type.includes.map((item) => (
+                          <li key={item} className="flex gap-1.5 text-xs text-muted">
+                            <span className="text-lime">·</span>
+                            {item}
+                          </li>
+                        ))}
+                      </ul>
+                    ) : null}
                     {type.conditions ? (
                       <p className="mt-1 text-xs text-muted/80">{type.conditions}</p>
                     ) : null}

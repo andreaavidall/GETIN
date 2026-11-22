@@ -15,6 +15,7 @@ import { notFound } from "next/navigation";
 
 import { EventActions } from "@/components/catalog/event-actions";
 import { FavoriteButton } from "@/components/catalog/favorite-button";
+import { PromotionList, VenueFacts, VenueGallery } from "@/components/catalog/venue-details";
 import { CreatePlan } from "@/components/plans/create-plan";
 import { GuestListPanel } from "@/components/checkout/guest-list-panel";
 import { TablePicker } from "@/components/checkout/table-picker";
@@ -244,6 +245,12 @@ export default async function EventPage({ params }: { params: Params }) {
               </div>
             </section>
           ) : null}
+
+          <PromotionList promotions={event.venue.promotions} />
+
+          <VenueFacts venue={event.venue} />
+
+          <VenueGallery venue={event.venue} />
 
           {/* ------------------------------------------------------- mesas */}
           {event.tables.length > 0 ? (

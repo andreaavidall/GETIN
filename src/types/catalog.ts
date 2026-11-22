@@ -20,7 +20,26 @@ export type VenueSummary = {
   lng: number | null;
 };
 
+export type VenuePhoto = { id: string; url: string; alt: string | null; kind: string };
+
+export type Promotion = {
+  id: string;
+  title: string;
+  description: string;
+  /** Obligatorias: un beneficio sin condiciones a la vista acaba en discusion. */
+  conditions: string;
+  startsAt: Date | null;
+  endsAt: Date | null;
+};
+
 export type VenueDetail = VenueSummary & {
+  /** Terraza, pista, zona para sentarse... lo que hay en el local. */
+  ambiences: string[];
+  accessibility: string | null;
+  parking: string | null;
+  entranceNotes: string | null;
+  photos: VenuePhoto[];
+  promotions: Promotion[];
   description: string | null;
   address: string;
   city: string;
@@ -38,6 +57,8 @@ export type LineupEntry = { name: string; role?: string; start?: string };
 export type TicketTypeView = TicketTypeSnapshot & {
   description: string | null;
   conditions: string | null;
+  /** Que incluye exactamente, en lista corta y literal. */
+  includes: string[];
 };
 
 export type TableView = TableAvailabilitySnapshot & {

@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 
 import { EventCard } from "@/components/catalog/event-card";
 import { FavoriteButton } from "@/components/catalog/favorite-button";
+import { PromotionList, VenueFacts, VenueGallery } from "@/components/catalog/venue-details";
 import { Badge } from "@/components/ui/badge";
 import { DemoNotice, EmptyState } from "@/components/ui/feedback";
 import { getSession } from "@/lib/auth/session";
@@ -112,6 +113,12 @@ export default async function VenuePage({ params }: { params: Params }) {
 
       <div className="container space-y-10 py-10">
         {demo ? <DemoNotice /> : null}
+
+        <PromotionList promotions={venue.promotions} />
+
+        <VenueFacts venue={venue} />
+
+        <VenueGallery venue={venue} />
 
         {venue.description ? (
           <section>

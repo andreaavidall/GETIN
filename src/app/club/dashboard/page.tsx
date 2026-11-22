@@ -4,6 +4,7 @@ import {
   ClipboardList,
   Download,
   QrCode,
+  Store,
   Ticket,
   Users,
 } from "lucide-react";
@@ -80,6 +81,12 @@ export default async function ClubDashboardPage({ searchParams }: { searchParams
         </div>
 
         <div className="flex flex-wrap gap-2">
+          <Button asChild variant="secondary" size="sm">
+            <Link href="/club/dashboard/local">
+              <Store className="size-4" />
+              Ficha del local
+            </Link>
+          </Button>
           <Button asChild variant="secondary" size="sm">
             <Link href="/puerta">
               <QrCode className="size-4" />
