@@ -30,7 +30,7 @@ function event(overrides: Partial<EventSummary> = {}): EventSummary {
       slug: "nocturna-barranco",
       name: "Nocturna Barranco",
       district: "Barranco",
-      isVerified: true,
+      isVerified: true, lat: null, lng: null,
     },
     priceFromCents: 7_000,
     availability: { tone: "available", label: "Disponible" },

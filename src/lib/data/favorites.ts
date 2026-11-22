@@ -54,7 +54,7 @@ export async function listFavorites(
          events!inner (
            id, slug, name, tagline, cover_url, starts_at, ends_at, min_age,
            music_genres, is_demo, status,
-           venues!inner (id, slug, name, district, is_verified, is_demo),
+           venues!inner (id, slug, name, district, is_verified, is_demo, lat, lng),
            ticket_types (
              id, name, description, price_cents, capacity, sold_count,
              held_count, max_per_order, sales_start_at, sales_end_at,
@@ -70,7 +70,7 @@ export async function listFavorites(
         `created_at,
          venues!inner (
            id, slug, name, district, cover_url, music_genres, is_verified,
-           is_demo, events (id, status, starts_at)
+           is_demo, lat, lng, events (id, status, starts_at)
          )`,
       )
       .not("venue_id", "is", null)
@@ -112,6 +112,8 @@ export async function listFavorites(
         district: string;
         is_verified: boolean;
         is_demo: boolean;
+        lat: number | string | null;
+        lng: number | string | null;
       } | null;
       ticket_types: TicketRow[] | null;
     } | null;
@@ -127,6 +129,8 @@ export async function listFavorites(
       music_genres: string[] | null;
       is_verified: boolean;
       is_demo: boolean;
+      lat: number | string | null;
+      lng: number | string | null;
       events: { id: string; status: string; starts_at: string }[] | null;
     } | null;
   };
@@ -166,6 +170,8 @@ export async function listFavorites(
           name: e.venues?.name ?? "",
           district: e.venues?.district ?? "",
           isVerified: Boolean(e.venues?.is_verified),
+          lat: e.venues?.lat == null ? null : Number(e.venues.lat),
+          lng: e.venues?.lng == null ? null : Number(e.venues.lng),
         },
         priceFromCents: priceFromCents(tickets, now),
         availability: availabilityLabel(tickets, now),
@@ -189,6 +195,8 @@ export async function listFavorites(
       upcomingEvents: (v.events ?? []).filter(
         (e) => e.status === "published" && new Date(e.starts_at) >= now,
       ).length,
+      lat: v.lat == null ? null : Number(v.lat),
+      lng: v.lng == null ? null : Number(v.lng),
     }));
 
   // Primero lo que todavía se puede usar: eventos futuros antes que pasados.

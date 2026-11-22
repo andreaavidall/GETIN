@@ -173,6 +173,8 @@ function toEventSummary(row: EventRow, now: Date): EventSummary {
       name: venue?.name ?? "",
       district: venue?.district ?? "",
       isVerified: Boolean(venue?.is_verified),
+      lat: venue?.lat == null ? null : Number(venue.lat),
+      lng: venue?.lng == null ? null : Number(venue.lng),
     },
     priceFromCents: priceFromCents(tickets, now),
     availability: availabilityLabel(tickets, now),

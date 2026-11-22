@@ -3,6 +3,8 @@ import Link from "next/link";
 import { Suspense } from "react";
 
 import { EventCard } from "@/components/catalog/event-card";
+import { MapToggle } from "@/components/catalog/map-toggle";
+import type { MapPoint } from "@/components/catalog/venue-map";
 import { EventFiltersPanel } from "@/components/catalog/event-filters-panel";
 import { Button } from "@/components/ui/button";
 import { DemoNotice, EmptyState, ErrorState, EventGridSkeleton } from "@/components/ui/feedback";
@@ -111,11 +113,27 @@ async function Results({ filters }: { filters: EventFilters }) {
     );
   }
 
+  const points: MapPoint[] = events
+    .filter((e) => e.venue.lat !== null && e.venue.lng !== null)
+    .map((e) => ({
+      id: e.id,
+      slug: e.slug,
+      name: e.venue.name,
+      district: e.venue.district,
+      lat: e.venue.lat as number,
+      lng: e.venue.lng as number,
+      eventName: e.name,
+      startsAt: e.startsAt,
+      priceFromCents: e.priceFromCents,
+      href: `/eventos/${e.slug}`,
+    }));
+
   return (
     <>
       <p className="text-xs text-muted" aria-live="polite">
         {events.length} {events.length === 1 ? "evento" : "eventos"}
       </p>
+      <MapToggle points={points} sinUbicacion={events.length - points.length}>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {events.map((event, i) => (
           <EventCard
@@ -130,6 +148,7 @@ async function Results({ filters }: { filters: EventFilters }) {
           />
         ))}
       </div>
+      </MapToggle>
     </>
   );
 }

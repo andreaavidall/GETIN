@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
 
+import { MapToggle } from "@/components/catalog/map-toggle";
+import type { MapPoint } from "@/components/catalog/venue-map";
 import { VenueCard } from "@/components/catalog/venue-card";
 import { Button } from "@/components/ui/button";
 import { DemoNotice, EmptyState, EventGridSkeleton } from "@/components/ui/feedback";
@@ -86,7 +88,22 @@ async function VenueResults({ district }: { district?: string }) {
     );
   }
 
+  // Solo entran en el mapa los locales con coordenadas; el resto se cuenta y
+  // se dice, en vez de desaparecer sin explicacion.
+  const points: MapPoint[] = venues
+    .filter((v): v is typeof v & { lat: number; lng: number } => v.lat !== null && v.lng !== null)
+    .map((v) => ({
+      id: v.id,
+      slug: v.slug,
+      name: v.name,
+      district: v.district,
+      lat: v.lat,
+      lng: v.lng,
+      href: `/discotecas/${v.slug}`,
+    }));
+
   return (
+    <MapToggle points={points} sinUbicacion={venues.length - points.length}>
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {venues.map((venue) => (
         <VenueCard
@@ -100,5 +117,6 @@ async function VenueResults({ district }: { district?: string }) {
         />
       ))}
     </div>
+    </MapToggle>
   );
 }

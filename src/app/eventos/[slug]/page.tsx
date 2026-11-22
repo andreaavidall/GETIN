@@ -15,6 +15,7 @@ import { notFound } from "next/navigation";
 
 import { EventActions } from "@/components/catalog/event-actions";
 import { FavoriteButton } from "@/components/catalog/favorite-button";
+import { CreatePlan } from "@/components/plans/create-plan";
 import { GuestListPanel } from "@/components/checkout/guest-list-panel";
 import { TablePicker } from "@/components/checkout/table-picker";
 import { TicketSelector } from "@/components/checkout/ticket-selector";
@@ -102,6 +103,15 @@ export default async function EventPage({ params }: { params: Params }) {
                 startsAt={event.startsAt.toISOString()}
                 endsAt={event.endsAt ? event.endsAt.toISOString() : null}
               />
+              {demo ? null : (
+                <CreatePlan
+                  eventId={event.id}
+                  eventName={event.name}
+                  eventSlug={event.slug}
+                  isAuthenticated={Boolean(session)}
+                  defaultName={session?.user.fullName ?? ""}
+                />
+              )}
             </div>
           </div>
 

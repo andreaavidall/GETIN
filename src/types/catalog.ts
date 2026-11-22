@@ -15,6 +15,9 @@ export type VenueSummary = {
   isVerified: boolean;
   isDemo: boolean;
   upcomingEvents: number;
+  /** Para el mapa. Null mientras el local no la haya puesto. */
+  lat: number | null;
+  lng: number | null;
 };
 
 export type VenueDetail = VenueSummary & {
@@ -74,7 +77,15 @@ export type EventSummary = {
   minAge: number;
   musicGenres: string[];
   isDemo: boolean;
-  venue: { id: string; slug: string; name: string; district: string; isVerified: boolean };
+  venue: {
+    id: string;
+    slug: string;
+    name: string;
+    district: string;
+    isVerified: boolean;
+    lat: number | null;
+    lng: number | null;
+  };
   priceFromCents: number | null;
   availability: { tone: "available" | "low" | "soldout" | "closed"; label: string };
   hasTables: boolean;
