@@ -139,6 +139,43 @@ rol=$(rest "$TOK_CLIENTE" GET "profiles?select=role" | node -e "let d='';process
 [ "$rol" = "client" ] && ok "el rol sigue siendo 'client' despues del intento" \
                       || fail "el rol quedo en '$rol'" "deberia seguir siendo client"
 
+# ------------------------------- ejecucion de funciones desde el navegador ---
+# Postgres concede EXECUTE a PUBLIC por defecto, y PostgREST expone todo el
+# esquema public en /rest/v1/rpc/. Las funciones de inventario no comprueban de
+# quien es la orden (la app las llama con la service role), asi que un usuario
+# con sesion no debe poder tocarlas: podria soltar las entradas retenidas por
+# otro, o agotar inventario ajeno.
+res=$(curl -s -X POST "$API/rest/v1/rpc/getin_release_hold" \
+  -H "apikey: $ANON" -H "Authorization: Bearer $TOK_CLIENTE" \
+  -H "Content-Type: application/json" \
+  --data-raw '{"p_order_id":"00000000-0000-4000-8000-000000000000"}')
+echo "$res" | grep -q "permission denied" \
+  && ok "un cliente no puede liberar la retencion de otro (getin_release_hold)" \
+  || fail "el cliente pudo llamar a getin_release_hold" "$res"
+
+res=$(curl -s -X POST "$API/rest/v1/rpc/getin_hold_tickets" \
+  -H "apikey: $ANON" -H "Authorization: Bearer $TOK_CLIENTE" \
+  -H "Content-Type: application/json" \
+  --data-raw '{"p_order_id":"00000000-0000-4000-8000-000000000000","p_ticket_type_id":"00000000-0000-4000-8000-000000000000","p_qty":5}')
+echo "$res" | grep -q "permission denied" \
+  && ok "un cliente no puede retener inventario a mano (getin_hold_tickets)" \
+  || fail "el cliente pudo llamar a getin_hold_tickets" "$res"
+
+# Pero el escaneo si tiene que llegar a su propio control de permisos.
+res=$(curl -s -X POST "$API/rest/v1/rpc/getin_scan_qr" \
+  -H "apikey: $ANON" -H "Authorization: Bearer $TOK_CLIENTE" \
+  -H "Content-Type: application/json" \
+  --data-raw '{"p_token_hash":"x","p_venue_id":"a0000000-0000-4000-8000-000000000001"}')
+echo "$res" | grep -q "FORBIDDEN" \
+  && ok "getin_scan_qr se alcanza pero rechaza a quien no es personal del local" \
+  || fail "getin_scan_qr no respondio FORBIDDEN" "$res"
+
+# Y el catalogo publico, que depende de funciones llamadas dentro de las
+# politicas de RLS, tiene que seguir cargando para un anonimo.
+n=$(curl -s "$API/rest/v1/events?select=id&status=eq.published" -H "apikey: $ANON" | count)
+[ "$n" -ge "1" ] && ok "el catalogo publico sigue leyendose como anonimo (ve $n eventos)" \
+                 || fail "el catalogo publico dejo de cargar" "revisar los revoke de 0005"
+
 # ----------------------------------------------- publicacion de un local ----
 res=$(rest "$TOK_CLUB" PATCH "venues?id=eq.a0000000-0000-4000-8000-000000000001" '{"commission_bps":0}')
 echo "$res" | grep -qiE "FORBIDDEN|row-level security|permission denied" \
