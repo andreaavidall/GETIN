@@ -289,9 +289,14 @@ export function TablePicker({
  *
  * Son cinco números que la gente confunde: lo que cuesta la mesa, lo que paga
  * AHORA en la plataforma (adelanto más el cargo de GETIN), lo que deberá pagar
- * en la puerta, el consumo mínimo —que es ADEMÁS, no parte del precio— y lo
- * que acaba costando la noche entera. Faltaba justamente el total global, que
- * es la cifra con la que se decide.
+ * en la puerta, el consumo mínimo —que es ADEMÁS, no parte del precio— y la
+ * suma de todo.
+ *
+ * Esa suma se llama "total mínimo", no "coste de la noche": es un SUELO, no un
+ * precio cerrado. Lo que se beba por encima del mínimo se paga aparte, y si la
+ * mesa incluye o no el ingreso de los acompañantes lo dicen las condiciones
+ * del local, no GETIN. Llamarlo "coste total" prometía algo que nadie puede
+ * garantizar desde aquí.
  */
 function TableFigures({ table }: { table: TableView }) {
   const cargo = applyBps(table.depositCents, DEFAULT_PRICING.commissionBps);
@@ -340,10 +345,24 @@ function TableFigures({ table }: { table: TableView }) {
         </div>
 
         <div className="flex justify-between border-t border-white/10 pt-2">
-          <dt className="font-semibold">Coste total de la noche</dt>
+          <dt className="font-semibold">
+            Total mínimo de la reserva
+            {table.minConsumptionCents > 0 ? (
+              <span className="block text-[10px] font-normal text-muted">
+                incluye el consumo mínimo
+              </span>
+            ) : null}
+          </dt>
           <dd className="font-display text-base font-bold">{formatPEN(total)}</dd>
         </div>
       </dl>
+
+      {/* Un suelo, no un techo: decirlo evita la discusion de la cuenta. */}
+      <p className="mt-2 text-[11px] text-muted">
+        Es un mínimo, no un precio cerrado: lo que consuman por encima del mínimo se paga aparte.
+        Si la mesa cubre el ingreso de tus acompañantes o no, lo indica el local en las
+        condiciones de la mesa; GETIN no lo decide.
+      </p>
 
       {table.minConsumptionCents > 0 ? (
         <p className="mt-2 rounded-lg bg-amber-400/[0.07] px-3 py-2 text-[11px] text-amber-100/80">
@@ -388,9 +407,33 @@ function TableMap({
   selected: string | null;
   onSelect: (id: string) => void;
 }) {
+  // Separación mínima entre dos mesas del plano, medida en % del ANCHO del
+  // salón (la vertical se convierte con la proporción 4:3 del contenedor).
+  // Sirve para que el área táctil crezca hasta donde puede sin pisar a la
+  // vecina: un marcador de 22 px es correcto de ver y pequeño de tocar, pero
+  // agrandarlo a ciegas haría que tocar "Mesa 2" abriera "Mesa 1".
+  const separacion = useMemo(() => {
+    let min = 100;
+    for (let i = 0; i < tables.length; i++) {
+      for (let j = i + 1; j < tables.length; j++) {
+        const a = tables[i]!;
+        const b = tables[j]!;
+        const dx = (a.positionX ?? 0) - (b.positionX ?? 0);
+        const dy = ((a.positionY ?? 0) - (b.positionY ?? 0)) * 0.75;
+        min = Math.min(min, Math.hypot(dx, dy));
+      }
+    }
+    return min;
+  }, [tables]);
+
   return (
     <div className="surface p-4">
-      <div className="relative aspect-[4/3] w-full overflow-hidden rounded-xl bg-white/[0.03]">
+      <div
+        className="relative aspect-[4/3] w-full overflow-hidden rounded-xl bg-white/[0.03]"
+        // `inline-size` habilita las unidades cqw: la separación está en
+        // porcentaje del ancho y aquí se vuelve una medida real.
+        style={{ containerType: "inline-size" }}
+      >
         {/* Referencia fija: dónde está la pista. Sin ella, el plano es una
             nube de puntos sin arriba ni abajo. */}
         <div className="absolute inset-x-6 bottom-4 rounded-lg border border-dashed border-white/15 py-2 text-center text-[10px] uppercase tracking-widest text-muted">
@@ -410,27 +453,45 @@ function TableMap({
                 table,
                 now,
               )}. Hasta ${table.capacity} personas. ${formatPEN(table.priceCents)}.`}
-              style={{ left: `${table.positionX}%`, top: `${table.positionY}%` }}
+              style={{
+                left: `${table.positionX}%`,
+                top: `${table.positionY}%`,
+                // Hasta 44 px (el mínimo recomendado para el dedo), pero nunca
+                // más que la distancia a la mesa más cercana, y nunca menos
+                // que el propio marcador.
+                width: `min(2.75rem, ${separacion.toFixed(2)}cqw)`,
+                height: `min(2.75rem, ${separacion.toFixed(2)}cqw)`,
+                minWidth: "fit-content",
+                minHeight: "fit-content",
+              }}
               className={cn(
-                "absolute -translate-x-1/2 -translate-y-1/2 rounded-lg border px-2 py-1 text-[10px] font-semibold leading-tight transition sm:px-2.5 sm:py-1.5 sm:text-[11px]",
-                bookable
-                  ? "border-lime/50 bg-lime/15 text-lime hover:bg-lime/25"
-                  : "border-white/15 bg-white/5 text-muted",
-                // La mesa activa se dibuja encima: si dos quedan cerca en el
-                // plano del local, la elegida no puede quedar debajo.
-                activa ? "z-20 ring-2 ring-lime" : "z-10 hover:z-20 focus-visible:z-20",
+                "absolute flex -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-lg",
+                activa ? "z-20" : "z-10 hover:z-20 focus-visible:z-20",
               )}
             >
-              {/* El nombre completo y el precio solo caben sin solaparse a
-                  partir de pantalla mediana. */}
-              <span className="sm:hidden" aria-hidden="true">
-                {etiquetaCorta(table.label)}
-              </span>
-              <span className="hidden sm:block" aria-hidden="true">
-                {table.label}
-              </span>
-              <span className="hidden text-[10px] font-normal opacity-80 sm:block" aria-hidden="true">
-                {formatPEN(table.priceCents)}
+              <span
+                className={cn(
+                  "pointer-events-none rounded-lg border px-2 py-1 text-center text-[10px] font-semibold leading-tight transition sm:px-2.5 sm:py-1.5 sm:text-[11px]",
+                  bookable
+                    ? "border-lime/50 bg-lime/15 text-lime"
+                    : "border-white/15 bg-white/5 text-muted",
+                  activa && "ring-2 ring-lime",
+                )}
+              >
+                {/* El nombre completo y el precio solo caben sin solaparse a
+                    partir de pantalla mediana. */}
+                <span className="sm:hidden" aria-hidden="true">
+                  {etiquetaCorta(table.label)}
+                </span>
+                <span className="hidden sm:block" aria-hidden="true">
+                  {table.label}
+                </span>
+                <span
+                  className="hidden text-[10px] font-normal opacity-80 sm:block"
+                  aria-hidden="true"
+                >
+                  {formatPEN(table.priceCents)}
+                </span>
               </span>
             </button>
           );

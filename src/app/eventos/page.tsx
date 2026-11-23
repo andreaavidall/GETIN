@@ -61,8 +61,9 @@ export default async function EventsPage({ searchParams }: { searchParams: Searc
       <header className="space-y-2">
         <h1 className="text-display text-3xl sm:text-4xl">Eventos</h1>
         <p className="text-sm text-muted">
-          Fiestas y eventos nocturnos en Lima. Los precios incluyen el cargo por servicio solo en
-          el checkout, donde se muestra desglosado.
+          Fiestas y eventos nocturnos en Lima. Los precios mostrados{" "}
+          <strong className="text-paper">no incluyen el cargo por servicio</strong>: verás el
+          desglose y el total antes de pagar.
         </p>
       </header>
 

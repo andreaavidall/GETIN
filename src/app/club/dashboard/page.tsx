@@ -61,12 +61,29 @@ export default async function ClubDashboardPage({ searchParams }: { searchParams
   }[];
   const venue = list.find((v) => v.id === venueId);
 
-  const [stats, sources, events, pendingGuests] = await Promise.all([
+  const [stats, sources, events, pendingGuests, fichaRes] = await Promise.all([
     getVenueStats(venueId),
     getSourceBreakdown(venueId),
     listVenueEvents(venueId),
     listPendingGuestEntries(venueId),
+    // Lo que falta en la ficha publica. Se pregunta aqui porque es en el panel
+    // donde el local pasa el tiempo, no en su propia pagina publica.
+    supabase
+      .from("venues")
+      .select("ambiences, accessibility, parking, entrance_notes, venue_images (id)")
+      .eq("id", venueId)
+      .maybeSingle(),
   ]);
+
+  const ficha = fichaRes.data;
+  const faltan: string[] = [];
+  if (((ficha?.venue_images as { id: string }[] | null) ?? []).length === 0) {
+    faltan.push("fotos del ambiente y de las mesas");
+  }
+  if (((ficha?.ambiences as string[] | null) ?? []).length === 0) faltan.push("ambientes");
+  if (!ficha?.accessibility) faltan.push("accesibilidad");
+  if (!ficha?.parking) faltan.push("estacionamiento");
+  if (!ficha?.entrance_notes) faltan.push("punto de ingreso");
 
   return (
     <div className="container space-y-8 py-8">
@@ -121,6 +138,27 @@ export default async function ClubDashboardPage({ searchParams }: { searchParams
           <strong className="font-semibold">Tu local aún no esta aprobado.</strong> Puedes preparar
           tus eventos y entradas, pero no apareceran en el catálogo publico ni se podran comprar
           hasta que el equipo de GETIN verifique la información comercial.
+        </div>
+      ) : null}
+
+      {/* ------------------------------------------------- ficha incompleta */}
+      {faltan.length > 0 ? (
+        <div className="surface flex flex-wrap items-start justify-between gap-4 border-amber-400/30 bg-amber-400/[0.06] p-5">
+          <div className="max-w-xl">
+            <h2 className="flex items-center gap-2 font-display text-base font-semibold">
+              <Store className="size-4 text-amber-300" />
+              Tu ficha está incompleta
+            </h2>
+            <p className="mt-1 text-sm text-amber-100/80">
+              Falta por completar: {faltan.join(", ")}. Son los datos que más mira quien está
+              decidiendo dónde salir, y las fotos pesan especialmente al reservar una mesa.
+              Mientras no las subas, tu ficha dice que no hay fotos: no ponemos imágenes de
+              archivo.
+            </p>
+          </div>
+          <Button asChild size="sm">
+            <Link href="/club/dashboard/local">Completar ficha</Link>
+          </Button>
         </div>
       ) : null}
 

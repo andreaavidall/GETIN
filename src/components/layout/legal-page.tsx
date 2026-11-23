@@ -19,7 +19,7 @@ export function LegalPage({
   return (
     <div className="container max-w-3xl py-10">
       <h1 className="text-display text-3xl sm:text-4xl">{title}</h1>
-      <p className="mt-2 text-xs text-muted">Ultima actualizacion: {updated}</p>
+      <p className="mt-2 text-xs text-muted">Última actualización: {updated}</p>
 
       <div className="mt-6 flex items-start gap-3 rounded-xl border border-amber-400/30 bg-amber-400/[0.08] p-4">
         <AlertTriangle className="mt-0.5 size-4 shrink-0 text-amber-400" />

@@ -365,6 +365,21 @@ export function TablePositionsForm({ venueId, tables }: { venueId: string; table
   const [pending, startTransition] = useTransition();
   const faltan = tables.filter((t) => t.x === null || t.y === null).length;
 
+  // Dos mesas demasiado juntas se dibujan encima la una de la otra y dejan de
+  // poder tocarse por separado en un telefono. Mas vale decirlo aqui, donde
+  // tiene arreglo, que dejar un plano que no se puede usar.
+  const colocadas = tables.filter((t) => t.x !== null && t.y !== null);
+  const juntas: string[] = [];
+  for (let i = 0; i < colocadas.length; i++) {
+    for (let j = i + 1; j < colocadas.length; j++) {
+      const a = colocadas[i]!;
+      const b = colocadas[j]!;
+      // La vertical se convierte con la proporcion 4:3 del plano.
+      const d = Math.hypot((a.x! - b.x!), (a.y! - b.y!) * 0.75);
+      if (d < 10) juntas.push(`${a.label} y ${b.label}`);
+    }
+  }
+
   function guardar(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
@@ -402,6 +417,14 @@ export function TablePositionsForm({ venueId, tables }: { venueId: string; table
           {faltan > 0 ? ` Faltan ${faltan}.` : " Ya están todas."}
         </p>
       </div>
+
+      {juntas.length > 0 ? (
+        <p className="rounded-lg bg-amber-400/[0.07] px-3 py-2 text-xs text-amber-100/80">
+          Estas mesas quedan demasiado juntas en el plano y se encimarán en un teléfono:{" "}
+          <strong>{juntas.join("; ")}</strong>. Sepáralas al menos un 10 % para que se puedan
+          tocar por separado.
+        </p>
+      ) : null}
 
       <ul className="space-y-2">
         {tables.map((t) => (

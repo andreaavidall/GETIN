@@ -72,7 +72,7 @@ export default function TermsPage() {
           </li>
           <li>
             La compra se considera confirmada <strong>solo</strong> cuando el proveedor de pagos lo
-            confirma. Recien entonces se emite la entrada y su código QR.
+            confirma. Recién entonces se emite la entrada y su código QR.
           </li>
           <li>Cada código QR es de un solo uso y personal. Duplicarlo invalida el ingreso.</li>
         </ul>
@@ -83,7 +83,7 @@ export default function TermsPage() {
         <p>
           Una entrada pagada da derecho a presentarse en el evento indicado, pero el ingreso
           efectivo depende del aforo autorizado del local, del horario de ingreso y del derecho de
-          admisión del establecimiento, ejercido conforme a la ley y sin discriminacion. GETIN no
+          admisión del establecimiento, ejercido conforme a la ley y sin discriminación. GETIN no
           puede garantizar el acceso cuando el local alcanza su aforo o aplica sus reglas de
           ingreso.
         </p>
