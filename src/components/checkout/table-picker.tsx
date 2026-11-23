@@ -465,7 +465,11 @@ function TableMap({
                 minHeight: "fit-content",
               }}
               className={cn(
-                "absolute flex -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-lg",
+                // Sin `rounded-*`: la caja tactil es invisible y redondearla
+                // le quitaba las esquinas, que es justo donde cae el dedo
+                // cuando apuntas de lado. El aspecto redondeado lo pone el
+                // marcador de dentro.
+                "absolute flex -translate-x-1/2 -translate-y-1/2 items-center justify-center",
                 activa ? "z-20" : "z-10 hover:z-20 focus-visible:z-20",
               )}
             >
