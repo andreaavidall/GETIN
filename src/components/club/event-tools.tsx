@@ -103,8 +103,9 @@ export function EventTools({
 
       {publishAt && isDraft ? (
         <p className="rounded-lg bg-amber-400/[0.07] px-3 py-2 text-[11px] text-amber-100/80">
-          Programado para {formatEventDate(publishAt)}. Sigue en borrador hasta que el servidor
-          ejecute la publicación programada.
+          Programado para {formatEventDate(publishAt)}. Sigue en borrador hasta el siguiente
+          barrido del servidor, que corre una vez al día a las 12:00 de Lima: puede salir
+          después de la hora que elegiste, nunca antes.
         </p>
       ) : null}
 
@@ -141,7 +142,7 @@ export function EventTools({
           <Field
             label="Publicar automáticamente el"
             htmlFor={`sch-${eventId}`}
-            hint="Hora de Lima. Déjalo vacío para quitar la programación."
+            hint="Hora de Lima. El barrido corre a diario a las 12:00, así que publica en cuanto pasa esa hora. Déjalo vacío para quitar la programación."
           >
             <Input
               id={`sch-${eventId}`}
