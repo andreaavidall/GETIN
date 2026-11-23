@@ -9,7 +9,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, Textarea } from "@/components/ui/input";
 import { Field } from "@/components/ui/label";
-import { openSupportTicketAction, replySupportAction, SUPPORT_REASONS } from "@/lib/actions/support";
+import { openSupportTicketAction, replySupportAction } from "@/lib/actions/support";
+import { SUPPORT_REASONS } from "@/lib/domain/support";
 import type { SupportTicketView } from "@/lib/data/support";
 import { formatEventDate } from "@/lib/utils";
 

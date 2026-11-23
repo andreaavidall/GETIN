@@ -6,29 +6,20 @@ import { z } from "zod";
 import type { ActionResult } from "@/lib/actions/checkout";
 import { recordAudit } from "@/lib/audit";
 import { getSession } from "@/lib/auth/session";
+import { SUPPORT_REASONS, type SupportReason } from "@/lib/domain/support";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 /**
  * Soporte atado a la compra.
  *
- * El motivo no es decorativo: "pago pendiente", "no recibí el QR" y "evento
- * cancelado" se resuelven de formas distintas, y pedirlo de entrada evita el
- * primer intercambio de correos. La solicitud queda con estado para que quien
- * reclama vea en qué va, en lugar de mirar su bandeja de salida.
+ * La solicitud queda con estado para que quien reclama vea en qué va, en
+ * lugar de mirar su bandeja de salida. Los motivos viven en
+ * `lib/domain/support` porque este archivo solo puede exportar funciones.
  */
-export const SUPPORT_REASONS = {
-  pago_pendiente: "Pagué y mi orden sigue pendiente",
-  qr_no_recibido: "No recibí mi código QR",
-  evento_cancelado: "El evento se canceló o cambió",
-  no_pude_entrar: "No pude entrar al local",
-  cobro_incorrecto: "Me cobraron de más",
-  otro: "Otro problema",
-} as const;
-
 const openSchema = z.object({
   orderId: z.string().uuid().optional(),
   reason: z.enum(
-    Object.keys(SUPPORT_REASONS) as [keyof typeof SUPPORT_REASONS, ...(keyof typeof SUPPORT_REASONS)[]],
+    Object.keys(SUPPORT_REASONS) as [SupportReason, ...SupportReason[]],
   ),
   body: z.string().trim().min(10, "Cuéntanos qué pasó, con algo de detalle").max(2000),
 });

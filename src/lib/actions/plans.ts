@@ -61,12 +61,18 @@ export async function createPlanAction(
 
     // Quien crea el plan va en él: si no, el contador empieza en cero y no
     // cuadra con la realidad.
-    await supabase.from("plan_members").insert({
+    //
+    // Se escribe con la clave de servicio igual que las respuestas: a
+    // `plan_members` se entra por el token del plan, no por una política de
+    // RLS, así que la tabla no admite inserciones desde el navegador.
+    const admin = createSupabaseAdminClient();
+    const { error: errorMiembro } = await admin.from("plan_members").insert({
       plan_id: plan.id as string,
       user_id: session.user.id,
       display_name: parsed.data.displayName,
       rsvp: "va",
     });
+    if (errorMiembro) return { ok: false, error: errorMiembro.message };
 
     revalidatePath("/cuenta/planes");
     return { ok: true, token: plan.token as string };
