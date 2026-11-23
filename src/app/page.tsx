@@ -198,12 +198,15 @@ async function WeekendSection() {
   // semana SIGUIENTE, y hay que nombrarlo así. Y se enseñan las fechas, para
   // que nadie tenga que adivinar de que días hablamos.
   const { from, to, isUpcoming } = weekendRange();
+  // `to` es el lunes a las 06:00: el cierre de la madrugada del domingo, no un
+  // dia mas de fiesta. Enseñar "al 30 nov" hacia creer que el lunes entraba.
+  const ultimoDia = new Date(to.getTime() - 12 * 3_600_000);
 
   return (
     <section>
       <SectionHeader
         title={isUpcoming ? "Próximo fin de semana" : "Este fin de semana"}
-        subtitle={`Del ${formatShortDate(from)} al ${formatShortDate(to)}`}
+        subtitle={`Del ${formatShortDate(from)} al ${formatShortDate(ultimoDia)}`}
         href="/eventos"
       />
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -218,13 +221,20 @@ async function WeekendSection() {
 async function VenuesSection() {
   const venues = await listVenues({ limit: 6 });
   if (venues.length === 0) return null;
+
+  // Decir "verificados" encima de locales de demostracion es exactamente lo
+  // que no se puede hacer. El subtitulo cuenta lo que hay.
+  const verificados = venues.filter((v) => v.isVerified && !v.isDemo).length;
+  const subtitle =
+    verificados === venues.length
+      ? "Locales verificados en Lima"
+      : verificados > 0
+        ? `${verificados} de ${venues.length} verificados por GETIN`
+        : "Catálogo de demostración: ninguno está verificado todavía";
+
   return (
     <section>
-      <SectionHeader
-        title="Discotecas populares"
-        subtitle="Locales verificados en Lima"
-        href="/discotecas"
-      />
+      <SectionHeader title="Discotecas populares" subtitle={subtitle} href="/discotecas" />
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {venues.map((venue) => (
           <VenueCard key={venue.id} venue={venue} />

@@ -143,7 +143,9 @@ export default async function EventPage({
               className="flex items-center gap-1.5 font-medium hover:text-lime"
             >
               {event.venue.name}
-              {event.venue.isVerified ? <BadgeCheck className="size-4 text-lime" /> : null}
+              {event.venue.isVerified && !event.isDemo ? (
+                <BadgeCheck className="size-4 text-lime" aria-label="Local verificado" />
+              ) : null}
             </Link>
             <span className="flex items-center gap-1.5">
               <MapPin className="size-4 text-muted" />

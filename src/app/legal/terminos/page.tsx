@@ -1,29 +1,40 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 
 import { LegalPage } from "@/components/layout/legal-page";
 
 export const metadata: Metadata = {
-  title: "Terminos y condiciones",
-  description: "Terminos del servicio de GETIN (borrador sujeto a revisión legal).",
+  title: "Términos y condiciones",
+  description: "Términos del servicio de GETIN (borrador sujeto a revisión legal).",
 };
 
 export default function TermsPage() {
   return (
-    <LegalPage title="Terminos y condiciones" updated="borrador inicial">
+    <LegalPage title="Términos y condiciones" updated="borrador inicial">
       <section>
-        <h2>1. Que es GETIN</h2>
+        <h2>1. Qué es GETIN</h2>
         <p>
           GETIN es una plataforma que permite descubrir eventos nocturnos, comprar entradas,
-          reservar mesas y apuntarse a listas de invitados en establecimientos de Lima, Perú. GETIN
-          actua como <strong>intermediario tecnologico</strong>: el evento, el servicio y el
-          derecho de admisión corresponden al establecimiento organizador, no a GETIN.
+          reservar mesas y apuntarse a listas de invitados en establecimientos de Lima, Perú.
+          GETIN actúa como <strong>intermediario tecnológico</strong>: el evento, el servicio y
+          el derecho de admisión corresponden al establecimiento organizador, no a GETIN.
+        </p>
+        {/* Decir quien responde es lo primero que exige la norma, y es
+            justamente lo que todavia no se puede decir. Se dice eso. */}
+        <p className="text-amber-200/80">
+          <strong>Datos del proveedor pendientes.</strong> La razón social, el RUC y el domicilio
+          fiscal se publicarán en cuanto la empresa esté constituida; hasta entonces figuran como
+          pendientes aquí y en el Libro de Reclamaciones. No se indican datos provisionales:
+          publicar un RUC que no existe es precisamente lo que la norma sanciona. Mientras tanto,
+          estos términos son un <strong>borrador sujeto a revisión legal</strong> y no deben
+          usarse en una operación comercial real.
         </p>
       </section>
 
       <section>
         <h2>2. Edad mínima</h2>
         <p>
-          El uso de la plataforma esta restringido a personas mayores de 18 años. Cada
+          El uso de la plataforma está restringido a personas mayores de 18 años. Cada
           establecimiento puede exigir una edad mínima superior, que se indica en la página del
           evento. En la puerta se puede solicitar documento de identidad.
         </p>
@@ -49,14 +60,21 @@ export default function TermsPage() {
             el pago, vuelven a estar disponibles y no se realiza ningún cargo.
           </li>
           <li>
-            El precio mostrado incluye el precio fijado por el establecimiento y el cargo por
-            servicio de GETIN, que se desglosa en el checkout antes de pagar.
+            El precio que ves en la ficha del evento es el que fija el establecimiento.{" "}
+            <strong>No incluye el cargo por servicio de GETIN</strong>: ese cargo se suma
+            aparte, se anuncia antes de elegir y se desglosa en el checkout, de modo que el
+            total que pagas se ve antes de confirmar.
+          </li>
+          <li>
+            En las mesas pagas aquí solo el adelanto más su cargo por servicio. El saldo de la
+            mesa y el consumo mínimo se abonan en el local, y la ficha muestra el coste total de
+            la noche antes de reservar.
           </li>
           <li>
             La compra se considera confirmada <strong>solo</strong> cuando el proveedor de pagos lo
             confirma. Recien entonces se emite la entrada y su código QR.
           </li>
-          <li>Cada código QR es de un solo uso y personal. Su duplicacion inválida el ingreso.</li>
+          <li>Cada código QR es de un solo uso y personal. Duplicarlo invalida el ingreso.</li>
         </ul>
       </section>
 
@@ -129,7 +147,12 @@ export default function TermsPage() {
           <a href="mailto:soporte@getin.pe" className="text-lime hover:underline">
             soporte@getin.pe
           </a>
-          . El Libro de Reclamaciones virtual debe habilitarse antes del lanzamiento comercial.
+          . El{" "}
+          <Link href="/legal/libro-de-reclamaciones" className="text-lime hover:underline">
+            Libro de Reclamaciones virtual
+          </Link>{" "}
+          está habilitado: registra la reclamación con número correlativo, entrega constancia en
+          pantalla y fija el plazo de respuesta.
         </p>
       </section>
     </LegalPage>

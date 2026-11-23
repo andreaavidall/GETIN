@@ -2,7 +2,7 @@
 
 import { LayoutGrid, Map as MapIcon } from "lucide-react";
 import dynamic from "next/dynamic";
-import { useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import type { MapPoint } from "@/components/catalog/venue-map";
 import { cn } from "@/lib/utils";
@@ -16,6 +16,12 @@ import { cn } from "@/lib/utils";
  *
  * Los filtros no se tocan: el mapa pinta exactamente los mismos resultados
  * que el listado, porque recibe los que ya se cargaron.
+ *
+ * La vista elegida vive en la URL (`?vista=mapa`), no en un `useState`. Al
+ * filtrar, el servidor vuelve a renderizar la lista de resultados y este
+ * componente se monta de nuevo: con estado local, el mapa se cerraba solo y
+ * te devolvía a la lista en cuanto tocabas un filtro. En la URL sobrevive, y
+ * además el enlace que compartes abre la misma vista que estabas viendo.
  */
 const VenueMap = dynamic(() => import("@/components/catalog/venue-map").then((m) => m.VenueMap), {
   ssr: false,
@@ -32,7 +38,20 @@ export function MapToggle({
   sinUbicacion: number;
   children: React.ReactNode;
 }) {
-  const [vista, setVista] = useState<"lista" | "mapa">("lista");
+  const router = useRouter();
+  const pathname = usePathname();
+  const params = useSearchParams();
+  const vista = params.get("vista") === "mapa" ? "mapa" : "lista";
+
+  function cambiar(siguiente: "lista" | "mapa") {
+    const next = new URLSearchParams(params.toString());
+    if (siguiente === "mapa") next.set("vista", "mapa");
+    else next.delete("vista");
+    const query = next.toString();
+    // `scroll: false`: cambiar de vista no es navegar a otra pagina, y saltar
+    // al principio en movil hace perder el sitio.
+    router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+  }
 
   return (
     <div className="space-y-4">
@@ -42,7 +61,7 @@ export function MapToggle({
             <button
               key={v}
               type="button"
-              onClick={() => setVista(v)}
+              onClick={() => cambiar(v)}
               aria-pressed={vista === v}
               disabled={v === "mapa" && points.length === 0}
               className={cn(

@@ -34,18 +34,47 @@ export type MapPoint = {
   href: string;
 };
 
-function icono(destacado: boolean) {
+/**
+ * Icono del marcador.
+ *
+ * Lleva su propio nombre accesible: un `divIcon` es un `div` vacio, y Leaflet
+ * solo pone `alt` en los marcadores de imagen. Sin esto, un lector de pantalla
+ * anuncia "boton" sin mas y el mapa es inservible. El texto dice evento, local
+ * y precio, que es lo que se ve al tocarlo.
+ */
+function escapar(texto: string): string {
+  return texto
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function icono(destacado: boolean, etiqueta: string) {
   return L.divIcon({
     className: "",
-    html: `<span class="flex size-7 items-center justify-center rounded-full border-2 ${
-      destacado ? "border-lime bg-lime/90" : "border-white/70 bg-black/80"
-    } shadow-lg">
+    html: `<span role="img" aria-label="${escapar(etiqueta)}" title="${escapar(etiqueta)}"
+      class="flex size-7 items-center justify-center rounded-full border-2 ${
+        destacado ? "border-lime bg-lime/90" : "border-white/70 bg-black/80"
+      } shadow-lg">
       <span class="size-2 rounded-full ${destacado ? "bg-black" : "bg-lime"}"></span>
     </span>`,
     iconSize: [28, 28],
     iconAnchor: [14, 14],
     popupAnchor: [0, -14],
   });
+}
+
+/** El nombre que se anuncia: evento (si lo hay), local, distrito y precio. */
+function etiquetaDe(p: MapPoint): string {
+  const partes = [p.eventName ?? p.name];
+  if (p.eventName) partes.push(p.name);
+  partes.push(p.district);
+  if (p.startsAt) partes.push(formatEventDate(p.startsAt));
+  if (typeof p.priceFromCents === "number") {
+    partes.push(`desde ${formatPENShort(p.priceFromCents)}`);
+  }
+  return partes.join(", ");
 }
 
 export function VenueMap({ points }: { points: MapPoint[] }) {
@@ -71,7 +100,13 @@ export function VenueMap({ points }: { points: MapPoint[] }) {
           maxZoom={19}
         />
         {points.map((p) => (
-          <Marker key={p.id} position={[p.lat, p.lng]} icon={icono(Boolean(p.eventName))}>
+          <Marker
+            key={p.id}
+            position={[p.lat, p.lng]}
+            icon={icono(Boolean(p.eventName), etiquetaDe(p))}
+            alt={etiquetaDe(p)}
+            keyboard
+          >
             <Popup>
               <div className="min-w-[180px] space-y-1 text-[13px] leading-snug">
                 <p className="font-semibold">{p.eventName ?? p.name}</p>

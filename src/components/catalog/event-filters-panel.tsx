@@ -95,7 +95,11 @@ export function EventFiltersPanel() {
   }
 
   function clearAll() {
-    startTransition(() => router.replace("/eventos"));
+    // La vista (lista o mapa) no es un filtro: es como estas mirando. Limpiar
+    // filtros no deberia devolverte a la lista si abriste el mapa.
+    const vista = params.get("vista");
+    const query = vista ? `?vista=${vista}` : "";
+    startTransition(() => router.replace(`/eventos${query}`, { scroll: false }));
     setOpen(false);
   }
 
@@ -195,7 +199,7 @@ export function EventFiltersPanel() {
 
       <div
         id="panel-filtros"
-        className={`${open ? "grid" : "hidden sm:grid"} mt-4 gap-3 border-t border-white/5 pt-4 sm:grid-cols-2 lg:grid-cols-5`}
+        className={`${open ? "grid" : "hidden sm:grid"} mt-4 gap-3 border-t border-white/5 pt-4 sm:grid-cols-2 lg:grid-cols-3`}
       >
         <Field label="Buscar" htmlFor="f-q">
           {/* La `key` cuelga del valor de la URL: al pulsar Limpiar el
@@ -244,12 +248,27 @@ export function EventFiltersPanel() {
           </Select>
         </Field>
 
+        {/* Las dos fechas se escriben a mano o se eligen del calendario. Antes
+            solo estaba «Desde»: el chip de «Hasta» aparecia con los atajos
+            pero no habia manera de ponerlo ni de corregirlo. */}
         <Field label="Desde" htmlFor="f-desde">
           <Input
             id="f-desde"
             type="date"
             value={get("desde")}
             onChange={(e) => update("desde", e.target.value)}
+            onBlur={(e) => update("desde", e.target.value)}
+          />
+        </Field>
+
+        <Field label="Hasta" htmlFor="f-hasta">
+          <Input
+            id="f-hasta"
+            type="date"
+            min={get("desde") || undefined}
+            value={get("hasta")}
+            onChange={(e) => update("hasta", e.target.value)}
+            onBlur={(e) => update("hasta", e.target.value)}
           />
         </Field>
 
