@@ -338,3 +338,42 @@ on conflict do nothing;
 -- Los ayudantes de zona horaria solo existen durante la siembra.
 drop function if exists getin_seed_lima(integer, text);
 drop function if exists getin_seed_days_to(integer);
+
+-- ---------------------------------------------------------------------------
+-- Ficha publica de los locales de demostracion: ambientes, accesos y
+-- estacionamiento. Son los datos concretos con los que la gente decide, y van
+-- aparte porque se añadieron con la migracion 0009.
+-- ---------------------------------------------------------------------------
+update venues set
+  ambiences = array['Pista principal','Patio al aire libre','Sótano','Zona para sentarse'],
+  accessibility = 'Rampa en el ingreso principal. El sótano solo tiene escalera.',
+  parking = 'Sin estacionamiento propio. Playas de pago en la cuadra 2 de Grau.',
+  entrance_notes = 'El ingreso es por Av. Grau. La cola de lista va por la puerta lateral.'
+where slug = 'nocturna-barranco';
+
+update venues set
+  ambiences = array['Terraza','Pista','Barra lounge'],
+  accessibility = 'Ascensor hasta la terraza. Baño adaptado en el piso 2.',
+  parking = 'Estacionamiento del edificio, S/ 10 la noche.',
+  entrance_notes = 'Ingreso por el lobby del edificio, piso 11.'
+where slug = 'vertigo-miraflores';
+
+update venues set
+  ambiences = array['Pista','Sala de escucha'],
+  accessibility = 'Local en un solo nivel, sin escalones.',
+  parking = 'En la calle. La zona es tranquila pero conviene llegar temprano.',
+  entrance_notes = 'Puerta negra sin letrero, al costado del taller mecánico.'
+where slug = 'subsuelo-lima';
+
+update venues set
+  ambiences = array['Pista','Zona para sentarse','Terraza techada'],
+  accessibility = 'Rampa y baño adaptado.',
+  parking = 'Estacionamiento propio para 40 autos, incluido con mesa.',
+  entrance_notes = 'Ingreso por la puerta principal; las mesas entran por recepción.'
+where slug = 'club-fauna';
+
+-- Que incluye cada entrada: lo que la descripcion NO dice ya. Repetir la
+-- descripcion en la lista hace que la gente deje de leerla.
+update ticket_types set includes = array['Guardarropa'] where name = 'General';
+update ticket_types set includes = array['Un trago de bienvenida','Barra exclusiva']
+  where name = 'VIP';
