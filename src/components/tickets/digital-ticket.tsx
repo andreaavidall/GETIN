@@ -3,6 +3,7 @@ import Link from "next/link";
 import QRCode from "qrcode";
 
 import { QrZoom } from "@/components/tickets/qr-zoom";
+import { TicketHolder } from "@/components/tickets/ticket-holder";
 import { Badge } from "@/components/ui/badge";
 import { formatEventDate, formatTime } from "@/lib/utils";
 import type { TicketView } from "@/lib/data/orders";
@@ -140,6 +141,16 @@ export async function DigitalTicket({ ticket }: { ticket: TicketView }) {
           </div>
         ) : null}
       </footer>
+
+      {/* Asignar la entrada a un acompañante o pasarsela, solo mientras siga
+          sirviendo: una entrada usada o de un evento pasado no se traspasa. */}
+      {!used && !past && !unpaid && ticket.status === "issued" ? (
+        <TicketHolder
+          ticketId={ticket.id}
+          holderName={ticket.holderName}
+          pendingTransfer={ticket.pendingTransfer}
+        />
+      ) : null}
 
       {/* Condiciones en la propia entrada: en la puerta nadie abre otra
           página para comprobar la edad mínima o la vestimenta. */}

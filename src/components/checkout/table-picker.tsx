@@ -30,6 +30,7 @@ export function TablePicker({
   isAuthenticated,
   demoMode,
   waitingTables = [],
+  source,
 }: {
   eventId: string;
   eventSlug: string;
@@ -38,6 +39,7 @@ export function TablePicker({
   demoMode: boolean;
   /** Mesas para las que esta persona ya pidió aviso. */
   waitingTables?: string[];
+  source?: string;
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -64,6 +66,7 @@ export function TablePicker({
         eventId,
         tickets: [],
         tableAvailabilityId: table.id,
+        source,
       });
       if (!result.ok) {
         toast.error("No se pudo retener la mesa", { description: result.error });

@@ -38,6 +38,7 @@ export function TicketSelector({
   dressCode,
   lastEntryAt,
   waitingTicketTypes = [],
+  source,
 }: {
   eventId: string;
   eventName: string;
@@ -50,6 +51,8 @@ export function TicketSelector({
   lastEntryAt?: Date | null;
   /** Tipos de entrada para los que esta persona ya pidió aviso. */
   waitingTicketTypes?: string[];
+  /** Etiqueta del enlace por el que llegó, si venía con ?ref=. */
+  source?: string;
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -111,6 +114,7 @@ export function TicketSelector({
       const result = await createOrderAction({
         eventId,
         tickets: selected.map(([ticketTypeId, quantity]) => ({ ticketTypeId, quantity })),
+        source,
       });
 
       if (!result.ok) {

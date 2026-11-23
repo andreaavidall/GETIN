@@ -146,6 +146,8 @@ export type TicketView = {
   orderCode: string;
   /** Estado de la orden: distingue "pago pendiente" de "entrada anulada". */
   orderStatus: string;
+  /** Traspaso abierto, si lo hay: la entrada sigue siendo tuya hasta que lo reclamen. */
+  pendingTransfer: { id: string; toEmail: string } | null;
   /** Contenido del QR. Solo se calcula para entradas emitidas y pagadas. */
   qrToken: string | null;
   event: {
@@ -175,7 +177,8 @@ export async function listMyTickets(options: { onlyUpcoming?: boolean } = {}): P
          slug, name, starts_at, last_entry_at, min_age, entry_rules,
          venues!inner (name, address, district, dress_code)
        ),
-       qr_credentials (nonce, revoked_at)`,
+       qr_credentials (nonce, revoked_at),
+       ticket_transfers (id, to_email, claimed_at, cancelled_at, expires_at)`,
     )
     .order("created_at", { ascending: false })
     .limit(100);
@@ -198,6 +201,9 @@ export async function listMyTickets(options: { onlyUpcoming?: boolean } = {}): P
       venues: { name: string; address: string; district: string; dress_code: string | null } | null;
     } | null;
     qr_credentials: { nonce: string; revoked_at: string | null }[] | null;
+    ticket_transfers:
+      | { id: string; to_email: string; claimed_at: string | null; cancelled_at: string | null; expires_at: string }[]
+      | null;
   };
 
   const secret = serverEnv().QR_TOKEN_SECRET;
@@ -217,6 +223,15 @@ export async function listMyTickets(options: { onlyUpcoming?: boolean } = {}): P
       typeName: row.ticket_types?.name ?? "Entrada",
       orderCode: row.orders?.code ?? "",
       orderStatus: row.orders?.status ?? "pending",
+      pendingTransfer: (() => {
+        const abierto = (row.ticket_transfers ?? []).find(
+          (t) =>
+            t.claimed_at === null &&
+            t.cancelled_at === null &&
+            new Date(t.expires_at) > now,
+        );
+        return abierto ? { id: abierto.id, toEmail: abierto.to_email } : null;
+      })(),
       // El QR se dibuja solo si el pago esta confirmado y la entrada sigue válida.
       qrToken:
         credential && paid && issued ? rebuildQrToken("ticket", row.id, credential.nonce, secret) : null,
@@ -290,6 +305,9 @@ export async function listMyReservations(): Promise<ReservationView[]> {
       venues: { name: string; address: string } | null;
     } | null;
     qr_credentials: { nonce: string; revoked_at: string | null }[] | null;
+    ticket_transfers:
+      | { id: string; to_email: string; claimed_at: string | null; cancelled_at: string | null; expires_at: string }[]
+      | null;
   };
 
   const secret = serverEnv().QR_TOKEN_SECRET;

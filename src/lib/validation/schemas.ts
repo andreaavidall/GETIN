@@ -62,6 +62,16 @@ export const cartSchema = z.object({
     )
     .default([]),
   tableAvailabilityId: uuid.optional(),
+  /**
+   * De donde vino el enlace (?ref=). Etiqueta corta y saneada: sirve para que
+   * el local sepa que canal le funciona, no para seguir a nadie.
+   */
+  source: z
+    .string()
+    .trim()
+    .max(40)
+    .regex(/^[a-zA-Z0-9_-]+$/, "Origen inválido")
+    .optional(),
 });
 
 export type CartInput = z.infer<typeof cartSchema>;

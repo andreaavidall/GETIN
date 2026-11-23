@@ -1,5 +1,6 @@
 import {
   BarChart3,
+  Link2 as LinkIcon,
   CalendarPlus,
   ClipboardList,
   Download,
@@ -12,6 +13,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { EventPublishToggle } from "@/components/club/event-publish-toggle";
+import { EventTools } from "@/components/club/event-tools";
 import { GuestEntryDecisions } from "@/components/club/guest-entry-decisions";
 import { NewEventForm } from "@/components/club/new-event-form";
 import { TicketTypeManager } from "@/components/club/ticket-type-manager";
@@ -20,6 +22,7 @@ import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/feedback";
 import { requireActiveVenue } from "@/lib/auth/guards";
 import {
+  getSourceBreakdown,
   getVenueStats,
   listPendingGuestEntries,
   listVenueEvents,
@@ -58,8 +61,9 @@ export default async function ClubDashboardPage({ searchParams }: { searchParams
   }[];
   const venue = list.find((v) => v.id === venueId);
 
-  const [stats, events, pendingGuests] = await Promise.all([
+  const [stats, sources, events, pendingGuests] = await Promise.all([
     getVenueStats(venueId),
+    getSourceBreakdown(venueId),
     listVenueEvents(venueId),
     listPendingGuestEntries(venueId),
   ]);
@@ -147,6 +151,47 @@ export default async function ClubDashboardPage({ searchParams }: { searchParams
         </p>
       </section>
 
+      {/* ------------------------------------------------- de donde vienen */}
+      {sources.length > 0 ? (
+        <section>
+          <h2 className="text-display mb-2 flex items-center gap-2 text-xl">
+            <LinkIcon className="size-5 text-lime" />
+            De dónde vienen tus compras
+          </h2>
+          <p className="mb-4 max-w-2xl text-sm text-muted">
+            Añade <code className="rounded bg-white/5 px-1.5 py-0.5 text-xs">?ref=instagram</code>{" "}
+            al final del enlace que publiques y las compras que lleguen por ahí se cuentan
+            aquí. Solo se guarda esa etiqueta: nada del navegador de quien compra.
+          </p>
+          <div className="surface overflow-hidden">
+            <table className="w-full text-sm">
+              <thead className="border-b border-white/10 text-left text-xs uppercase tracking-wide text-muted">
+                <tr>
+                  <th className="p-4 font-medium">Origen</th>
+                  <th className="p-4 text-right font-medium">Compras</th>
+                  <th className="p-4 text-right font-medium">Importe</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/5">
+                {sources.map((row) => (
+                  <tr key={row.source}>
+                    <td className="p-4">
+                      {row.source === "directo" ? (
+                        <span className="text-muted">Directo (sin etiqueta)</span>
+                      ) : (
+                        <span className="font-mono text-lime">{row.source}</span>
+                      )}
+                    </td>
+                    <td className="p-4 text-right">{row.orders}</td>
+                    <td className="p-4 text-right">{formatPEN(row.grossCents)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      ) : null}
+
       {/* -------------------------------------------------- listas pendientes */}
       {pendingGuests.length > 0 ? (
         <section>
@@ -212,6 +257,17 @@ export default async function ClubDashboardPage({ searchParams }: { searchParams
                       />
                     </div>
                   </header>
+
+                  <div className="border-b border-white/10 p-5">
+                    <EventTools
+                      venueId={venueId}
+                      eventId={event.id}
+                      eventName={event.name}
+                      startsAt={event.startsAt}
+                      isDraft={event.status === "draft"}
+                      publishAt={event.publishAt}
+                    />
+                  </div>
 
                   <TicketTypeManager
                     venueId={venueId}

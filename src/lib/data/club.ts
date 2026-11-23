@@ -92,6 +92,8 @@ export type ClubEvent = {
   name: string;
   status: string;
   startsAt: Date;
+  /** Momento programado de publicacion, si el local lo configuro. */
+  publishAt: Date | null;
   ticketTypes: {
     id: string;
     name: string;
@@ -108,7 +110,7 @@ export async function listVenueEvents(venueId: string): Promise<ClubEvent[]> {
   const { data } = await supabase
     .from("events")
     .select(
-      `id, slug, name, status, starts_at,
+      `id, slug, name, status, starts_at, publish_at,
        ticket_types (id, name, price_cents, capacity, sold_count, held_count, is_active)`,
     )
     .eq("venue_id", venueId)
@@ -121,6 +123,7 @@ export async function listVenueEvents(venueId: string): Promise<ClubEvent[]> {
     name: string;
     status: string;
     starts_at: string;
+    publish_at: string | null;
     ticket_types:
       | {
           id: string;
@@ -140,6 +143,7 @@ export async function listVenueEvents(venueId: string): Promise<ClubEvent[]> {
     name: row.name,
     status: row.status,
     startsAt: new Date(row.starts_at),
+    publishAt: row.publish_at ? new Date(row.publish_at) : null,
     ticketTypes: (row.ticket_types ?? []).map((t) => ({
       id: t.id,
       name: t.name,
@@ -225,4 +229,40 @@ export async function getEventAttendees(venueId: string, eventId: string) {
     usedAt: row.used_at,
     createdAt: row.created_at,
   }));
+}
+
+/**
+ * Qué enlaces traen compras.
+ *
+ * Se agrupa por la etiqueta que venía en `?ref=`, que es lo único que se
+ * guarda del origen: ni la URL completa, ni nada del navegador de quien
+ * compró. Sirve para decidir dónde publicar, no para seguir a nadie.
+ */
+export type SourceRow = {
+  source: string;
+  orders: number;
+  grossCents: number;
+};
+
+export async function getSourceBreakdown(venueId: string): Promise<SourceRow[]> {
+  const supabase = await createSupabaseServerClient();
+  const { data } = await supabase
+    .from("orders")
+    .select("source, total_cents")
+    .eq("venue_id", venueId)
+    .eq("status", "paid")
+    .limit(1000);
+
+  const acumulado = new Map<string, SourceRow>();
+  for (const row of data ?? []) {
+    // Sin etiqueta = entrada directa: contarla aparte evita creer que todo
+    // viene de las campañas.
+    const source = (row.source as string | null) ?? "directo";
+    const actual = acumulado.get(source) ?? { source, orders: 0, grossCents: 0 };
+    actual.orders += 1;
+    actual.grossCents += Number(row.total_cents ?? 0);
+    acumulado.set(source, actual);
+  }
+
+  return [...acumulado.values()].sort((a, b) => b.grossCents - a.grossCents);
 }

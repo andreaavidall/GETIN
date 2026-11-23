@@ -245,6 +245,7 @@ export async function createOrderFromCart(
       buyer_name: buyer.name,
       buyer_email: buyer.email,
       buyer_phone: buyer.phone,
+      source: cart.source ?? null,
       idempotency_key: `${buyer.userId}:${code}`,
     })
     .select("id, code, total_cents")

@@ -29,6 +29,7 @@ import { getWaitlistIds } from "@/lib/data/waitlist";
 import { formatCloseTime, formatEventDate, formatTime } from "@/lib/utils";
 
 type Params = Promise<{ slug: string }>;
+type Search = Promise<{ ref?: string | string[] }>;
 
 export const revalidate = 30;
 
@@ -53,8 +54,21 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   };
 }
 
-export default async function EventPage({ params }: { params: Params }) {
+export default async function EventPage({
+  params,
+  searchParams,
+}: {
+  params: Params;
+  searchParams: Search;
+}) {
   const { slug } = await params;
+
+  // Etiqueta del enlace por el que se llego (?ref=instagram). Se sanea aqui
+  // y se guarda con la orden: sirve para que el local sepa que canal le
+  // funciona. No se guarda nada mas del navegador.
+  const { ref } = await searchParams;
+  const crudo = Array.isArray(ref) ? ref[0] : ref;
+  const origen = crudo && /^[a-zA-Z0-9_-]{1,40}$/.test(crudo) ? crudo : undefined;
   const [event, session, favoritos] = await Promise.all([
     getEventBySlug(slug),
     getSession(),
@@ -266,6 +280,7 @@ export default async function EventPage({ params }: { params: Params }) {
                 isAuthenticated={Boolean(session)}
                 demoMode={demo}
                 waitingTables={[...espera.tables]}
+                source={origen}
               />
             </section>
           ) : null}
@@ -333,6 +348,7 @@ export default async function EventPage({ params }: { params: Params }) {
             dressCode={event.venue.dressCode}
             lastEntryAt={event.lastEntryAt}
             waitingTicketTypes={[...espera.ticketTypes]}
+            source={origen}
           />
         </aside>
       </div>

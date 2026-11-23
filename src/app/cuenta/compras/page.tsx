@@ -100,15 +100,16 @@ export default async function PurchaseHistoryPage() {
                 </Button>
               ) : null}
               {order.status === "paid" ? (
-                <>
-                  <Button asChild size="sm" variant="secondary">
-                    <Link href="/cuenta/entradas">Ver entradas</Link>
-                  </Button>
-                  <Button asChild size="sm" variant="ghost">
-                    <Link href={`/cuenta/soporte?orden=${order.code}`}>Pedir reembolso</Link>
-                  </Button>
-                </>
+                <Button asChild size="sm" variant="secondary">
+                  <Link href="/cuenta/entradas">Ver entradas</Link>
+                </Button>
               ) : null}
+              {/* "Tengo un problema" en TODAS las compras, no solo en las
+                  pagadas: el caso mas comun es justamente una orden que se
+                  quedo pendiente. */}
+              <Button asChild size="sm" variant="ghost">
+                <Link href={`/cuenta/soporte?orden=${order.code}`}>Tengo un problema</Link>
+              </Button>
             </div>
           </article>
         );
