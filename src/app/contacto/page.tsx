@@ -24,7 +24,7 @@ const CHANNELS = [
     icon: ShieldCheck,
     title: "Privacidad y datos personales",
     email: "privacidad@getin.pe",
-    text: "Ejercicio de derechos de acceso, rectificacion, cancelación y oposicion (Ley 29733).",
+    text: "Ejercicio de derechos de acceso, rectificación, cancelación y oposición (Ley 29733).",
   },
 ];
 

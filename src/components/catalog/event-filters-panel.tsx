@@ -85,9 +85,22 @@ export function EventFiltersPanel() {
     precioMax: "Hasta S/",
   };
 
+  // Si el rango viene al reves (desde > hasta), el servidor lo ordena para
+  // buscar. Aqui se muestra ordenado tambien: ver "Desde: 10 dic / Hasta: 1
+  // dic" junto a resultados de la primera semana de diciembre no se entiende.
+  const invertido =
+    Boolean(get("desde")) && Boolean(get("hasta")) && get("hasta") < get("desde");
+
+  const valorChip = (k: string): string => {
+    if (!invertido) return params.get(k) ?? "";
+    if (k === "desde") return params.get("hasta") ?? "";
+    if (k === "hasta") return params.get("desde") ?? "";
+    return params.get(k) ?? "";
+  };
+
   const chips = FILTER_KEYS.filter((k) => k !== "orden" && params.get(k)).map((k) => ({
     key: k as string,
-    label: `${ETIQUETAS[k] ?? k}: ${params.get(k)}`,
+    label: `${ETIQUETAS[k] ?? k}: ${valorChip(k)}`,
   }));
 
   function quitar(key: string) {

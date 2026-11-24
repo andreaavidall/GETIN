@@ -130,6 +130,7 @@ const table = (
   state: TableView["state"] = "available",
   conditions: string | null = null,
   position: [number, number] | null = null,
+  includesEntryFor: number | null = null,
 ): TableView => ({
   id,
   venueTableId: `vt-${id}`,
@@ -144,6 +145,7 @@ const table = (
   conditions,
   positionX: position?.[0] ?? null,
   positionY: position?.[1] ?? null,
+  includesEntryFor,
 });
 
 // ------------------------------------------------------------------ locales ---

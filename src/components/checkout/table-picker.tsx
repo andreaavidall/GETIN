@@ -357,11 +357,45 @@ function TableFigures({ table }: { table: TableView }) {
         </div>
       </dl>
 
-      {/* Un suelo, no un techo: decirlo evita la discusion de la cuenta. */}
+      {/* La primera pregunta de quien reserva para seis: ¿mis amigos pagan
+          entrada aparte? Se responde con la politica del local, y si el local
+          no la ha declarado se dice eso, no se supone. */}
+      <p
+        className={cn(
+          "mt-2 rounded-lg px-3 py-2 text-[11px]",
+          table.includesEntryFor === null
+            ? "bg-white/[0.04] text-muted"
+            : table.includesEntryFor > 0
+              ? "bg-lime/[0.08] text-lime/90"
+              : "bg-amber-400/[0.07] text-amber-100/80",
+        )}
+      >
+        {table.includesEntryFor === null ? (
+          <>
+            <strong className="font-semibold">Entradas: el local no lo ha indicado.</strong>{" "}
+            Pregunta al local si la mesa cubre el ingreso de tus acompañantes antes de reservar.
+          </>
+        ) : table.includesEntryFor > 0 ? (
+          <>
+            <strong className="font-semibold">
+              Incluye ingreso para {table.includesEntryFor}{" "}
+              {table.includesEntryFor === 1 ? "persona" : "personas"}.
+            </strong>{" "}
+            {table.includesEntryFor < table.capacity
+              ? `Si van ${table.capacity}, las ${table.capacity - table.includesEntryFor} restantes compran su entrada aparte.`
+              : "No hace falta comprar entradas aparte."}
+          </>
+        ) : (
+          <>
+            <strong className="font-semibold">Entradas no incluidas.</strong> Cada persona de la
+            mesa compra su entrada aparte.
+          </>
+        )}
+      </p>
+
       <p className="mt-2 text-[11px] text-muted">
-        Es un mínimo, no un precio cerrado: lo que consuman por encima del mínimo se paga aparte.
-        Si la mesa cubre el ingreso de tus acompañantes o no, lo indica el local en las
-        condiciones de la mesa; GETIN no lo decide.
+        El total es un mínimo, no un precio cerrado: lo que consuman por encima del consumo
+        mínimo se paga aparte.
       </p>
 
       {table.minConsumptionCents > 0 ? (

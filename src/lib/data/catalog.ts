@@ -334,7 +334,7 @@ export async function getEventBySlug(
       .from("event_table_availability")
       .select(
         `id, state, price_cents, min_consumption_cents, deposit_cents, conditions, held_until,
-         venue_tables!inner (id, label, zone, capacity, position_x, position_y)`,
+         venue_tables!inner (id, label, zone, capacity, position_x, position_y, includes_entry_for)`,
       )
       .eq("event_id", row.id),
     supabase
@@ -362,6 +362,7 @@ export async function getEventBySlug(
       capacity: number;
       position_x: number | string | null;
       position_y: number | string | null;
+      includes_entry_for: number | null;
     } | null;
   };
 
@@ -383,6 +384,7 @@ export async function getEventBySlug(
     positionY: t.venue_tables?.position_y === null || t.venue_tables?.position_y === undefined
       ? null
       : Number(t.venue_tables.position_y),
+    includesEntryFor: t.venue_tables?.includes_entry_for ?? null,
   }));
 
   type ListRow = {
@@ -531,7 +533,7 @@ export async function getEventsWithTables(limit = 4, now: Date = new Date()): Pr
     .from("event_table_availability")
     .select(
       `id, state, price_cents, min_consumption_cents, deposit_cents, conditions, held_until,
-       venue_tables!inner (id, label, zone, capacity, position_x, position_y),
+       venue_tables!inner (id, label, zone, capacity, position_x, position_y, includes_entry_for),
        events!inner (${EVENT_SELECT})`,
     )
     .eq("state", "available")
@@ -555,6 +557,7 @@ export async function getEventsWithTables(limit = 4, now: Date = new Date()): Pr
       capacity: number;
       position_x: number | string | null;
       position_y: number | string | null;
+      includes_entry_for: number | null;
     } | null;
     events: EventRow | null;
   };
@@ -578,6 +581,7 @@ export async function getEventsWithTables(limit = 4, now: Date = new Date()): Pr
       capacity: row.venue_tables?.capacity ?? 0,
       positionX: row.venue_tables?.position_x == null ? null : Number(row.venue_tables.position_x),
       positionY: row.venue_tables?.position_y == null ? null : Number(row.venue_tables.position_y),
+      includesEntryFor: row.venue_tables?.includes_entry_for ?? null,
     });
     grouped.set(summary.id, entry);
   }

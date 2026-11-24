@@ -377,3 +377,10 @@ where slug = 'club-fauna';
 update ticket_types set includes = array['Guardarropa'] where name = 'General';
 update ticket_types set includes = array['Un trago de bienvenida','Barra exclusiva']
   where name = 'VIP';
+
+-- Ingreso incluido por mesa. Es la primera pregunta de quien reserva para un
+-- grupo. Se declara por mesa; dejarlo nulo significa "sin indicar" y la ficha
+-- lo dice asi.
+update venue_tables set includes_entry_for = 6 where label = 'Mesa 1';
+update venue_tables set includes_entry_for = 0 where label = 'Mesa 2';
+update venue_tables set includes_entry_for = 10 where label = 'Box A';

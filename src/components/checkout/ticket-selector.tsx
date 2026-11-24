@@ -3,7 +3,7 @@
 import { Info, Minus, Plus, Ticket } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
 import { toast } from "sonner";
 
 import { WaitlistButton } from "@/components/checkout/waitlist-button";
@@ -59,6 +59,56 @@ export function TicketSelector({
   const [quantities, setQuantities] = useState<Record<string, number>>({});
 
   const now = useMemo(() => new Date(), []);
+
+  /**
+   * Borrador de la selección.
+   *
+   * Ir a iniciar sesión y volver vaciaba el carrito: la página se vuelve a
+   * montar y el estado se pierde. Quien ya eligió cuatro entradas no tiene por
+   * qué volver a contarlas por haber pasado por el login.
+   *
+   * Vive en `sessionStorage`, no en una cookie ni en la base: es un borrador
+   * de esta pestaña, no se manda a ningún sitio y desaparece al cerrarla. Lo
+   * que de verdad se cobra lo recalcula el servidor al crear la orden.
+   */
+  const borradorKey = `getin:seleccion:${eventId}`;
+
+  useEffect(() => {
+    try {
+      const crudo = sessionStorage.getItem(borradorKey);
+      if (!crudo) return;
+      const guardado = JSON.parse(crudo) as Record<string, number>;
+
+      // Lo guardado puede haber caducado: en el rato que estuviste fuera, esa
+      // entrada pudo agotarse o cerrarse su venta. Se recorta a lo que hoy se
+      // puede comprar en vez de restaurar un total imposible.
+      const valido: Record<string, number> = {};
+      for (const [id, cantidad] of Object.entries(guardado)) {
+        const tipo = ticketTypes.find((t) => t.id === id);
+        if (!tipo || !isOnSale(tipo, new Date())) continue;
+        const posible = Math.min(
+          Math.max(0, Math.trunc(cantidad)),
+          tipo.maxPerOrder,
+          remainingTickets(tipo),
+        );
+        if (posible > 0) valido[id] = posible;
+      }
+      if (Object.keys(valido).length > 0) setQuantities(valido);
+    } catch {
+      // Navegacion privada o almacenamiento bloqueado: se empieza de cero.
+    }
+    // Solo al montar: despues manda el estado de la pagina.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    try {
+      if (Object.keys(quantities).length === 0) sessionStorage.removeItem(borradorKey);
+      else sessionStorage.setItem(borradorKey, JSON.stringify(quantities));
+    } catch {
+      // Sin almacenamiento, la seleccion simplemente no sobrevive al salto.
+    }
+  }, [quantities, borradorKey]);
   const sorted = useMemo(
     () => [...ticketTypes].sort((a, b) => a.priceCents - b.priceCents),
     [ticketTypes],
@@ -121,6 +171,11 @@ export function TicketSelector({
         toast.error("No se pudo reservar", { description: result.error });
         if (result.code === "sold_out") router.refresh();
         return;
+      }
+      try {
+        sessionStorage.removeItem(borradorKey);
+      } catch {
+        // Da igual: la orden ya existe.
       }
       router.push(`/checkout/${result.orderId}`);
     });

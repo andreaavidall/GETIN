@@ -32,6 +32,13 @@ function parseFilters(params: Record<string, string | string[] | undefined>): Ev
   };
 
   const precioMax = one("precioMax");
+
+  // Rango al reves (desde > hasta): se intercambian en vez de devolver cero
+  // resultados sin explicacion. Un enlace escrito a mano o un calendario mal
+  // tocado no deberia parecer "no hay eventos".
+  let desde = one("desde");
+  let hasta = one("hasta");
+  if (desde && hasta && hasta < desde) [desde, hasta] = [hasta, desde];
   const sortMap: Record<string, EventFilters["sort"]> = {
     fecha: "date_asc",
     fecha_desc: "date_desc",
@@ -44,8 +51,8 @@ function parseFilters(params: Record<string, string | string[] | undefined>): Ev
     district: one("distrito"),
     genre: one("genero"),
     venueSlug: one("discoteca"),
-    dateFrom: one("desde"),
-    dateTo: one("hasta"),
+    dateFrom: desde,
+    dateTo: hasta,
     maxPriceCents: precioMax ? Math.round(Number(precioMax) * 100) : undefined,
     sort: sortMap[one("orden") ?? "fecha"] ?? "date_asc",
     limit: 60,

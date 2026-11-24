@@ -42,7 +42,7 @@ export default async function VenueProfilePage() {
       .order("created_at", { ascending: false }),
     supabase
       .from("venue_tables")
-      .select("id, label, zone, position_x, position_y")
+      .select("id, label, zone, position_x, position_y, includes_entry_for")
       .eq("venue_id", venueId)
       .eq("is_active", true)
       .order("label"),
@@ -122,6 +122,8 @@ export default async function VenueProfilePage() {
           zone: (t.zone as string | null) ?? null,
           x: t.position_x === null ? null : Number(t.position_x),
           y: t.position_y === null ? null : Number(t.position_y),
+          entrada:
+            t.includes_entry_for === null ? null : Number(t.includes_entry_for),
         }))}
       />
     </div>

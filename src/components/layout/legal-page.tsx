@@ -25,7 +25,7 @@ export function LegalPage({
         <AlertTriangle className="mt-0.5 size-4 shrink-0 text-amber-400" />
         <p className="text-sm text-amber-100/90">
           <strong className="font-semibold">Borrador sujeto a revisión legal.</strong> Este texto es
-          un punto de partida redactado por el equipo de producto, no asesoria juridica. Antes de
+          un punto de partida redactado por el equipo de producto, no asesoría jurídica. Antes de
           operar comercialmente debe revisarlo un abogado con conocimiento de la normativa peruana
           (Código de Protección y Defensa del Consumidor, Ley 29733 de Protección de Datos
           Personales y normas de comercio electrónico).

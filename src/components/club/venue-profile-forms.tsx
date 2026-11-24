@@ -28,7 +28,15 @@ type Promo = {
   isActive: boolean;
   eventName: string | null;
 };
-type Mesa = { id: string; label: string; zone: string | null; x: number | null; y: number | null };
+type Mesa = {
+  id: string;
+  label: string;
+  zone: string | null;
+  x: number | null;
+  y: number | null;
+  /** Personas cuyo ingreso cubre la mesa; null = sin declarar. */
+  entrada: number | null;
+};
 
 /**
  * Ficha del local, editable por el propio local.
@@ -392,8 +400,13 @@ export function TablePositionsForm({ venueId, tables }: { venueId: string; table
       .filter((p) => p.x !== null && p.x !== "" && p.y !== null && p.y !== "")
       .map((p) => ({ id: p.id, x: Number(p.x), y: Number(p.y) }));
 
+    const entries = tables.map((t) => {
+      const valor = String(data.get(`e-${t.id}`) ?? "");
+      return { id: t.id, includesEntryFor: valor === "" ? null : Number(valor) };
+    });
+
     startTransition(async () => {
-      const result = await updateTablePositionsAction({ venueId, positions });
+      const result = await updateTablePositionsAction({ venueId, positions, entries });
       if (!result.ok) {
         toast.error("No se pudo guardar", { description: result.error });
         return;
@@ -408,13 +421,19 @@ export function TablePositionsForm({ venueId, tables }: { venueId: string; table
   return (
     <form onSubmit={guardar} className="surface space-y-4 p-5" noValidate>
       <div>
-        <h2 className="font-display text-base font-semibold">Plano de mesas</h2>
+        <h2 className="font-display text-base font-semibold">Mesas: plano e ingreso</h2>
         <p className="mt-1 text-xs text-muted">
           Posición de cada mesa en porcentaje del salón: 0 % es arriba a la izquierda, 100 % abajo
           a la derecha. La pista se dibuja abajo. El plano solo se muestra al público cuando
           <strong className="text-paper"> todas </strong>
           las mesas tienen posición.
           {faltan > 0 ? ` Faltan ${faltan}.` : " Ya están todas."}
+        </p>
+        <p className="mt-2 text-xs text-muted">
+          «Ingreso incluido para» responde la primera pregunta de quien reserva para un grupo.
+          Déjalo vacío si prefieres no declararlo: la ficha dirá que no lo has indicado, que no
+          es lo mismo que declarar <strong className="text-paper">0</strong>, con lo que cada
+          persona compra su entrada aparte.
         </p>
       </div>
 
@@ -454,6 +473,19 @@ export function TablePositionsForm({ venueId, tables }: { venueId: string; table
                 defaultValue={t.y ?? ""}
                 className="h-9 w-20"
               />
+            </label>
+            <label className="flex items-center gap-1.5 text-xs text-muted">
+              Ingreso incluido para
+              <Input
+                name={`e-${t.id}`}
+                type="number"
+                min={0}
+                max={50}
+                placeholder="—"
+                defaultValue={t.entrada ?? ""}
+                className="h-9 w-20"
+              />
+              personas
             </label>
           </li>
         ))}

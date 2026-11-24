@@ -59,7 +59,7 @@ export default async function ProfilePage() {
         <p className="text-sm text-muted">
           GETIN trata tus datos para gestionar tus compras y tu acceso a los eventos, conforme a la
           Ley 29733 de Protección de Datos Personales. Puedes ejercer tus derechos de acceso,
-          rectificacion, cancelación y oposicion escribiendo a{" "}
+          rectificación, cancelación y oposición escribiendo a{" "}
           <a href="mailto:privacidad@getin.pe" className="text-lime hover:underline">
             privacidad@getin.pe
           </a>

@@ -67,8 +67,9 @@ export default function TermsPage() {
           </li>
           <li>
             En las mesas pagas aquí solo el adelanto más su cargo por servicio. El saldo de la
-            mesa y el consumo mínimo se abonan en el local, y la ficha muestra el coste total de
-            la noche antes de reservar.
+            mesa y el consumo mínimo se abonan en el local, y la ficha muestra el total mínimo de
+            la reserva antes de confirmar, además de si la mesa cubre el ingreso de tus
+            acompañantes.
           </li>
           <li>
             La compra se considera confirmada <strong>solo</strong> cuando el proveedor de pagos lo
@@ -125,9 +126,9 @@ export default function TermsPage() {
       <section>
         <h2>9. Responsabilidad</h2>
         <p>
-          GETIN responde por el funcionamiento de la plataforma y por la correcta emision de las
-          entradas pagadas. La prestacion del servicio en el local (seguridad, atención, consumo,
-          programacion artistica) es responsabilidad del establecimiento.
+          GETIN responde por el funcionamiento de la plataforma y por la correcta emisión de las
+          entradas pagadas. La prestación del servicio en el local (seguridad, atención, consumo,
+          programación artística) es responsabilidad del establecimiento.
         </p>
       </section>
 

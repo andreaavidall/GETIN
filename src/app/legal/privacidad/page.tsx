@@ -102,7 +102,7 @@ export default function PrivacyPage() {
       <section>
         <h2>7. Tus derechos</h2>
         <p>
-          Puedes ejercer tus derechos de acceso, rectificacion, cancelación y oposicion (ARCO), así
+          Puedes ejercer tus derechos de acceso, rectificación, cancelación y oposición (ARCO), así
           como solicitar la portabilidad o la eliminacion de tu cuenta, escribiendo a{" "}
           <a href="mailto:privacidad@getin.pe" className="text-lime hover:underline">
             privacidad@getin.pe

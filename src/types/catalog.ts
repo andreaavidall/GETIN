@@ -71,6 +71,11 @@ export type TableView = TableAvailabilitySnapshot & {
   /** Posicion en el plano del local, si el local la configuro. */
   positionX: number | null;
   positionY: number | null;
+  /**
+   * Personas cuyo ingreso cubre la mesa. `null` = el local no lo ha indicado,
+   * y se dice asi: no es lo mismo que "no incluye ninguna".
+   */
+  includesEntryFor: number | null;
 };
 
 export type GuestListView = {

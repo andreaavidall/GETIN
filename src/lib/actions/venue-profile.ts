@@ -236,6 +236,20 @@ const posicionSchema = z.object({
       }),
     )
     .max(80),
+  /**
+   * Personas cuyo ingreso cubre cada mesa. `null` deja el campo sin declarar,
+   * y la ficha lo dice tal cual: "el local no lo ha indicado". Es distinto de
+   * declarar 0, que significa que nadie entra con la mesa.
+   */
+  entries: z
+    .array(
+      z.object({
+        id: z.string().uuid(),
+        includesEntryFor: z.coerce.number().int().min(0).max(50).nullable(),
+      }),
+    )
+    .max(80)
+    .default([]),
 });
 
 export async function updateTablePositionsAction(input: unknown): Promise<ActionResult> {
@@ -252,6 +266,15 @@ export async function updateTablePositionsAction(input: unknown): Promise<Action
       .from("venue_tables")
       .update({ position_x: pos.x, position_y: pos.y })
       .eq("id", pos.id)
+      .eq("venue_id", parsed.data.venueId);
+    if (error) return { ok: false, error: error.message };
+  }
+
+  for (const entrada of parsed.data.entries) {
+    const { error } = await supabase
+      .from("venue_tables")
+      .update({ includes_entry_for: entrada.includesEntryFor })
+      .eq("id", entrada.id)
       .eq("venue_id", parsed.data.venueId);
     if (error) return { ok: false, error: error.message };
   }
