@@ -1,7 +1,7 @@
 import { Accessibility, Camera, DoorOpen, Car, Sparkles } from "lucide-react";
 import Image from "next/image";
 
-import { formatEventDate } from "@/lib/utils";
+import { cn, formatEventDate } from "@/lib/utils";
 import type { Promotion, VenueDetail } from "@/types/catalog";
 
 /**
@@ -13,7 +13,16 @@ import type { Promotion, VenueDetail } from "@/types/catalog";
  * valores por defecto: un local sin rampa y un local que no contestó no son
  * lo mismo, y no se pueden mostrar igual.
  */
-export function VenueFacts({ venue }: { venue: VenueDetail }) {
+export function VenueFacts({
+  venue,
+  bare = false,
+  className,
+}: {
+  venue: VenueDetail;
+  /** Sin caja gris: cuando ya va dentro de otra seccion. */
+  bare?: boolean;
+  className?: string;
+}) {
   const filas: { icon: React.ComponentType<{ className?: string }>; label: string; value: string }[] =
     [];
 
@@ -29,13 +38,17 @@ export function VenueFacts({ venue }: { venue: VenueDetail }) {
 
   if (venue.ambiences.length === 0 && filas.length === 0) return null;
 
+  const Caja = bare ? "div" : "section";
+
   return (
-    <section className="surface p-5">
-      <h2 className="font-display text-base font-semibold">El local por dentro</h2>
+    <Caja className={cn(bare ? "" : "surface p-5", className)}>
+      {bare ? null : (
+        <h2 className="font-display text-base font-semibold">El local por dentro</h2>
+      )}
 
       {venue.ambiences.length > 0 ? (
-        <div className="mt-3">
-          <p className="text-xs uppercase tracking-wide text-muted">Ambientes</p>
+        <div className={bare ? "" : "mt-3"}>
+          <p className="t-label">Ambientes</p>
           <ul className="mt-2 flex flex-wrap gap-2">
             {venue.ambiences.map((a) => (
               <li key={a} className="rounded-full bg-white/5 px-3 py-1 text-xs">
@@ -59,7 +72,7 @@ export function VenueFacts({ venue }: { venue: VenueDetail }) {
           ))}
         </dl>
       ) : null}
-    </section>
+    </Caja>
   );
 }
 
@@ -70,25 +83,33 @@ export function VenueFacts({ venue }: { venue: VenueDetail }) {
  * enseñar un local que no existe, que es justo lo que la gente descubre al
  * llegar.
  */
-export function VenueGallery({ venue }: { venue: VenueDetail }) {
+export function VenueGallery({
+  venue,
+  bare = false,
+  className,
+}: {
+  venue: VenueDetail;
+  bare?: boolean;
+  className?: string;
+}) {
   if (venue.photos.length === 0) {
     return (
-      <section className="surface flex items-start gap-3 p-5">
-        <Camera className="mt-0.5 size-5 shrink-0 text-muted" />
+      <div className={cn("flex items-start gap-3", bare ? "" : "surface p-5", className)}>
+        <Camera className="mt-0.5 size-5 shrink-0 text-muted" aria-hidden="true" />
         <div>
-          <h2 className="font-display text-base font-semibold">Fotos del local</h2>
-          <p className="mt-1 text-sm text-muted">
+          <h3 className="font-display text-base font-semibold">Fotos del local</h3>
+          <p className="t-meta mt-1">
             {venue.name} todavía no subió fotos del ambiente ni de las mesas. No ponemos
             imágenes de archivo: verías un local que no es este.
           </p>
         </div>
-      </section>
+      </div>
     );
   }
 
   return (
-    <section>
-      <h2 className="text-display mb-3 text-xl">Fotos del local</h2>
+    <div className={className}>
+      {bare ? null : <h2 className="t-section mb-3">Fotos del local</h2>}
       <ul className="scrollbar-none -mx-4 flex gap-3 overflow-x-auto px-4 sm:mx-0 sm:grid sm:grid-cols-3 sm:px-0">
         {venue.photos.map((photo) => (
           <li
@@ -108,7 +129,7 @@ export function VenueGallery({ venue }: { venue: VenueDetail }) {
           </li>
         ))}
       </ul>
-    </section>
+    </div>
   );
 }
 
@@ -121,7 +142,7 @@ export function PromotionList({ promotions }: { promotions: Promotion[] }) {
 
   return (
     <section>
-      <h2 className="text-display mb-3 flex items-center gap-2 text-xl">
+      <h2 className="t-section mb-3 flex items-center gap-2">
         <Sparkles className="size-5 text-lime" />
         Beneficios
       </h2>

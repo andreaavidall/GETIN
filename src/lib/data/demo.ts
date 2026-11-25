@@ -160,7 +160,7 @@ export const DEMO_VENUES: VenueDetail[] = [
     description:
       "Casona republicana convertida en club de tres ambientes: pista principal, patio y sótano de techno.",
     coverUrl:
-      "https://images.unsplash.com/photo-1566417713940-fe7c737a9ef2?w=1600&q=70",
+      "https://images.unsplash.com/photo-1566417713940-fe7c737a9ef2?w=1600&q=72&auto=format&fit=crop",
     musicGenres: ["House", "Techno", "Reggaeton"],
     isVerified: true,
     isDemo: true,
@@ -189,7 +189,7 @@ export const DEMO_VENUES: VenueDetail[] = [
     description:
       "Rooftop con vista al malecón, coctelería de autor y sesiones de house hasta el amanecer.",
     coverUrl:
-      "https://images.unsplash.com/photo-1545128485-c400e7702796?w=1600&q=70",
+      "https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=1600&q=72&auto=format&fit=crop",
     musicGenres: ["House", "Deep House", "Disco"],
     isVerified: true,
     isDemo: true,
@@ -218,7 +218,7 @@ export const DEMO_VENUES: VenueDetail[] = [
     description:
       "Club de música latina y urbana en pleno San Isidro, con tres barras y zona VIP elevada.",
     coverUrl:
-      "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=1600&q=70",
+      "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=1600&q=72&auto=format&fit=crop",
     musicGenres: ["Reggaeton", "Salsa", "Urbano"],
     isVerified: true,
     isDemo: true,
@@ -247,7 +247,7 @@ export const DEMO_VENUES: VenueDetail[] = [
     description:
       "Sótano de 300 personas dedicado al techno y al drum and bass. Sonido Funktion-One.",
     coverUrl:
-      "https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?w=1600&q=70",
+      "https://images.unsplash.com/photo-1571935441005-e6eecd5aae27?w=1600&q=72&auto=format&fit=crop",
     musicGenres: ["Techno", "Drum & Bass"],
     isVerified: false,
     isDemo: true,
@@ -283,7 +283,7 @@ const SEEDS: DemoEventSeed[] = [
     description:
       "Tres ambientes, dos pistas y la terraza abierta hasta el cierre. House melódico en la pista principal y selección urbana en el patio.",
     coverUrl:
-      "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=1600&q=70",
+      "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=1600&q=72&auto=format&fit=crop",
     startsAt: START_SATURDAY,
     endsAt: after(START_SATURDAY, 7),
     doorsOpenAt: before(START_SATURDAY, 1),
@@ -368,7 +368,7 @@ const SEEDS: DemoEventSeed[] = [
     description:
       "Sesión de deep house desde las 7 p.m. con la puesta de sol de Miraflores de fondo. Coctelería de autor y cena ligera disponible.",
     coverUrl:
-      "https://images.unsplash.com/photo-1571266028243-e4733b0f0bb0?w=1600&q=70",
+      "https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=1600&q=72&auto=format&fit=crop",
     startsAt: START_FRIDAY,
     endsAt: after(START_FRIDAY, 7),
     doorsOpenAt: before(START_FRIDAY, 0.5),
@@ -405,7 +405,7 @@ const SEEDS: DemoEventSeed[] = [
     description:
       "Orquesta en vivo a medianoche y DJ urbano después. La noche más concurrida de San Isidro.",
     coverUrl:
-      "https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=1600&q=70",
+      "https://images.unsplash.com/photo-1516307365426-bea591f05011?w=1600&q=72&auto=format&fit=crop",
     startsAt: START_LATIN,
     endsAt: after(START_LATIN, 7),
     doorsOpenAt: before(START_LATIN, 1),
@@ -458,7 +458,7 @@ const SEEDS: DemoEventSeed[] = [
     description:
       "Sótano, luces mínimas y sonido Funktion-One. Entrada por aforo estricto de 300 personas.",
     coverUrl:
-      "https://images.unsplash.com/photo-1598387993441-a364f854c3e1?w=1600&q=70",
+      "https://images.unsplash.com/photo-1598387993441-a364f854c3e1?w=1600&q=72&auto=format&fit=crop",
     startsAt: START_TECHNO,
     endsAt: after(START_TECHNO, 6.5),
     doorsOpenAt: before(START_TECHNO, 0.5),
@@ -495,7 +495,7 @@ const SEEDS: DemoEventSeed[] = [
     description:
       "Edición aniversario con los tres ambientes conectados y invitados internacionales.",
     coverUrl:
-      "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=1600&q=70",
+      "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=1600&q=72&auto=format&fit=crop",
     startsAt: START_ANNIVERSARY,
     endsAt: after(START_ANNIVERSARY, 8),
     doorsOpenAt: before(START_ANNIVERSARY, 1),

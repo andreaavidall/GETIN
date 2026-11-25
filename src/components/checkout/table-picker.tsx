@@ -7,6 +7,7 @@ import { useMemo, useState, useTransition } from "react";
 import { toast } from "sonner";
 
 import { WaitlistButton } from "@/components/checkout/waitlist-button";
+import { Disclosure } from "@/components/ui/disclosure";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { createOrderAction } from "@/lib/actions/checkout";
@@ -238,24 +239,31 @@ export function TablePicker({
                 return (
                   <div
                     key={table.id}
-                    className={`surface p-4 transition-colors ${
-                      active ? "border-lime/60" : bookable ? "surface-hover" : "opacity-60"
-                    }`}
+                    aria-current={active ? "true" : undefined}
+                    className={cn(
+                      "rounded-[var(--radius-card)] border bg-surface p-4 transition-all duration-200",
+                      active
+                        ? "border-lime bg-lime/[0.06] ring-1 ring-lime/40"
+                        : bookable
+                          ? "border-white/10 hover:border-white/25"
+                          : "border-white/[0.07] opacity-70",
+                    )}
                   >
                     <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <p className="flex items-center gap-2 text-sm font-semibold">
-                          <Sofa className="size-4 text-lime" />
-                          {table.label}
-                        </p>
-                        <p className="mt-1 flex items-center gap-1 text-xs text-muted">
-                          <Users className="size-3" />
+                      <p className="flex flex-wrap items-center gap-x-2 text-base font-semibold">
+                        <Sofa className="size-4 shrink-0 text-lime" aria-hidden="true" />
+                        {table.label}
+                        <span className="text-muted" aria-hidden="true">
+                          ·
+                        </span>
+                        <span className="inline-flex items-center gap-1 text-sm font-normal text-muted">
+                          <Users className="size-3.5" aria-hidden="true" />
                           Hasta {table.capacity} personas
-                        </p>
-                      </div>
-                      <Badge variant={bookable ? "success" : "outline"}>
-                        {tableStateLabel(table, now)}
-                      </Badge>
+                        </span>
+                      </p>
+                      {bookable ? null : (
+                        <Badge variant="outline">{tableStateLabel(table, now)}</Badge>
+                      )}
                     </div>
 
                     <TableFigures table={table} />
@@ -298,6 +306,17 @@ export function TablePicker({
  * del local, no GETIN. Llamarlo "coste total" prometía algo que nadie puede
  * garantizar desde aquí.
  */
+/**
+ * Las cifras de una mesa.
+ *
+ * Arriba, un resumen que se puede comparar de un vistazo entre mesas: lo que
+ * se paga ahora, lo que queda para el local y si cubre el ingreso. Debajo, el
+ * desglose completo plegado —pero plegado, no escondido: el total minimo y
+ * las condiciones obligatorias se ven siempre, abierto o cerrado.
+ *
+ * Son cinco numeros que la gente confunde, y el total es un SUELO: lo que se
+ * beba por encima del minimo se paga aparte.
+ */
 function TableFigures({ table }: { table: TableView }) {
   const cargo = applyBps(table.depositCents, DEFAULT_PRICING.commissionBps);
   const pagasAhora = table.depositCents + cargo;
@@ -306,105 +325,96 @@ function TableFigures({ table }: { table: TableView }) {
   const total = pagasAhora + enElLocal;
 
   return (
-    <>
-      <dl className="mt-3 space-y-1.5 border-t border-white/5 pt-3 text-xs">
-        <div className="flex justify-between">
-          <dt className="text-muted">Precio de la mesa</dt>
-          <dd className="font-medium">{formatPEN(table.priceCents)}</dd>
-        </div>
-        <div className="flex justify-between">
-          <dt className="text-muted">Adelanto</dt>
-          <dd>{formatPEN(table.depositCents)}</dd>
-        </div>
-        <div className="flex justify-between">
-          <dt className="text-muted">
-            Cargo por servicio ({(DEFAULT_PRICING.commissionBps / 100).toFixed(0)} %)
-          </dt>
-          <dd>{formatPEN(cargo)}</dd>
-        </div>
-        <div className="flex justify-between border-t border-white/5 pt-1.5">
-          <dt className="font-medium">Pagas ahora aquí</dt>
-          <dd className="font-semibold text-lime">{formatPEN(pagasAhora)}</dd>
-        </div>
+    <div className="mt-3 border-t border-white/[0.07] pt-3">
+      {/* Resumen comparable */}
+      <p className="flex flex-wrap items-baseline gap-x-2 text-base">
+        <span className="font-display font-bold text-lime">{formatPEN(pagasAhora)}</span>
+        <span className="text-muted">ahora</span>
+        <span className="text-muted" aria-hidden="true">
+          ·
+        </span>
+        <span className="font-semibold">{formatPEN(enElLocal)}</span>
+        <span className="text-muted">en el local</span>
+      </p>
 
-        <div className="flex justify-between pt-1.5">
-          <dt className="text-muted">Saldo de la mesa en el local</dt>
-          <dd>{formatPEN(saldo)}</dd>
-        </div>
-        {table.minConsumptionCents > 0 ? (
-          <div className="flex justify-between">
-            <dt className="text-muted">
-              Consumo mínimo <span className="text-muted/70">(aparte)</span>
-            </dt>
-            <dd>{formatPEN(table.minConsumptionCents)}</dd>
-          </div>
-        ) : null}
-        <div className="flex justify-between">
-          <dt className="font-medium">Pagas en el local</dt>
-          <dd className="font-semibold">{formatPEN(enElLocal)}</dd>
-        </div>
-
-        <div className="flex justify-between border-t border-white/10 pt-2">
-          <dt className="font-semibold">
-            Total mínimo de la reserva
-            {table.minConsumptionCents > 0 ? (
-              <span className="block text-[10px] font-normal text-muted">
-                incluye el consumo mínimo
-              </span>
-            ) : null}
-          </dt>
-          <dd className="font-display text-base font-bold">{formatPEN(total)}</dd>
-        </div>
-      </dl>
-
-      {/* La primera pregunta de quien reserva para seis: ¿mis amigos pagan
-          entrada aparte? Se responde con la politica del local, y si el local
-          no la ha declarado se dice eso, no se supone. */}
       <p
         className={cn(
-          "mt-2 rounded-lg px-3 py-2 text-[11px]",
+          "mt-1.5 text-sm",
           table.includesEntryFor === null
-            ? "bg-white/[0.04] text-muted"
+            ? "text-muted"
             : table.includesEntryFor > 0
-              ? "bg-lime/[0.08] text-lime/90"
-              : "bg-amber-400/[0.07] text-amber-100/80",
+              ? "text-lime/90"
+              : "text-amber-100/85",
         )}
       >
-        {table.includesEntryFor === null ? (
-          <>
-            <strong className="font-semibold">Entradas: el local no lo ha indicado.</strong>{" "}
-            Pregunta al local si la mesa cubre el ingreso de tus acompañantes antes de reservar.
-          </>
-        ) : table.includesEntryFor > 0 ? (
-          <>
-            <strong className="font-semibold">
-              Incluye ingreso para {table.includesEntryFor}{" "}
-              {table.includesEntryFor === 1 ? "persona" : "personas"}.
-            </strong>{" "}
-            {table.includesEntryFor < table.capacity
-              ? `Si van ${table.capacity}, las ${table.capacity - table.includesEntryFor} restantes compran su entrada aparte.`
-              : "No hace falta comprar entradas aparte."}
-          </>
-        ) : (
-          <>
-            <strong className="font-semibold">Entradas no incluidas.</strong> Cada persona de la
-            mesa compra su entrada aparte.
-          </>
-        )}
+        {table.includesEntryFor === null
+          ? "Entradas: el local no lo ha indicado"
+          : table.includesEntryFor > 0
+            ? `Incluye ingreso para ${table.includesEntryFor} ${
+                table.includesEntryFor === 1 ? "persona" : "personas"
+              }`
+            : "Entradas no incluidas"}
       </p>
 
-      <p className="mt-2 text-[11px] text-muted">
-        El total es un mínimo, no un precio cerrado: lo que consuman por encima del consumo
-        mínimo se paga aparte.
-      </p>
+      <Disclosure title={`Total mínimo ${formatPEN(total)} · ver desglose`} className="mt-3">
+        <dl className="space-y-1.5 text-sm">
+          <Fila etiqueta="Precio de la mesa" valor={formatPEN(table.priceCents)} />
+          <Fila etiqueta="Adelanto" valor={formatPEN(table.depositCents)} />
+          <Fila
+            etiqueta={`Cargo por servicio (${(DEFAULT_PRICING.commissionBps / 100).toFixed(0)} %)`}
+            valor={formatPEN(cargo)}
+          />
+          <Fila etiqueta="Pagas ahora aquí" valor={formatPEN(pagasAhora)} destacado />
+          <Fila etiqueta="Saldo de la mesa en el local" valor={formatPEN(saldo)} />
+          {table.minConsumptionCents > 0 ? (
+            <Fila
+              etiqueta="Consumo mínimo (aparte)"
+              valor={formatPEN(table.minConsumptionCents)}
+            />
+          ) : null}
+          <Fila etiqueta="Pagas en el local" valor={formatPEN(enElLocal)} destacado />
+        </dl>
 
-      {table.minConsumptionCents > 0 ? (
-        <p className="mt-2 rounded-lg bg-amber-400/[0.07] px-3 py-2 text-[11px] text-amber-100/80">
-          El consumo mínimo <strong className="font-semibold">no está incluido</strong> en el
-          precio de la mesa: se gasta en barra dentro del local.
+        <p className="mt-3 text-sm text-muted">
+          {table.minConsumptionCents > 0 ? (
+            <>
+              El consumo mínimo <strong className="text-paper">no está incluido</strong> en el
+              precio de la mesa: se gasta en barra dentro del local.{" "}
+            </>
+          ) : null}
+          El total es un mínimo, no un precio cerrado: lo que consuman por encima se paga aparte.
+          {table.includesEntryFor !== null && table.includesEntryFor > 0 &&
+          table.includesEntryFor < table.capacity
+            ? ` Si van ${table.capacity}, las ${table.capacity - table.includesEntryFor} restantes compran su entrada aparte.`
+            : ""}
+          {table.includesEntryFor === null
+            ? " Pregunta al local si la mesa cubre el ingreso de tus acompañantes."
+            : ""}
         </p>
-      ) : null}
-    </>
+      </Disclosure>
+    </div>
+  );
+}
+
+function Fila({
+  etiqueta,
+  valor,
+  destacado,
+}: {
+  etiqueta: string;
+  valor: string;
+  destacado?: boolean;
+}) {
+  return (
+    <div
+      className={cn(
+        "flex justify-between gap-4",
+        destacado && "border-t border-white/[0.07] pt-1.5 font-semibold",
+      )}
+    >
+      <dt className={destacado ? "" : "text-muted"}>{etiqueta}</dt>
+      <dd>{valor}</dd>
+    </div>
   );
 }
 

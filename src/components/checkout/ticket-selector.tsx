@@ -39,6 +39,7 @@ export function TicketSelector({
   lastEntryAt,
   waitingTicketTypes = [],
   source,
+  hideMobileBar = false,
 }: {
   eventId: string;
   eventName: string;
@@ -53,6 +54,12 @@ export function TicketSelector({
   waitingTicketTypes?: string[];
   /** Etiqueta del enlace por el que llegó, si venía con ?ref=. */
   source?: string;
+  /**
+   * La ficha monta el selector dos veces —una para movil, otra para la
+   * columna de escritorio—. Solo la copia de movil dibuja la barra inferior;
+   * si no, habria dos barras fijas superpuestas.
+   */
+  hideMobileBar?: boolean;
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -412,6 +419,8 @@ export function TicketSelector({
       </div>
     </div>
 
+    {hideMobileBar ? null : (
+    <>
     {/* ------------------------------------------- barra inferior en movil ---
         En el celular el panel de compra queda al final de una página larga.
         Esta barra mantiene el total y el boton a la vista. Solo aparece en
@@ -463,6 +472,8 @@ export function TicketSelector({
         )}
       </div>
     </div>
+    </>
+    )}
     </>
   );
 }
