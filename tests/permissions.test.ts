@@ -7,6 +7,7 @@ import {
   defaultLandingPath,
   ForbiddenError,
   isSuperadmin,
+  manageableVenueIds,
   membershipFor,
   UnauthenticatedError,
   type Actor,
@@ -112,8 +113,15 @@ describe("personal de puerta", () => {
     expect(can(door, "venue.exportReports", VENUE_A)).toBe(false);
   });
 
-  it("si puede ver el panel y los asistentes de su local", () => {
-    expect(can(door, "venue.readDashboard", VENUE_A)).toBe(true);
+  /**
+   * Esta prueba afirmaba lo contrario y por eso el fallo sobrevivio a varias
+   * revisiones: daba por bueno que la puerta abriera el panel del local. El
+   * panel enseña ventas, ingresos y comisiones, y esa cuenta suele vivir en un
+   * telefono compartido en la entrada.
+   */
+  it("NO puede abrir el panel del local, pero si la lista de asistentes", () => {
+    expect(can(door, "venue.readDashboard", VENUE_A)).toBe(false);
+    // La lista si: es con lo que comprueba un nombre cuando el QR no se lee.
     expect(can(door, "venue.readAttendees", VENUE_A)).toBe(true);
   });
 
@@ -195,5 +203,16 @@ describe("defaultLandingPath", () => {
     expect(defaultLandingPath(manager)).toBe("/club/dashboard");
     expect(defaultLandingPath(door)).toBe("/puerta");
     expect(defaultLandingPath(superadmin)).toBe("/admin");
+  });
+});
+
+describe("que locales puede administrar cada quien", () => {
+  it("la puerta no administra ninguno, aunque pertenezca al local", () => {
+    expect(accessibleVenueIds(door)).toContain(VENUE_A);
+    expect(manageableVenueIds(door)).toEqual([]);
+  });
+
+  it("el gerente si administra el suyo", () => {
+    expect(manageableVenueIds(manager)).toEqual([VENUE_A]);
   });
 });
