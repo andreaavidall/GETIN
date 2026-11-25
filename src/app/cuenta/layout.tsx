@@ -2,11 +2,13 @@ import Link from "next/link";
 
 import { AccountTabs } from "@/components/layout/account-tabs";
 import { requireSession } from "@/lib/auth/guards";
-import { accessibleVenueIds } from "@/lib/domain/permissions";
+import { manageableVenueIds } from "@/lib/domain/permissions";
 
 export default async function AccountLayout({ children }: { children: React.ReactNode }) {
   const session = await requireSession("/cuenta");
-  const manages = accessibleVenueIds(session.actor).length > 0;
+  // Solo quien manda en el local ve el enlace al panel: a la puerta le
+  // ofreciamos un enlace que ahora la redirige al escaner.
+  const manages = manageableVenueIds(session.actor).length > 0;
 
   return (
     <div className="container py-8">

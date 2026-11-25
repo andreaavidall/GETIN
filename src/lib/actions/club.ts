@@ -6,7 +6,7 @@ import { recordAudit } from "@/lib/audit";
 import { getSession } from "@/lib/auth/session";
 import { can } from "@/lib/domain/permissions";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { slugify } from "@/lib/utils";
+import { limaTimestamp, slugify } from "@/lib/utils";
 import {
   eventFormSchema,
   ticketTypeFormSchema,
@@ -37,11 +37,15 @@ async function requireVenuePermission(
   return { ok: true, userId: session.user.id, role: session.user.role };
 }
 
-function toTimestamp(value: string | undefined): string | null {
-  if (!value) return null;
-  const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? null : date.toISOString();
-}
+/**
+ * Las fechas de los formularios del local son HORA DE LIMA.
+ *
+ * Antes esto hacia `new Date(value)` a secas y el valor de un
+ * `<input type="datetime-local">` no lleva zona: lo interpretaba la zona de
+ * quien ejecutaba el codigo. En Vercel eso es UTC, asi que las 22:00 que
+ * escribia el local se guardaban como las 17:00 de Lima.
+ */
+const toTimestamp = limaTimestamp;
 
 // ----------------------------------------------------------------- eventos ---
 

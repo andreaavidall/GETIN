@@ -112,8 +112,18 @@ export function can(actor: Actor | null, action: Action, venueId?: string): bool
       return m !== null; // owner, manager y door pueden escanear
     }
 
-    case "venue.readDashboard":
+    case "venue.readDashboard": {
+      // El panel enseña ventas, ingresos, comisiones e inventario. El personal
+      // de puerta no tiene por que ver la caja del local: su herramienta es el
+      // escaner. Antes bastaba con pertenecer al local, y la puerta entraba.
+      if (!venueId) return false;
+      const m = membershipFor(actor, venueId);
+      return m?.role === "owner" || m?.role === "manager";
+    }
+
     case "venue.readAttendees": {
+      // La lista de asistentes si la necesita la puerta: es con lo que
+      // comprueba un nombre cuando el QR no se puede leer.
       if (!venueId) return false;
       return membershipFor(actor, venueId) !== null;
     }
@@ -131,10 +141,21 @@ export function can(actor: Actor | null, action: Action, venueId?: string): bool
   }
 }
 
-/** Locales sobre los que el actor puede abrir el panel. */
+/**
+ * Locales a los que el actor pertenece, para cualquier uso (escanear incluido).
+ * NO sirve para decidir quien abre el panel: para eso esta `manageableVenueIds`.
+ */
 export function accessibleVenueIds(actor: Actor | null): string[] {
   if (!actor || actor.isSuspended) return [];
   return actor.memberships.filter((m) => m.isActive).map((m) => m.venueId);
+}
+
+/** Locales cuyo panel puede abrir: solo donde manda, no donde solo escanea. */
+export function manageableVenueIds(actor: Actor | null): string[] {
+  if (!actor || actor.isSuspended) return [];
+  return actor.memberships
+    .filter((m) => m.isActive && (m.role === "owner" || m.role === "manager"))
+    .map((m) => m.venueId);
 }
 
 /** Ruta inicial según el rol, para redirigir después del login. */

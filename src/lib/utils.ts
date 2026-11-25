@@ -41,6 +41,9 @@ export function formatPENShort(cents: number): string {
 
 export const LIMA_TZ = "America/Lima";
 
+/** Perú no cambia de hora: UTC-5 todo el año. */
+export const LIMA_OFFSET = "-05:00";
+
 const DAYS = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
 const MONTHS = [
   "enero", "febrero", "marzo", "abril", "mayo", "junio",
@@ -137,6 +140,33 @@ export function formatCloseTime(start: Date | string, end: Date | string): strin
   const sameDay = s.year === e.year && s.month === e.month && s.day === e.day;
   if (sameDay) return formatTime(end);
   return `${formatTime(end)} del ${DAYS[e.weekday]} ${e.day}`;
+}
+
+/**
+ * Convierte lo que escribe un `<input type="datetime-local">` en un instante,
+ * interpretándolo SIEMPRE como hora de Lima.
+ *
+ * Esto arreglaba un desfase de cinco horas: el valor del input no lleva zona
+ * ("2026-12-23T22:00") y `new Date()` lo interpreta en la zona de quien
+ * ejecuta el código. Como quien lo ejecuta es el servidor —y en Vercel el
+ * servidor va en UTC—, las 22:00 que escribía el local se guardaban como
+ * 22:00 UTC, o sea las 17:00 de Lima.
+ *
+ * Perú es UTC-5 todo el año, así que basta con fijar el desfase. Si algún día
+ * GETIN sale de Perú, esto tendrá que mirar la zona del local.
+ */
+export function limaTimestamp(value: string | undefined | null): string | null {
+  if (!value) return null;
+
+  // "2026-12-23T22:00" o "2026-12-23T22:00:00". Si ya trae zona (acaba en Z o
+  // en +hh:mm) se respeta: viene de otro sitio, no del formulario.
+  const sinZona = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2})?$/.test(value.trim());
+  const texto = sinZona
+    ? `${value.trim()}${value.trim().length === 16 ? ":00" : ""}${LIMA_OFFSET}`
+    : value;
+
+  const date = new Date(texto);
+  return Number.isNaN(date.getTime()) ? null : date.toISOString();
 }
 
 /** "11:00 p. m." en hora de Lima. */

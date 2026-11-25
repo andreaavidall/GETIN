@@ -43,12 +43,36 @@ export type OrderView = {
     venueName: string;
     district: string;
   };
+  /**
+   * Detalle de la mesa, cuando la orden es una reserva.
+   *
+   * El checkout tiene que repetir aqui las mismas cifras y las mismas
+   * condiciones que la ficha. Enseñar la politica de cancelacion del EVENTO
+   * ("reembolso completo hasta 48 horas") sobre un adelanto que no se
+   * devuelve es una contradiccion que se descubre tarde.
+   */
+  table: {
+    label: string;
+    zone: string | null;
+    capacity: number;
+    priceCents: number;
+    depositCents: number;
+    minConsumptionCents: number;
+    includesEntryFor: number | null;
+    conditions: string | null;
+  } | null;
 };
 
 const ORDER_SELECT = `
   id, code, status, subtotal_cents, service_fee_cents, tax_cents, total_cents,
   commission_bps, expires_at, paid_at, created_at,
-  order_items (id, kind, description, quantity, unit_price_cents, total_cents),
+  order_items (
+    id, kind, description, quantity, unit_price_cents, total_cents,
+    event_table_availability (
+      price_cents, deposit_cents, min_consumption_cents, conditions,
+      venue_tables (label, zone, capacity, includes_entry_for)
+    )
+  ),
   events!inner (
     id, slug, name, starts_at, cancellation_policy,
     venues!inner (name, district)
@@ -70,6 +94,18 @@ type RawOrder = {
   order_items: {
     id: string;
     kind: OrderItemView["kind"];
+    event_table_availability: {
+      price_cents: number;
+      deposit_cents: number;
+      min_consumption_cents: number;
+      conditions: string | null;
+      venue_tables: {
+        label: string;
+        zone: string | null;
+        capacity: number;
+        includes_entry_for: number | null;
+      } | null;
+    } | null;
     description: string;
     quantity: number;
     unit_price_cents: number;
@@ -115,6 +151,32 @@ function toOrderView(row: RawOrder): OrderView {
       venueName: row.events?.venues?.name ?? "",
       district: row.events?.venues?.district ?? "",
     },
+    table: (() => {
+      // PostgREST devuelve la relacion uno a uno a veces como objeto y a
+      // veces como array de uno.
+      const item = (row.order_items ?? []).find((i) => i.kind === "table");
+      const crudo = item?.event_table_availability as unknown;
+      const disp = Array.isArray(crudo)
+        ? (crudo[0] as NonNullable<typeof item>["event_table_availability"])
+        : (crudo as NonNullable<typeof item>["event_table_availability"]);
+      if (!disp) return null;
+
+      const mesaCruda = disp.venue_tables as unknown;
+      const mesa = Array.isArray(mesaCruda)
+        ? (mesaCruda[0] as NonNullable<typeof disp>["venue_tables"])
+        : (mesaCruda as NonNullable<typeof disp>["venue_tables"]);
+
+      return {
+        label: mesa?.label ?? "Mesa",
+        zone: mesa?.zone ?? null,
+        capacity: mesa?.capacity ?? 0,
+        priceCents: Number(disp.price_cents),
+        depositCents: Number(disp.deposit_cents),
+        minConsumptionCents: Number(disp.min_consumption_cents),
+        includesEntryFor: mesa?.includes_entry_for ?? null,
+        conditions: disp.conditions,
+      };
+    })(),
   };
 }
 

@@ -4,6 +4,7 @@ import { weekendRange } from "@/lib/domain/event-filters";
 import {
   formatCloseTime,
   formatEventDate,
+  limaTimestamp,
   formatEventRange,
   limaDayNumber,
   limaISODate,
@@ -105,5 +106,33 @@ describe("hora de cierre", () => {
     const inicio = new Date("2026-11-28T19:00:00-05:00");
     const cierre = new Date("2026-11-28T23:30:00-05:00");
     expect(formatCloseTime(inicio, cierre)).toBe("11:30 p. m.");
+  });
+});
+
+describe("lo que escribe el local es hora de Lima", () => {
+  it("22:00 del 23 de diciembre se guarda como 03:00 UTC del 24", () => {
+    // Este era el fallo: el servidor (UTC en Vercel) leia "22:00" como UTC y
+    // el panel mostraba 17:00, cinco horas antes.
+    expect(limaTimestamp("2026-12-23T22:00")).toBe("2026-12-24T03:00:00.000Z");
+  });
+
+  it("y al volver a pintarlo sigue diciendo 22:00 del 23", () => {
+    const guardado = limaTimestamp("2026-12-23T22:00")!;
+    expect(formatEventDate(new Date(guardado))).toContain("23 de diciembre");
+    expect(formatEventDate(new Date(guardado))).toContain("10:00 p. m.");
+  });
+
+  it("acepta segundos", () => {
+    expect(limaTimestamp("2026-12-23T22:00:30")).toBe("2026-12-24T03:00:30.000Z");
+  });
+
+  it("respeta un valor que ya trae zona", () => {
+    expect(limaTimestamp("2026-12-24T03:00:00.000Z")).toBe("2026-12-24T03:00:00.000Z");
+  });
+
+  it("vacio o invalido devuelve null", () => {
+    expect(limaTimestamp("")).toBeNull();
+    expect(limaTimestamp(undefined)).toBeNull();
+    expect(limaTimestamp("no es una fecha")).toBeNull();
   });
 });

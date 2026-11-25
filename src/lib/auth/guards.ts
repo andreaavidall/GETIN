@@ -7,6 +7,7 @@ import {
   accessibleVenueIds,
   assertCan,
   can,
+  manageableVenueIds,
   type Action,
 } from "@/lib/domain/permissions";
 
@@ -56,13 +57,18 @@ export async function requireActiveVenue(preferredVenueId?: string): Promise<{
   venueIds: string[];
 }> {
   const session = await requireSession("/club/dashboard");
-  const venueIds = accessibleVenueIds(session.actor);
+  // Solo quien manda en el local. El personal de puerta pertenece al local
+  // pero su sitio es el escaner, no la caja.
+  const venueIds = manageableVenueIds(session.actor);
 
   if (session.actor.role === "superadmin" && venueIds.length === 0) {
     // El superadmin entra al panel de GETIN, no al de un local.
     redirect("/admin");
   }
   if (venueIds.length === 0) {
+    // Si pertenece al local pero solo como puerta, se le manda al escaner en
+    // vez de al formulario de registro de un local nuevo.
+    if (accessibleVenueIds(session.actor).length > 0) redirect("/puerta");
     redirect("/club/registro");
   }
 

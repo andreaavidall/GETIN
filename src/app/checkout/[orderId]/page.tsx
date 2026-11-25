@@ -106,8 +106,105 @@ export default async function CheckoutPage({ params }: { params: Params }) {
           </dl>
         </section>
 
+        {/* ------------------------------------------------ resumen de mesa */}
+        {/* La ficha dice una cosa y el checkout decia otra: aqui salia la
+            politica del EVENTO ("reembolso completo hasta 48 horas") sobre un
+            adelanto que no se devuelve. Si la orden es una mesa, mandan las
+            condiciones de la mesa, y se repiten las cifras que ya vio. */}
+        {order.table ? (
+          <section className="surface p-5">
+            <h2 className="font-display text-base font-semibold">
+              {order.table.label}
+              {order.table.zone ? (
+                <span className="ml-2 text-xs font-normal text-muted">{order.table.zone}</span>
+              ) : null}
+            </h2>
+            <p className="mt-1 text-xs text-muted">Hasta {order.table.capacity} personas.</p>
+
+            <dl className="mt-3 space-y-1.5 border-t border-white/10 pt-3 text-xs">
+              <Row label="Precio de la mesa" value={formatPEN(order.table.priceCents)} muted />
+              <Row label="Adelanto" value={formatPEN(order.table.depositCents)} muted />
+              <div className="flex items-center justify-between">
+                <dt className="font-medium">Pagas ahora aquí</dt>
+                <dd className="font-semibold text-lime">{formatPEN(order.totalCents)}</dd>
+              </div>
+              <div className="flex items-center justify-between pt-1.5">
+                <dt className="text-muted">Saldo de la mesa en el local</dt>
+                <dd>{formatPEN(Math.max(order.table.priceCents - order.table.depositCents, 0))}</dd>
+              </div>
+              {order.table.minConsumptionCents > 0 ? (
+                <Row
+                  label="Consumo mínimo (aparte)"
+                  value={formatPEN(order.table.minConsumptionCents)}
+                  muted
+                />
+              ) : null}
+              <div className="flex items-center justify-between border-t border-white/10 pt-2">
+                <dt className="font-semibold">Total mínimo de la reserva</dt>
+                <dd className="font-display text-base font-bold">
+                  {formatPEN(
+                    order.totalCents +
+                      Math.max(order.table.priceCents - order.table.depositCents, 0) +
+                      order.table.minConsumptionCents,
+                  )}
+                </dd>
+              </div>
+            </dl>
+
+            <p className="mt-3 text-xs">
+              {order.table.includesEntryFor === null ? (
+                <span className="text-muted">
+                  <strong className="text-paper">Entradas: el local no lo ha indicado.</strong>{" "}
+                  Pregúntale si la mesa cubre el ingreso de tus acompañantes.
+                </span>
+              ) : order.table.includesEntryFor > 0 ? (
+                <span className="text-lime/90">
+                  Incluye ingreso para {order.table.includesEntryFor}{" "}
+                  {order.table.includesEntryFor === 1 ? "persona" : "personas"}.
+                  {order.table.includesEntryFor < order.table.capacity
+                    ? ` Si van ${order.table.capacity}, las ${order.table.capacity - order.table.includesEntryFor} restantes compran su entrada aparte.`
+                    : ""}
+                </span>
+              ) : (
+                <span className="text-amber-100/80">
+                  Entradas no incluidas: cada persona de la mesa compra la suya aparte.
+                </span>
+              )}
+            </p>
+
+            <div className="mt-4 border-t border-white/10 pt-3">
+              <h3 className="text-xs font-semibold uppercase tracking-wide text-muted">
+                Condiciones de esta mesa
+              </h3>
+              <p className="mt-1 text-sm text-amber-100/90">
+                {order.table.conditions ??
+                  "El adelanto no es reembolsable. El saldo y el consumo mínimo se abonan en el local."}
+              </p>
+              <p className="mt-2 text-xs text-muted">
+                Estas condiciones son las de la mesa y{" "}
+                <strong className="text-paper">prevalecen</strong> sobre la política general de
+                cancelación del evento.
+              </p>
+            </div>
+
+            <p className="mt-3 text-xs text-muted">
+              Al pagar aceptas estas condiciones, los{" "}
+              <Link href="/legal/terminos" className="text-lime hover:underline">
+                términos del servicio
+              </Link>{" "}
+              y la{" "}
+              <Link href="/legal/privacidad" className="text-lime hover:underline">
+                política de privacidad
+              </Link>
+              .
+            </p>
+          </section>
+        ) : null}
+
         {/* --------------------------------------------------- condiciones */}
-        {order.event.cancellationPolicy ? (
+        {/* La politica del evento solo aplica a las entradas: si la orden es
+            una mesa, ya se mostraron sus condiciones arriba. */}
+        {order.event.cancellationPolicy && !order.table ? (
           <section className="surface p-5">
             <h2 className="font-display text-base font-semibold">Política de cancelación</h2>
             <p className="mt-1 text-sm text-muted">{order.event.cancellationPolicy}</p>

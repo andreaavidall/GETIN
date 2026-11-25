@@ -213,6 +213,32 @@ n=$(rest "$TOK_PUERTA" GET "favorites?select=id" | count)
 # Se limpia lo que la prueba creo.
 rest "$TOK_CLIENTE" DELETE "favorites?event_id=eq.$EV_ID" > /dev/null
 
+# ------------------------------------------------- la puerta no ve la caja ---
+# La cuenta de puerta pertenece al local, pero su herramienta es el escaner.
+# Que pudiera leer ventas y comisiones era un hallazgo de auditoria.
+n=$(rest "$TOK_PUERTA" GET "orders?select=id,total_cents" | count)
+[ "$n" = "0" ] && ok "la puerta no lee ordenes del local (ve 0)"               || fail "la puerta leyo ordenes" "ve $n"
+
+n=$(rest "$TOK_PUERTA" GET "payments?select=id,amount_cents" | count)
+[ "$n" = "0" ] && ok "la puerta no lee pagos (ve 0)" || fail "la puerta leyo pagos" "ve $n"
+
+n=$(rest "$TOK_PUERTA" GET "commissions?select=id" | count)
+[ "$n" = "0" ] && ok "la puerta no lee comisiones (ve 0)"               || fail "la puerta leyo comisiones" "ve $n"
+
+n=$(rest "$TOK_PUERTA" GET "settlements?select=id" | count)
+[ "$n" = "0" ] && ok "la puerta no lee liquidaciones (ve 0)"               || fail "la puerta leyo liquidaciones" "ve $n"
+
+n=$(rest "$TOK_PUERTA" GET "venue_verifications?select=id" | count)
+[ "$n" = "0" ] && ok "la puerta no lee los documentos del local (ve 0)"               || fail "la puerta leyo las verificaciones" "ve $n"
+
+# Pero si sigue viendo lo que necesita para trabajar.
+n=$(rest "$TOK_PUERTA" GET "tickets?select=id,serial" | count)
+[ "$n" -ge "0" ] && ok "la puerta sigue viendo las entradas del local (ve $n)"                  || fail "la puerta dejo de ver entradas" "ve $n"
+
+# Y el local si ve su propia caja.
+n=$(rest "$TOK_CLUB" GET "orders?select=id" | count)
+[ "$n" -ge "1" ] && ok "el local si ve sus ordenes (ve $n)"                  || fail "el local dejo de ver sus ordenes" "ve $n"
+
 echo
 if [ "$fallos" -eq 0 ]; then
   echo "Todas las pruebas de RLS pasaron."
