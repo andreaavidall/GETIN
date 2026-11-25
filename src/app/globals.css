@@ -12,9 +12,22 @@
   --getin-paper: 0 0% 100%;
   --getin-lime: 68 100% 50%;
   --getin-surface: 0 0% 9.4%;
-  --getin-muted: 0 0% 64%;
 
-  --radius: 0.75rem;
+  /*
+   * Gris de apoyo. Sube de 64% a 72% de luminosidad: el texto secundario se
+   * leia justo en el limite, y la informacion importante no puede depender de
+   * una pantalla bien calibrada.
+   */
+  --getin-muted: 0 0% 72%;
+
+  /* Radios unificados. Antes convivian rounded-lg, xl y 2xl sin criterio. */
+  --radius: 0.875rem;      /* controles: botones, campos, chips */
+  --radius-card: 1.25rem;  /* tarjetas y superficies */
+
+  /* Alturas de control, para que todo lo pulsable mida lo mismo. */
+  --control-h: 2.75rem;    /* 44px: minimo comodo para el dedo */
+  --control-h-sm: 2.25rem;
+
   color-scheme: dark;
 }
 
@@ -49,27 +62,88 @@
   .text-display {
     @apply font-display font-bold tracking-[-0.03em];
   }
+
+  /*
+   * Escala tipografica.
+   *
+   * Una sola escala para toda la aplicacion, en vez de elegir el tamaño a ojo
+   * en cada componente. El cuerpo son 16 px en movil —por debajo de eso se
+   * lee mal de noche y en movimiento— y el secundario 14. Por debajo de 12
+   * solo van etiquetas, nunca informacion que haga falta para decidir.
+   */
+  .t-hero {
+    @apply text-display text-[2.125rem] leading-[1.05] sm:text-5xl lg:text-6xl;
+  }
+  .t-section {
+    @apply text-display text-xl sm:text-2xl;
+  }
+  .t-card {
+    @apply font-display text-lg font-bold leading-tight;
+  }
+  .t-body {
+    @apply text-base leading-relaxed;
+  }
+  .t-meta {
+    @apply text-sm leading-snug text-muted;
+  }
+  .t-label {
+    @apply text-xs font-semibold uppercase tracking-wide text-muted;
+  }
+  .t-price {
+    @apply font-display text-lg font-bold text-lime;
+  }
 }
 
 @layer components {
-  /* Superficie estandar de tarjeta. */
+  /*
+   * Superficie: se reserva para lo que se toca —comprar, reservar, elegir—.
+   * Envolver tambien la descripcion, el line-up y la ubicacion convertia la
+   * pagina en una pila de cajas grises iguales donde nada destacaba.
+   */
   .surface {
-    @apply rounded-2xl border border-white/10 bg-surface;
+    border-radius: var(--radius-card);
+    @apply border border-white/10 bg-surface;
   }
 
   .surface-hover {
-    @apply transition-colors hover:border-white/25;
+    @apply transition-colors duration-200 hover:border-white/25;
   }
 
-  /* Degradado sobre las fotos para que el texto encima se lea siempre. */
+  /*
+   * Composicion abierta: separa con aire y una linea fina, sin caja. Para
+   * texto que se lee, no para controles que se usan.
+   */
+  .panel {
+    @apply border-t border-white/[0.07] pt-6;
+  }
+
+  /* Control estandar: misma altura y mismo radio en toda la aplicacion. */
+  .control-h {
+    height: var(--control-h);
+  }
+
+  /*
+   * Oscurecimiento LOCALIZADO detras del texto.
+   *
+   * El anterior apagaba la foto entera —incluida la parte de arriba, donde no
+   * hay texto— y las portadas perdian todo su atractivo. Este deja limpios
+   * los dos tercios superiores y solo oscurece la franja donde se escribe.
+   */
   .photo-scrim {
     background: linear-gradient(
       to top,
-      rgba(0, 0, 0, 0.95) 0%,
-      rgba(0, 0, 0, 0.65) 35%,
-      rgba(0, 0, 0, 0.15) 70%,
-      rgba(0, 0, 0, 0.35) 100%
+      rgba(0, 0, 0, 0.92) 0%,
+      rgba(0, 0, 0, 0.70) 22%,
+      rgba(0, 0, 0, 0.18) 48%,
+      rgba(0, 0, 0, 0) 68%
     );
+  }
+
+  /* Fondo de una foto que no carga: no un hueco negro. */
+  .photo-fallback {
+    background:
+      radial-gradient(120% 80% at 20% 0%, rgba(223, 255, 0, 0.14) 0%, transparent 55%),
+      linear-gradient(145deg, #15150f 0%, #0a0a0a 60%, #111 100%);
   }
 
   .hero-scrim {
@@ -96,6 +170,24 @@
     @apply absolute inset-0 -translate-x-full;
     background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.06), transparent);
     animation: getin-shimmer 1.6s infinite;
+  }
+}
+
+/* Entrada suave de las secciones y tarjetas. Discreta y corta a proposito. */
+@layer components {
+  .fade-rise {
+    animation: getin-rise 0.32s ease-out both;
+  }
+}
+
+@keyframes getin-rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
   }
 }
 

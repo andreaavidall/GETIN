@@ -11,6 +11,8 @@ import Link from "next/link";
 import { Suspense } from "react";
 
 import { EventCard } from "@/components/catalog/event-card";
+import { EventCarousel } from "@/components/catalog/event-carousel";
+import { CoverImage } from "@/components/ui/cover-image";
 import { SearchBar } from "@/components/catalog/search-bar";
 import { VenueCard } from "@/components/catalog/venue-card";
 import { Badge } from "@/components/ui/badge";
@@ -19,7 +21,6 @@ import { DemoNotice, EmptyState, EventGridSkeleton } from "@/components/ui/feedb
 import {
   getEventsWithTables,
   getFeaturedEvents,
-  getUpcomingEvents,
   getWeekendEvents,
   isDemoMode,
   listVenues,
@@ -27,11 +28,8 @@ import {
 import { weekendRange } from "@/lib/domain/event-filters";
 import {
   formatEventDate,
-  formatPEN,
   formatPENShort,
   formatShortDate,
-  limaDayNumber,
-  limaMonthShort,
 } from "@/lib/utils";
 
 export const revalidate = 120;
@@ -39,32 +37,37 @@ export const revalidate = 120;
 const HERO_IMAGE =
   "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=2000&q=70";
 
+/**
+ * Portada.
+ *
+ * Orden deliberado: primero lo que se busca (hero y buscador), despues lo que
+ * hay esta noche y este fin de semana, luego mesas, locales y por ultimo las
+ * explicaciones. Las secciones ya no repiten los mismos eventos: la agenda
+ * general desaparecio de aqui —estaba enseñando por tercera vez lo mismo— y
+ * se llega a ella por "Ver todo".
+ */
 export default function HomePage() {
   return (
     <>
       <Hero />
 
-      <div className="container space-y-20 pb-10">
+      <div className="container space-y-14 pb-12 sm:space-y-16">
         {isDemoMode() ? <DemoNotice /> : null}
 
-        <Suspense fallback={<SectionSkeleton title="Eventos destacados" />}>
+        <Suspense fallback={<SectionSkeleton title="Esta semana en Lima" />}>
           <FeaturedSection />
         </Suspense>
 
-        <Suspense fallback={<SectionSkeleton title="Este fin de semana" />}>
+        <Suspense fallback={<SectionSkeleton title="Planes del fin de semana" />}>
           <WeekendSection />
         </Suspense>
 
-        <Suspense fallback={<SectionSkeleton title="Discotecas populares" />}>
-          <VenuesSection />
-        </Suspense>
-
-        <Suspense fallback={<SectionSkeleton title="Mesas VIP disponibles" />}>
+        <Suspense fallback={<SectionSkeleton title="Mesas VIP" />}>
           <TablesSection />
         </Suspense>
 
-        <Suspense fallback={<SectionSkeleton title="Próximos eventos" />}>
-          <UpcomingSection />
+        <Suspense fallback={<SectionSkeleton title="Discotecas" />}>
+          <VenuesSection />
         </Suspense>
 
         <HowItWorks />
@@ -74,6 +77,17 @@ export default function HomePage() {
   );
 }
 
+/**
+ * Hero.
+ *
+ * Antes medía 620 px de alto y, con el formulario completo debajo, ocupaba la
+ * primera pantalla del móvil entera: no se veía ni un evento sin desplazar.
+ * Ahora cabe en poco más de la mitad y los destacados asoman desde el primer
+ * momento, que es de lo que vive un catálogo.
+ *
+ * Una sola acción en lima —Explorar eventos—. «Ver discotecas» baja a enlace
+ * secundario: dos botones del mismo peso no son una decisión, son un empate.
+ */
 function Hero() {
   return (
     <section className="relative isolate -mt-16 overflow-hidden pt-16">
@@ -87,35 +101,36 @@ function Hero() {
       />
       <div className="absolute inset-0 hero-scrim" />
 
-      <div className="container relative flex min-h-[620px] flex-col justify-end pb-12 pt-20 sm:min-h-[680px]">
-        <Badge variant="outline" className="mb-5 w-fit border-lime/40 text-lime">
+      <div className="container relative flex flex-col justify-end pb-8 pt-10 sm:pt-16">
+        <Badge variant="outline" className="mb-4 w-fit border-lime/40 text-lime">
           <Sparkles className="size-3" />
           Lima · Perú
         </Badge>
 
-        <h1 className="text-display max-w-3xl text-5xl leading-[0.95] sm:text-6xl lg:text-7xl">
-          La noche empieza aquí.
-        </h1>
-        <p className="mt-5 max-w-xl text-base text-white/70 sm:text-lg">
-          Descubre los mejores eventos, asegura tu entrada y reserva tu mesa en un solo lugar.
+        <h1 className="t-hero max-w-3xl">Tu próxima noche empieza aquí.</h1>
+        <p className="mt-3 max-w-lg text-base text-white/75">
+          Entradas, mesas y listas de las discotecas de Lima.
         </p>
 
-        <div className="mt-8 flex flex-wrap gap-3">
+        <div className="mt-6">
+          <Suspense fallback={<div className="skeleton h-[108px] w-full rounded-2xl" />}>
+            <SearchBar />
+          </Suspense>
+        </div>
+
+        <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-3">
           <Button asChild size="lg">
             <Link href="/eventos">
               Explorar eventos
               <ArrowRight className="size-4" />
             </Link>
           </Button>
-          <Button asChild size="lg" variant="outline">
-            <Link href="/discotecas">Ver discotecas</Link>
-          </Button>
-        </div>
-
-        <div className="mt-10">
-          <Suspense fallback={<div className="skeleton h-[76px] w-full rounded-2xl" />}>
-            <SearchBar />
-          </Suspense>
+          <Link
+            href="/discotecas"
+            className="text-sm font-medium text-muted underline-offset-4 transition-colors duration-200 hover:text-paper hover:underline"
+          >
+            Ver discotecas
+          </Link>
         </div>
       </div>
     </section>
@@ -134,10 +149,10 @@ function SectionHeader({
   linkLabel?: string;
 }) {
   return (
-    <div className="mb-6 flex items-end justify-between gap-4">
+    <div className="mb-5 flex items-end justify-between gap-4">
       <div>
-        <h2 className="text-display text-2xl sm:text-3xl">{title}</h2>
-        {subtitle ? <p className="mt-1 text-sm text-muted">{subtitle}</p> : null}
+        <h2 className="t-section">{title}</h2>
+        {subtitle ? <p className="t-meta mt-1">{subtitle}</p> : null}
       </div>
       {href ? (
         <Link
@@ -160,13 +175,21 @@ function SectionSkeleton({ title }: { title: string }) {
   );
 }
 
+/**
+ * Destacados: TRES, no seis.
+ *
+ * Con seis, la portada enseñaba casi el catalogo entero antes de que nadie
+ * pidiera nada, y las mismas fiestas volvian a salir dos secciones mas abajo.
+ * Tres caben en una fila completa en escritorio —sin huecos— y en movil son
+ * un carrusel donde asoma la siguiente.
+ */
 async function FeaturedSection() {
-  const events = await getFeaturedEvents(6);
+  const events = await getFeaturedEvents(3);
   return (
-    <section>
+    <section className="fade-rise">
       <SectionHeader
-        title="Eventos destacados"
-        subtitle="Lo que más se está moviendo esta semana"
+        title="Esta semana en Lima"
+        subtitle="Lo que más se está moviendo"
         href="/eventos"
       />
       {events.length === 0 ? (
@@ -180,18 +203,24 @@ async function FeaturedSection() {
           }
         />
       ) : (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <EventCarousel label="Eventos destacados">
           {events.map((event, i) => (
             <EventCard key={event.id} event={event} priority={i < 3} />
           ))}
-        </div>
+        </EventCarousel>
       )}
     </section>
   );
 }
 
+/**
+ * Fin de semana, SIN repetir lo que ya salio en destacados: ver la misma
+ * fiesta tres veces en una pantalla no es un catalogo, es un eco.
+ */
 async function WeekendSection() {
-  const events = await getWeekendEvents(6);
+  const [weekend, featured] = await Promise.all([getWeekendEvents(6), getFeaturedEvents(3)]);
+  const yaVistos = new Set(featured.map((e) => e.id));
+  const events = weekend.filter((e) => !yaVistos.has(e.id)).slice(0, 3);
   if (events.length === 0) return null;
 
   // El titulo dice la verdad: de lunes a jueves lo que viene es el fin de
@@ -205,15 +234,15 @@ async function WeekendSection() {
   return (
     <section>
       <SectionHeader
-        title={isUpcoming ? "Próximo fin de semana" : "Este fin de semana"}
+        title={isUpcoming ? "Planes del próximo finde" : "Planes de este finde"}
         subtitle={`Del ${formatShortDate(from)} al ${formatShortDate(ultimoDia)}`}
         href="/eventos"
       />
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <EventCarousel label="Planes del fin de semana">
         {events.map((event) => (
           <EventCard key={event.id} event={event} />
         ))}
-      </div>
+      </EventCarousel>
     </section>
   );
 }
@@ -244,96 +273,72 @@ async function VenuesSection() {
   );
 }
 
+/**
+ * Mesas VIP con presentacion propia.
+ *
+ * Antes era una fila de texto igual que las demas secciones. Una mesa se
+ * vende por el sitio, asi que ahora lleva la foto del evento, lo que se paga
+ * ahora y lo que queda para el local: las dos cifras que se preguntan.
+ */
 async function TablesSection() {
-  const groups = await getEventsWithTables(4);
+  const groups = await getEventsWithTables(3);
   if (groups.length === 0) return null;
 
   return (
-    <section>
+    <section className="fade-rise">
       <SectionHeader
-        title="Mesas VIP disponibles"
-        subtitle="Reserva con adelanto y paga el saldo en el local"
+        title="Mesas VIP"
+        subtitle="Reservas con adelanto; el saldo se paga en el local"
+        href="/eventos?experiencia=mesas"
+        linkLabel="Ver todas"
       />
-      <div className="grid gap-4 sm:grid-cols-2">
+
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {groups.map(({ event, tables }) => {
-          const cheapest = tables.reduce(
-            (min, t) => (t.priceCents < min ? t.priceCents : min),
-            tables[0]?.priceCents ?? 0,
+          const masBarata = tables.reduce(
+            (min, t) => (t.depositCents < min ? t.depositCents : min),
+            tables[0]?.depositCents ?? 0,
           );
+          const libres = tables.length;
+
           return (
             <Link
               key={event.id}
               href={`/eventos/${event.slug}#mesas`}
-              className="surface surface-hover flex items-center justify-between gap-4 p-5"
+              className="group relative overflow-hidden rounded-[var(--radius-card)] border border-white/10 transition-colors duration-200 hover:border-lime/40"
             >
-              <div className="min-w-0">
-                <p className="text-[11px] uppercase tracking-wide text-lime">
-                  {event.venue.name} · {event.venue.district}
-                </p>
-                <h3 className="mt-1 truncate font-display text-base font-semibold">
-                  {event.name}
-                </h3>
-                <p className="mt-1 text-xs text-muted">
-                  {formatEventDate(event.startsAt)} · {tables.length}{" "}
-                  {tables.length === 1 ? "mesa libre" : "mesas libres"}
-                </p>
+              <div className="relative aspect-[16/11]">
+                <CoverImage
+                  src={event.coverUrl}
+                  alt=""
+                  name={event.name}
+                  sizes="(max-width: 640px) 90vw, 33vw"
+                />
+
+                <div className="absolute inset-x-4 bottom-4">
+                  <p className="t-label text-lime">
+                    {libres} {libres === 1 ? "mesa libre" : "mesas libres"}
+                  </p>
+                  <h3 className="t-card mt-1 line-clamp-1">{event.name}</h3>
+                  <p className="mt-0.5 text-sm text-white/80">
+                    {event.venue.name} · {formatEventDate(event.startsAt, { withTime: false })}
+                  </p>
+                </div>
               </div>
-              <div className="shrink-0 text-right">
-                <p className="text-[10px] uppercase tracking-wide text-muted">Desde</p>
-                <p className="font-display text-lg font-bold text-lime">
-                  {formatPENShort(cheapest)}
-                </p>
+
+              <div className="flex items-end justify-between gap-3 bg-surface p-4">
+                <div>
+                  <span className="t-label block">Adelanto desde</span>
+                  <span className="t-price">{formatPENShort(masBarata)}</span>
+                </div>
+                <span className="text-sm font-medium text-lime transition-transform duration-200 group-hover:translate-x-0.5">
+                  Ver mesas →
+                </span>
               </div>
             </Link>
           );
         })}
       </div>
-    </section>
-  );
-}
-
-async function UpcomingSection() {
-  const events = await getUpcomingEvents(8);
-  if (events.length === 0) return null;
-  return (
-    <section>
-      <SectionHeader title="Próximos eventos" subtitle="Agenda de las siguientes semanas" />
-      <ul className="surface divide-y divide-white/5">
-        {events.map((event) => (
-          <li key={event.id}>
-            <Link
-              href={`/eventos/${event.slug}`}
-              className="flex items-center gap-4 p-4 transition-colors hover:bg-white/[0.03]"
-            >
-              {/* Día y mes SIEMPRE en hora de Lima. Aquí estaba el fallo que
-                  hacía que el mismo evento saliera como 27 en una sección y
-                  como 28 en otra: el servidor de Vercel corre en UTC. */}
-              <div className="w-14 shrink-0 text-center">
-                <p className="font-display text-xl font-bold leading-none">
-                  {limaDayNumber(event.startsAt)}
-                </p>
-                <p className="mt-0.5 text-[10px] uppercase tracking-wide text-muted">
-                  {limaMonthShort(event.startsAt)}
-                </p>
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium">{event.name}</p>
-                <p className="truncate text-xs text-muted">
-                  {event.venue.name} · {event.venue.district}
-                </p>
-              </div>
-              <div className="shrink-0 text-right">
-                {event.priceFromCents !== null ? (
-                  <p className="text-sm font-semibold text-lime">
-                    {formatPEN(event.priceFromCents)}
-                  </p>
-                ) : null}
-                <p className="text-[11px] text-muted">{event.availability.label}</p>
-              </div>
-            </Link>
-          </li>
-        ))}
-      </ul>
     </section>
   );
 }
